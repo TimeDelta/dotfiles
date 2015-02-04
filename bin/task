@@ -1,0 +1,345 @@
+#!/bin/bash
+# Author: Bryan Herman
+
+# info type characters:
+# c : task creation timestamp
+# d : task description
+# s : timestamp for start of task's most recent leg
+# t : total number of seconds that the task has been active
+
+# make sure the tasks file exists
+tasks_file=~/.tasks
+if [[ ! -e "$tasks_file" ]]; then touch "$tasks_file"; fi
+
+uuid (){ # get a unique file / directory name in the specified directory (default: .)
+	# make sure that the specified argument is an actual directory
+	# in order to avoid an infinite loop
+	if [[ ! -d ${1:-.} ]]; then
+		>&2 echo "ERROR: $1 is not a directory."
+		return 0
+	fi
+	
+	local _UUID=`echo \`date +%s\`_$$_$RANDOM`
+	while [[ -e ${1:-.}/${_UUID} ]]; do
+		_UUID=`echo \`date +%s\`_$$_$RANDOM`
+	done
+	echo ${1:-.}/${_UUID}
+}
+add_task (){ # [$@ = description]
+	# total time so far
+	echo -e "t\t$task_name\t0" >> "$tasks_file"
+	# creation timestamp
+	echo -e "c\t$task_name\t`date +%s`" >> "$tasks_file"
+	# description
+	if [[ $# -gt 0 ]]; then echo -e "d\t$task_name\t$@" >> "$tasks_file"; fi
+}
+rm_task_info (){ # $1 = info type character
+	local fid=`uuid ~`
+	egrep -v "(?i)^$1\t$task_name\t" "$tasks_file" > $fid
+	mv $fid "$tasks_file"
+}
+task_info (){ # $1 = info type character
+	egrep -C 0 "(?i)^$1\t$task_name\t" "$tasks_file" | awk -F "\t" '{print $3}'
+}
+stop_task (){ # $@ = task name
+	task_name="$@"
+	local elapsed=$(echo `date +%s` - `task_info s` | bc -q)
+	
+	rm_task_info s # remove the start timestamp for the current elapsed time block
+	
+	# add the elapsed time to the total time and store it
+	local fid=`uuid ~`
+	awk -F "\t" -v s=$elapsed -v p="`echo -e "t\t$task_name\t" | tr 'A-Z' 'a-z'`" '$0 ~ p {s+=$3; print p""s} $0 !~ p' "$tasks_file" > $fid
+	mv $fid "$tasks_file"
+}
+print_task (){ # $@ = task name
+	task_name="$@"
+	echo "$task_name"
+	echo "  Description:       "`echo -e "$(task_info d | sed 's/\\n/\\n                    /')"`
+	if [[ ! -z "$running" ]]; then echo "  Start of this leg: "$(date -r `task_info s`); fi
+	task_total | awk '{print "  "$0}'
+}
+task_total (){
+	local prev_total=`task_info t`
+	if [[ ! -z "$running" ]]; then local curr_leg=$(echo `date +%s` - `task_info s` | bc -q)
+	else local curr_leg="0"; fi
+	local grand_total=`echo $prev_total + $curr_leg | bc -q`
+	echo "Previous Total:    "`sec2human $prev_total`
+	echo "Current Leg:       "`sec2human $curr_leg`
+	echo "Grand Total:       "`sec2human $grand_total`
+}
+# because xargs-ing a function won't work right
+xargs_cheat (){ while read -s args; do $@ $args; done; }
+sec2human (){ # convert seconds to human friendly time
+	local num=$1
+	local min=0
+	local hour=0
+	local day=0
+	if((num>59));then
+		((sec=num%60))
+		((num=num/60))
+		if((num>59));then
+			((min=num%60))
+			((num=num/60))
+			if((num>23));then
+				((hour=num%24))
+				((day=num/24))
+			else
+				((hour=num))
+			fi
+		else
+			((min=num))
+		fi
+	else
+		((sec=num))
+	fi
+	echo "$day:`printf %02d $hour`:`printf %02d $min`:`printf %02d $sec`"
+}
+to_sec (){ # convert minutes, hours or days into seconds
+	case $1 in
+		s)	echo "$2" ;;
+		m)	echo "$2 * 60" | bc -q ;;
+		h)	echo "$2 * 3600" | bc -q ;;
+		d)	echo "$2 * 86400" | bc -q ;;
+	esac
+}
+# colify: print stuff similar to how ls does (Usage: cmd | colify [<#columns>])
+colify (){ pr -l1000 -w `tput cols` -t -${1:-5}; }
+
+help_info (){
+	echo "A task tracking tool. You can start and stop a task as many times as you want."
+	echo "You can also have multiple tasks accruing time simultaneously. All task names"
+	echo "are case insensitive."
+	echo
+	echo "Commands:"
+	echo "  bash-completion"
+	echo "      Print a bash completion function."
+	echo "      Target usage: eval \"\`task bash-completion\`\""
+	echo "  (new|n) <task_name> [<description>]"
+	echo "      Add a new task with the given description"
+	echo "  (description|d) <task_name> <description>"
+	echo "      Set the description for an existing task (overwrites existing description)."
+	echo "      If description not given, will set the description to an empty string"
+	echo "  (descriptions|ds) [<egrep_regex>]"
+	echo "      Print the description of all tasks matching"
+	echo "  (start|s) <task_name> [<description>]"
+	echo "      Start working on a task (creates new w/ given description if needed). The"
+	echo "      description is ignored unless the task does not already exist"
+	echo "  (stop|.) <task_name>"
+	echo "      Stop working on a task"
+	echo "  (stop-all|..)"
+	echo "      Stop working on all tasks"
+	echo "  active"
+	echo "      List all active tasks"
+	echo "  isactive <task_name>"
+	echo "      Is a task active?"
+	echo "  inactive"
+	echo "      List all inactive tasks"
+	echo "  (list|ls) [options]"
+	echo "      List exsting tasks"
+	echo "      -r <egrep_regex> : List only tasks whose name matches the given regex"
+	echo "      -i               : List only tasks that are currently inactive"
+	echo "      -a               : List only tasks that are currently active"
+	echo "  (exists|e) <task_name>"
+	echo "      Does a task with the given name exist?"
+	echo "  (total|t|=) <task_name>"
+	echo "      Get the total time worked on a task so far"
+	echo "  (info|i|?) <task_name>"
+	echo "      Print all information about a task"
+	echo "  (cancel|c) <task_name>"
+	echo "      Cancel the current run of a task (stop working on it but don't add to"
+	echo "      total time)"
+	echo "  (add|+) <task_name> <amount> (seconds|minutes|hours|days)"
+	echo "      Add the given amount of seconds, minutes, hours or days to a task"
+	echo "  (subtract|-) <task_name> <amount> (seconds|minutes|hours|days)"
+	echo "      Subtract the given amount of seconds, minutes, hours or days to a task"
+	echo "  (delete|del|remove|rm) <egrep_regex>"
+	echo "      Delete all information about tasks matching the regex (asks for confirmation)"
+	echo "  (help|--help|-help|-h|h)"
+	echo "      Display this help message"
+}
+
+bash_complete (){
+	echo "shopt -s progcomp"
+	echo "_task (){"
+	echo "	local cur cmds cmdIdx cmd cmdOpts fixedWords i globalOpts"
+	echo "	local curOpt optEnums"
+	echo "	local IFS=$' \n'"
+	echo
+	echo "	COMPREPLY=()"
+	echo "	cur=\${COMP_WORDS[COMP_CWORD]}"
+	echo "	cmds='add bash-completion cancel delete description exists help info isactive list new remove start stop stop-all subtract total'"
+	echo
+	echo "	# complete command name if we are not already past the command"
+	echo "	if [[ COMP_CWORD -eq 1 ]]; then"
+	echo "		COMPREPLY=( \$( compgen -W \"\$cmds\" -- \$cur ) )"
+	echo "		return 0"
+	echo "	fi"
+	echo
+	echo "	# find the sub-command"
+	echo "	cmd=\${COMP_WORDS[1]}"
+	echo
+	echo "	# find the option for which we want to complete a value"
+	echo "	curOpt="
+	echo "	if [[ \$cur != -* ]] && [[ \$COMP_CWORD -gt 1 ]]; then"
+	echo "		curOpt=\${COMP_WORDS[COMP_CWORD - 1]}"
+	echo "		if [[ \$curOpt == = ]]; then"
+	echo "			curOpt=\${COMP_WORDS[COMP_CWORD - 2]}"
+	echo "		elif [[ \$cur == : ]]; then"
+	echo "			cur="
+	echo "			curOpt=\"\$curOpt:\""
+	echo "		elif [[ \$curOpt == : ]]; then curOpt=\${COMP_WORDS[COMP_CWORD - 2]}: ; fi"
+	echo "	fi"
+	echo
+	echo "	cmdOpts=( )"
+	echo "	case \$cmd in"
+	echo "		add|+) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( \$(task ls -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') )"
+	echo "			elif [[ \${#COMP_WORDS[@]} -eq 5 ]]; then"
+	echo "				if [[ \${COMP_WORDS[COMP_CWORD - 1]} == \"1\" ]]; then cmdOpts=( second minute hour day );"
+	echo "				else cmdOpts=( seconds minutes hours days ); fi"
+	echo "			fi ;;"
+	echo "		cancel|c) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( \$(task active -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') ) ; fi ;;"
+	echo "		description|d) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( \$(task ls -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') ) ; fi ;;"
+	echo "		info|i|\"?\") cmdOpts=( \$(task ls -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') ) ;;"
+	echo "		list|ls) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( -r info ) ; elif [[ \${#COMP_WORDS[@]} -eq 5 ]]; then cmdOpts=( info ); fi ;;"
+	echo "		remove|rm|delete|del) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( \$(task ls -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') ) ; fi ;;"
+	echo "		start|s) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( \$(task ls -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') ) ; fi ;;"
+	echo "		stop|.) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( \$(task active -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') ) ; fi ;;"
+	echo "		subtract|-) if [[ \${#COMP_WORDS[@]} -eq 3 ]]; then cmdOpts=( \$(task ls -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') )"
+	echo "			elif [[ \${#COMP_WORDS[@]} -eq 5 ]]; then"
+	echo "				if [[ \${COMP_WORDS[COMP_CWORD - 1]} == \"1\" ]]; then cmdOpts=( second minute hour day );"
+	echo "				else cmdOpts=( seconds minutes hours days ); fi"
+	echo "			fi ;;"
+	echo "		total|t|=) cmdOpts=( \$(task ls -1 | awk '{print \"\\\"\"\$0\"\\\"\"}' | tr '\n' ' ') ) ;;"
+	echo "	esac"
+	echo "	IFS=$'\n'"
+	echo "	if [[ \${#cmdOpts[@]} -gt 0 ]]; then COMPREPLY=( \$( compgen -W \"\${cmdOpts[*]}\" -- \$cur ) ); fi"
+	echo "	return 0"
+	echo "}"
+	echo "complete -F _task -o default task"
+}
+
+cmd="$1"
+shift
+
+task_name="$1"
+exists=`egrep -C 0 "(?i)^.\t$task_name\t" "$tasks_file" || true`
+running=`egrep -C 0 "(?i)^s\t$task_name\t" "$tasks_file" || true`
+
+case $cmd in
+	new|n)
+		if [[ ! -z "$exists" ]]; then >&2 echo "ERROR: \"$task_name\" already exists."; exit 1; fi
+		if [[ -z "$task_name" ]]; then >&2 echo "ERROR: Must specify a name for the new task."; exit 1; fi
+		shift
+		add_task $1 ;;
+	description|d)
+		shift
+		rm_task_info d # remove any existing description for the task
+		echo -e "d\t$task_name\t$1" >> "$tasks_file" ;; # add the new description
+	# descriptions|ds)
+	# 	`echo -e "$(egrep  | sed 's/\\n/\\n  /')"`
+	start|s)
+		shift
+		if [[ ! -z "$running" ]]; then >&2 echo "ERROR: \"$task_name\" is already being worked on."; exit 1; fi
+		if [[ -z "$exists" ]]; then add_task $1; fi
+		
+		# add a timestamp to the tasks file
+		echo -e "s\t$task_name\t`date +%s`" >> "$tasks_file" ;;
+	stop|.)
+		if [[ -z "$running" ]]; then >&2 echo "ERROR: \"$task_name\" is not currently being worked on."; exit 1; fi
+		stop_task "$task_name" ;;
+	stop-all|..)
+		awk -F "\t" '/^s\t[^\t]*\t/ {print $2}' "$tasks_file" | xargs_cheat stop_task ;;
+	active)
+		awk -F "\t" '/^s\t/ {print $2}' "$tasks_file" ;;
+	isactive)
+		if [[ -z "$exists" ]]; then >&2 echo "ERROR: \"$task_name\" does not exist."; exit 1; fi
+		
+		started=`task_info s`
+		if [[ ! -z "$started" ]]; then echo "\"$task_name\" is active."
+		else echo "\"$task_name\" is not active."; fi ;;
+	inactive)
+		task ls | egrep -v "^`task active | tr '\n' '|'`$" ;;
+	list|ls)
+		regex=".*"
+		columns=1
+		active_only=0
+		inactive_only=0
+		
+		# parse options
+		while getopts ":1r:ia" opt; do
+			case $opt in
+				1)
+					columns=0 ;;
+				r)
+					# make matching task names case-insensitive
+					regex=`echo "$OPTARG" | tr 'A-Z' 'a-z'` ;;
+				i)
+					inactive_only=1 ;;
+				a)
+					active_only=1 ;;
+				\?)
+					echo "Invalid Option: -$OPTARG" >&2
+					echo -e $USAGE >&2
+					exit 1 ;;
+				:)
+					echo "Option -$OPTARG requires an additional argument" >&2
+					echo -e $USAGE >&2
+					exit 1 ;;
+			esac
+		done
+		
+		results=`awk -F "\t" -v p="$regex" '!seen[$2]++ && tolower($2) ~ p {print $2}' "$tasks_file" | sort`
+		if [[ active_only -eq 1 ]]; then
+			new_results=""
+			for name in $results; do
+				active=`egrep "^s\t$name\t" "$tasks_file"`
+				if [[ ! -z "$active" ]]; then new_results="$new_results$name\n"; fi
+			done
+			results=$new_results
+		elif [[ inactive_only -eq 1 ]]; then
+			results=$(echo "$results" | egrep -v "^`task ls -a1 | tr '\n' '|' | sed 's/|*$//'`$")
+		fi
+		if [[ columns -eq 1 ]]; then
+			echo -e "$results" | colify 4
+		else
+			echo -e "$results"; fi ;;
+	exists|e)
+		if [[ -z "$exists" ]]; then echo "\"$task_name\" does not exist."
+		else echo "\"$task_name\" exists"; fi ;;
+	total|t|=)
+		if [[ -z "$exists" ]]; then >&2 echo "ERROR: no task named \"$task_name\" exists."; exit 1; fi
+		task_total ;;
+	info|i|"?")
+		if [[ -z "$exists" ]]; then >&2 echo "ERROR: no task named \"$task_name\" exists."; exit 1; fi
+		print_task "$task_name" ;;
+	cancel|c)
+		rm_task_info s ;; # remove the start timestamp for the current elapsed time block
+	add|+)
+		shift
+		fid=`uuid ~`
+		awk -F "\t" -v s=`to_sec ${2:0:1} $1` -v p="`echo -e "t\t$task_name\t" | tr 'A-Z' 'a-z'`" '$0 ~ p {s+=$3; print p""s} $0 !~ p' "$tasks_file" > $fid
+		mv "$fid" "$tasks_file" ;;
+	subtract|-)
+		shift
+		fid=`uuid ~`
+		awk -F "\t" -v s=`to_sec ${2:0:1} $1` -v p="`echo -e "t\t$task_name\t" | tr 'A-Z' 'a-z'`" '$0 ~ p {t=$3; t-=s; print p""t} $0 !~ p' "$tasks_file" > $fid
+		mv "$fid" "$tasks_file" ;;
+	delete|del|remove|rm)
+		awk -F "\t" -v p="$task_name" '!seen[$2]++ && tolower($2) ~ p {print $2}' "$tasks_file"
+		echo "Are you sure you want to delete these tasks? (y/n)"
+		read -s -n1 answer
+		if [[ $answer == "y" ]]; then
+			to_remove=`awk -F "\t" -v p="$task_name" '!seen[$2]++ && tolower($2) ~ p {print $2}' "$tasks_file"`
+			for task_name in "$to_remove"; do
+				rm_task_info .
+			done
+		fi ;;
+	help|--help|-help|-h|h)
+		help_info ;;
+	bash-completion)
+		bash_complete ;;
+	*)
+		>&2 echo "Error: \"$cmd\" is not a command"
+		exit 1 ;;
+esac
