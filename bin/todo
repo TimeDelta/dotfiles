@@ -1,0 +1,83 @@
+#!/bin/bash
+# Author: Bryan Herman
+set -e
+
+# make sure the tasks file exists
+todo_file=~/.todo
+if [[ ! -e "$todo_file" ]]; then touch "$todo_file"; fi
+
+help_info (){
+	echo "Commands:"
+	echo "  bash-completion"
+	echo "      Print a bash completion function."
+	echo "      Target usage: eval \"\`task bash-completion\`\""
+	echo "  (new|n) <description>"
+	echo "      Add a new task with the given description"
+	echo "  (list|ls)"
+	echo "      List all existing tasks [that match the given regex] "
+	echo "  (delete|del|remove|rm) <num>"
+	echo "      Delete all information about tasks matching the regex (asks for confirmation)"
+	echo "  (help|--help|-help|-h|h)"
+	echo "      Display this help message"
+}
+
+bash_complete (){
+	echo "shopt -s progcomp"
+	echo "_todo (){"
+	echo "	local cur cmds cmdIdx cmd cmdOpts fixedWords i globalOpts"
+	echo "	local curOpt optEnums"
+	echo "	local IFS=$' \n'"
+	echo
+	echo "	COMPREPLY=()"
+	echo "	cur=\${COMP_WORDS[COMP_CWORD]}"
+	echo "	cmds='new list delete remove help'"
+	echo "	globalOpts=( )"
+	echo
+	echo "	# find the command; it's the first word not starting in -"
+	echo "	cmd="
+	echo "	for ((cmdIdx = 1; cmdIdx < \${#COMP_WORDS[@]}; ++cmdIdx)); do"
+	echo "		if [[ \${COMP_WORDS[cmdIdx]} != -* ]]; then"
+	echo "			cmd=\${COMP_WORDS[cmdIdx]}"
+	echo "			break"
+	echo "		fi"
+	echo "	done"
+	echo
+	echo "	# complete command name if we are not already past the command"
+	echo "	if [[ \$COMP_CWORD -le cmdIdx ]]; then"
+	echo "		COMPREPLY=( \$( compgen -W \"\$cmds \${globalOpts[*]}\" -- \$cur ) )"
+	echo "		return 0"
+	echo "	fi"
+	echo "	COMPREPLY=( \$( compgen -W \"\`ls -1\`\" -- \$cur ) )"
+	echo "	return 0"
+	echo "}"
+	echo "complete -F _todo -o default todo"
+}
+
+if [[ $# -ge 2 ]]; then
+	task_name="$2"
+	exists=`egrep -C 0 "(?i)^.\t$task_name\t" "$todo_file" || true`
+	running=`egrep -C 0 "(?i)^s\t$task_name\t" "$todo_file" || true`
+fi
+
+cmd=$1
+shift
+
+case $cmd in
+	new|n)
+		if [[ -z "$task_name" ]]; then >&2 echo "ERROR: Must specify a name for the new task."; exit 65; fi
+		echo "$@" >> "$todo_file" ;;
+	list|ls)
+		< "$todo_file" perl -pe 's/^/$.)\t/' ;;
+	delete|del|remove|rm)
+		sed -n ${1}p "$todo_file"
+		echo "Are you sure you want to delete this task? (y/n)"
+		read -s -n1 answer
+		if [[ $answer == "y" ]]; then sed -i -e "${1}d" "$todo_file"; fi ;;
+	help|--help|-help|-h|h)
+		help_info ;;
+	bash-completion)
+		bash_complete ;;
+	*)
+		>&2 echo "Error: \"$cmd\" is not a command"
+		exit 1 ;;
+esac

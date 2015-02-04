@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+
+MINE = ARGV[0]
+BASE = ARGV[1]
+YOURS = ARGV[2]
+
+OUT = ARGV[3]
+
+merged = `diff3 -ma #{MINE} #{BASE} #{YOURS}`.force_encoding("UTF-8").gsub(/\r\n?/,"\n")
+
+#HACK!
+#Handle bug where files without newlines at the end confuse diff
+merged_tac = merged.lines.to_a.reverse.join("")
+merged_tac.sub!(/\A>>>>>>>[^\n]*\n(.*?)\n(.*?)=======\n<<<<<<<[^\n]*\n/m, "\\1\n")
+merged_tac.sub!(/\A(.+?)>>>>>>>[^\n]*\n=======\n([^\n]*?)\n<<<<<<<[^\n]*\n/m, "\\2\n")
+merged = merged_tac.lines.to_a.reverse.join("").sub(/\n\z/,'')
+
+def get_choice_from_user()
+	puts "Please choose:\n"
+	puts "1: #{MINE}"
+	puts "2: #{YOURS}"
+	puts "3: Skip (Leave conflicted and edit later)"
+	print "\n> "
+
+	$stdin.gets.strip
+end
+
+# Modifications which only display a 2-way diff get resolved automatically
+merged.gsub!(/^<<<<<<<[^\n]*\n(.*?)\n=======[^\n]*\n(.*?)\n>>>>>>>[^\n]*/m) do |match|
+	match =~ /^\|\|\|\|\|\|\|/ ? match : $2
+end
+
+# Modifications resulting in a 3-way diff prompt the user
+merged.gsub! /^<<<<<<<[^\n]*\n(.*?)\n\|\|\|\|\|\|\|[^\n]*\n(.*?)\n=======[^\n]*\n(.*?)\n>>>>>>>[^\n]*/m do |match|
+	mine = $1
+	old = $2
+	yours = $3
+	
+	puts "****************************** CONFLICT DETECTED! ******************************\n\n"
+	
+	puts "================================================================================"
+	puts "= 1: #{MINE + (" " * (73 - MINE.size))} ="
+	puts "================================================================================"
+	puts mine + "\n\n"
+	
+	puts "================================================================================"
+	puts "= 2: #{YOURS + (" " * (73 - YOURS.size))} ="
+	puts "================================================================================"
+	puts yours + "\n\n"
+	
+	selected = ""
+	choice = get_choice_from_user
+	
+	while selected.empty? do
+		case choice
+		when "1"
+			selected = mine
+		when "2"
+			selected = yours
+		when "3"
+			selected = "<<<<<<< #{MINE}\n" + mine + "||||||| #{BASE}\n" + old + ">>>>>>> #{YOURS}\n" + yours
+		else
+			choice = get_choice_from_user
+		end
+	end
+	
+	selected
+end
+
+File.open(OUT, 'w') {|f| f.write(merged + "\n") }

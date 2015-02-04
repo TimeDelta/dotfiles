@@ -40,13 +40,19 @@ function assert() {
 
 # OS detection
 function is_osx() {
-  [[ "$OSTYPE" =~ ^darwin ]] || return 1
+  [[ "$OSTYPE" =~ ^[Dd]arwin ]] || return 1
+}
+function is_linux() {
+  [[ "$OSTYPE" =~ ^[Ll]inux ]] || return 1
 }
 function is_ubuntu() {
   [[ "$(cat /etc/issue 2> /dev/null)" =~ Ubuntu ]] || return 1
 }
+function is_cygwin() {
+  [[ "$OSTYPE" =~ ^[Cc]ygwin ]] || return 1
+}
 function get_os() {
-  for os in osx ubuntu; do
+  for os in osx ubuntu linux cygwin; do
     is_$os; [[ $? == ${1:-0} ]] && echo $os
   done
 }

@@ -1,0 +1,90 @@
+#!/bin/bash
+set -e
+
+# help message
+usage (){
+	echo "Usage: progress [options] <percentage>"
+	echo -e "${UL}Options${EUL}"
+	echo "    -w <width>     : Set the number of characters to use (including percentage)"
+	echo "    -f <character> : Specify the fill character to use [Default: \"=\"]"
+	echo "    -e <character> : Specify the empty character to use [Default: \" \"]"
+	echo "    -p <string>    : Specify the prefix for the bar [Default: \"[\"]"
+	echo "    -s <string>    : Specify the suffix for the bar [Default: \"]\"]"
+	echo "    -P             : Prepend the percentage [Default: append]"
+	echo "    -n             : Don't print the percentage"
+	echo "    -N             : Print a newline after bar"
+	echo "    -r             : Don't print a carriage return after the bar"
+	echo
+	echo -e "${UL}Arguments${EUL}"
+	echo "    <percentage>   : Decimal between 0 and 1 representing the progress"
+}
+
+# default options
+BAR_WIDTH=`tput cols`
+BAR_PREFIX="["
+BAR_SUFFIX="]"
+EMPTY_CHAR=" "
+FILL_CHAR="="
+percentage_placement=2 # 0=prepend; 1=none; 2=append
+
+# parse options
+while getopts ":w:f:e:p:s:PnNh" opt; do
+	case $opt in
+		w) BAR_WIDTH=$OPTARG ;;
+		f) FILL_CHAR="$OPTARG" ;;
+		e) EMPTY_CHAR="$OPTARG" ;;
+		p) BAR_PREFIX="$OPTARG" ;;
+		s) BAR_SUFFIX="$OPTARG" ;;
+		P) percentage_placement=0 ;;
+		n) percentage_placement=1 ;;
+		N) newline=1 ;;
+		r) no_cr=1 ;;
+		h) usage; exit 0 ;;
+		\?)
+			echo "Invalid Option: -$OPTARG" >&2
+			usage >&2
+			exit 1 ;;
+		:)
+			echo "Option -$OPTARG requires an additional argument" >&2
+			usage >&2
+			exit 1 ;;
+	esac
+done
+
+[[ percentage_placement -ne 1 ]] && BAR_WIDTH=`echo $BAR_WIDTH-6 | bc -q`
+BRACKET_CHARS=$((${#BAR_PREFIX}+${#BAR_SUFFIX}))
+
+shift $(($OPTIND-1))
+if [[ $# -eq 0 ]]; then
+	echo Missing percentage >&2
+	exit 1
+fi
+percent=$1
+
+pad (){ # <string> <minimum_length> [<padding_character>]
+	local string="$1"  min_length=$2  pad_char="${3:- }"  sed_sep
+	
+	# calculate the required padding length
+	local length=$(( $min_length - ${#string} ))
+	[[ $length -le 0 ]] && return 0
+	
+	[[ $pad_char == "\\" ]] && pad_char="\\\\"
+	[[ $pad_char == "/" ]] && sed_sep=":" || sed_sep="/"
+	printf "%-${length}s" "$pad_char" | sed "s${sed_sep} ${sed_sep}${pad_char}${sed_sep}g" | tr -d '\n'
+	echo -ne "$string"
+}
+
+# Calculate how many characters will be empty
+empty_limit=$((($BAR_WIDTH-$BRACKET_CHARS)-`echo "($BAR_WIDTH-$BRACKET_CHARS)*$percent" | bc -q | sed s/\\\\.[0-9]*$//`))
+
+# Prepare the bar
+bar_line="${BAR_PREFIX}$(pad "`pad "" $empty_limit "$EMPTY_CHAR"`" $(($BAR_WIDTH-$BRACKET_CHARS)) "$FILL_CHAR")${BAR_SUFFIX}"
+
+percent=`echo "$percent*100" | bc -q | sed s/\\\\.[0-9]*$//`
+case $percentage_placement in
+	0) printf "%3d%% %s" $percent "${bar_line}" ;;
+	1) printf "%s" "${bar_line}" ;;
+	2) printf "%s %3d%%" "${bar_line}" $percent ;;
+esac
+
+[[ $newline -eq 1 ]] && echo || ( [[ $no_cr -ne 1 ]] && echo -ne "\r" ) # line ending (optional newline, carriage return)

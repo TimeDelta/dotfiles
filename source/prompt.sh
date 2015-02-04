@@ -1,0 +1,1 @@
+PROMPT_COMMAND="export PS1=\"\$(if [[ -n \`svnr 2> /dev/null\` ]]; then echo \"[${FCYAN}\`svnbranch\`${RES}:${FCYAN}\`svnr\`${RES}]\"; fi; )${FGREEN}\h${RES}:${FYELLOW}${BOLD}\w${RES}\n\$ \";$PROMPT_COMMAND"
