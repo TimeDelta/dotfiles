@@ -23,3 +23,10 @@ function dotfiles() {
 }
 
 src
+
+if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi
+
+atp -p /opt/local/sbin
+atp -p /opt/local/bin
+
+atp -p /usr/local/bin

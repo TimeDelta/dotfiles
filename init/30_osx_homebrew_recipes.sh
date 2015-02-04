@@ -6,21 +6,32 @@ is_osx || return 1
 
 # Homebrew recipes
 recipes=(
-  ansible
+  autoconf
+  automake
   bash
-  cmatrix
-  cowsay
-  git
-  git-extras
+  bazaar
+  cmake
+  colordiff
+  gfortran
+  gnuplot
+  graphviz
   htop-osx
-  hub
-  id3tool
+  lame
+  makedepend
+  openfst
+  openssl
+  pip-completion
+  pkg-config
+  sox
+  sshfs
+  swig
+  watch
+  wdiff
+  wget
+  xz
+  git-extras
   lesspipe
-  man2html
-  mercurial
   nmap
-  sl
-  ssh-copy-id
   terminal-notifier
   the_silver_searcher
   tree
