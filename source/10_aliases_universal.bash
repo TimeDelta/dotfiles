@@ -423,8 +423,6 @@ zipf () { zip -r "${@%/}".zip "${@%/}" ; } # [BH]
 ##############
 # Subversion #
 ################################################################################
-alias up="svn up" # [BH]
-alias ci="svn ci" # [BH]
 alias svnl="svn ls" # [BH]
 alias svnm="svn merge" # [BH]
 sw () { svn sw "^/branches/$@"; } # [BH]
@@ -546,7 +544,7 @@ svnuc () { # {BH}
 alias svnlogsoc="svn log --stop-on-copy" # [BH]
 
 # svnunv: list all unversioned files and folders in the specified directory (default is current directory)
-svnunv () { svn st | grep "?" | sed 's/^........//'; } # [BH]
+svnunv () { svn st $@ | grep "?" | sed 's/^........//'; } # [BH]
 # svnunvl: list all unversioned files and folders in the current directory, excluding junk files
 svnunvl () { # [BH]
 	svnunv | egrep -v '\.osyms|\.isyms|\.url_file|\.download_file|\.normalized_file|\.cleaned_file' | \
@@ -556,6 +554,20 @@ svnunvl () { # [BH]
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
 svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
+################################################################################
+
+
+#############################
+# Version Control - Generic #
+################################################################################
+up (){ `vcs_type` update "$@"; } # [BH]
+ci (){ `vcs_type` commit "$@"; } # [BH]
+st (){ `vcs_type` status "$@"; } # [BH]
+vcs_type (){ # [BH]
+	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
+	[[ -n `git info 2> /dev/null` ]] && echo git && return
+	[[ -n `bzr info 2> /dev/null` ]] && echo bzr && return
+}
 ################################################################################
 
 
@@ -814,7 +826,7 @@ memtopme () { top -U `whoami` -o mem -O vsize $@; } # [BH]
 # pid: translate a process name to its process id (can handle regular expressions like: /^some.*regex$/ )
 pid () { apid "$@" | head -1; } # [BH]
 # apid: get all possible process ids associated with a process name that matches a regular expression
-apid () { lsof -tc "$@"; } # leave in a function to auto-quote args
+apid () { lsof -tc "$@"; }
 # procf: search active processes
 procf () { psa -A | egrep -i0 "$@"; } # [BH]
 
