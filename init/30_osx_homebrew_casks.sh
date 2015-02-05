@@ -39,7 +39,7 @@ casks=(
   quicklook-json
   quicknfo
   suspicious-package
-  webp-quicklook
+  webpquicklook
 )
 
 # Install Homebrew casks.
