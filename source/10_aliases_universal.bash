@@ -537,14 +537,14 @@ svnuc () { # {BH}
 		echo "Usage: svnuc <username> [normal_svn_log_option ...]"
 		return 0;
 	fi
-	svn log ${@: +2} | sed -n "/$1/,/-----$/ p"
+	svn log "${@: +2}" | sed -n "/$1/,/-----$/ p"
 }
 
 # svnlogsoc: display the svn log with the stop on copy option
 alias svnlogsoc="svn log --stop-on-copy" # [BH]
 
 # svnunv: list all unversioned files and folders in the specified directory (default is current directory)
-svnunv () { svn st $@ | grep "?" | sed 's/^........//'; } # [BH]
+svnunv () { svn st "$@" | grep "?" | sed 's/^........//'; } # [BH]
 # svnunvl: list all unversioned files and folders in the current directory, excluding junk files
 svnunvl () { # [BH]
 	svnunv | egrep -v '\.osyms|\.isyms|\.url_file|\.download_file|\.normalized_file|\.cleaned_file' | \
@@ -553,15 +553,24 @@ svnunvl () { # [BH]
 	egrep -v 'spencer_mined_corpus|tmp_data_conversion|wsj\.fst|test\.arpa|\.cleaned$|\.normalized$'
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
-svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
+svnrmunv () { svn st "$@" | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
 ################################################################################
 
 
 #############################
 # Version Control - Generic #
 ################################################################################
-up (){ `vcs_type` update "$@"; } # [BH]
+# up: generic command to update a vcs working copy from the server
+up (){ # [BH]
+	local vcs=`vcs_type`
+	case $vcs in
+		bzr|svn) $vcs update "$@" ;;
+		git) git pull "$@" ;;
+	esac
+}
+# ci: generic command to commit changes from a vcs working copy
 ci (){ `vcs_type` commit "$@"; } # [BH]
+# st: generic command to check the status of a vcs working copy
 st (){ `vcs_type` status "$@"; } # [BH]
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
