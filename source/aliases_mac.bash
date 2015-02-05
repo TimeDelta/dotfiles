@@ -383,7 +383,7 @@ eval "`todo bash-completion`"
 # android tools
 build_tools_dirs=( `ls $andsdk/build-tools` )
 for d in "${build_tools_dirs[@]}"; do
-	atp -p "$andsdk/build-tools/$d"
+	atp -p "$andsdk/build-tools/${d%/}"
 done
 unset build_tools_dirs
 atp -p "$andsdk/platform-tools"
