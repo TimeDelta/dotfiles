@@ -424,4 +424,5 @@ export ANDROID_SDK="/Users/bryanherman/development/android-sdk"
 export ANDROID_HOME="$ANDROID_SDK"
 
 export chome="/home/likewise-open/AD/bherman" # cluster home absolute path
+export cfsts="$chome/checkout1/decoder/data/16000_i" # cluster fsts folder absolute path 
 ################################################################################
