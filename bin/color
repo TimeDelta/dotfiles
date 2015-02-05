@@ -1,0 +1,16 @@
+#!/bin/bash
+osascript -e "tell application \"iTerm\"
+	set current_terminal to (current terminal)
+	tell current_terminal
+		set current_session to (current session)
+		tell current_session
+			set c to background color
+			if c equals {0,0,0}
+				set new_c to {65535,65535,65535}
+			else
+				set new_c to {0,0,0}
+			end if
+			set background color to new_c
+		end tell
+	end tell
+end tell"
