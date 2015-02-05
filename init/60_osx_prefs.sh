@@ -35,3 +35,4 @@ defaults write com.apple.appstore ShowDebugMenu -bool true
 
 # iTerm2
 defaults write com.googlecode.iterm2 AlternateMouseScroll -bool true
+defaults write com.googlecode.iterm2 SplitPaneDimmingAmount -float 0.08 # default: .15
