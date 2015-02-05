@@ -387,6 +387,8 @@ for d in "${build_tools_dirs[@]}"; do
 done
 unset build_tools_dirs
 atp -p "$andsdk/platform-tools"
+# for homebrew binaries
+atp -p "/usr/local/sbin"
 # for view_fst.sh
 atp "$c1/decoder/scripts"
 # for open fst executables (if new_decoder has been built)
