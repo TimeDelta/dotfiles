@@ -21,7 +21,6 @@ casks=(
   # Applications
   bettertouchtool
   iterm2
-  launchbar
   moom
   remote-desktop-connection
   # sonos
