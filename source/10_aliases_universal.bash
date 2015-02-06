@@ -574,8 +574,9 @@ ci (){ `vcs_type` commit "$@"; } # [BH]
 st (){ `vcs_type` status "$@"; } # [BH]
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
-	[[ -n `git info 2> /dev/null` ]] && echo git && return
+	[[ -n `git log 2> /dev/null` ]] && echo git && return
 	[[ -n `bzr info 2> /dev/null` ]] && echo bzr && return
+	echo "Not a version controlled repository" >&2 && return 1
 }
 ################################################################################
 
