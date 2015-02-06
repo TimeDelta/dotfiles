@@ -1,0 +1,9 @@
+dotfiles.sh
+ssh-agent.sh
+ubuntu.sh
+aliases_universal.bash
+aliases_cygwin.bash
+aliases_linux.bash
+aliases_mac.bash
+prompt.sh
+iterm2_shell_integration.bash
