@@ -1,1 +1,1 @@
-../source/10_aliases_universal.bash
+../source/aliases_universal.bash
