@@ -176,14 +176,14 @@ lslh () { ls -lGFhd ${@:-.}/.*; } # [BH]
 # sizeof: display the size of a file
 sizeof () { # [BH]
 	if [[ $# -eq 0 ]]; then while read -s file; do du -ch $APPARENT_SIZE "$file" | awk 'END {print $1}'; done
-	else du -ch $APPARENT_SIZE $@ | awk 'END {print $1}'; fi
+	else du -ch $APPARENT_SIZE "$@" | awk 'END {print $1}'; fi
 }
 
 # sbs: display two files side-by-side
 alias sbs="diff -y" # [BH]
 
 # exists: check if a file exists
-exists () { if [[ -e "$@" ]]; then echo $@ exists; else echo $@ does not exist; fi; } # [BH]
+exists () { if [[ -e "$@" ]]; then echo "$@" exists; else echo "$@" does not exist; fi; } # [BH]
 
 # sizes: print sizes for everything in a directory (default is current directory)
 sizes (){ du -chd 0 ${1:-.}/*; } # [BH]
@@ -323,7 +323,7 @@ lc () { # [BH]
 		echo $lines
 	elif [[ $1 == "-f" ]]; then # interpret each line as a file
 		local file
-		while read -s file; do wc -l $@ | sed s/\ //g; done
+		while read -s file; do wc -l "$@" | sed s/\ //g; done
 	elif [[ $1 == "-h" || $1 == "--help" ]]; then
 		echo "Usage: <command> | lc [-f]"
 		echo "       lc [-f] <file>"
@@ -354,8 +354,7 @@ rc () { # [BH]
 }
 
 # fc: count files in a directoy that match a given regex
-# fc () { ls -1 $@ 2> /dev/null | wc -l | sed s/\ //g; } # [BH]
-fc () {
+fc () { # [BH]
 	# parse options
 	local non_recursive="-mindepth 1 -maxdepth 1"
 	while getopts ":d:rDfh" opt; do
@@ -537,14 +536,14 @@ svnuc () { # {BH}
 		echo "Usage: svnuc <username> [normal_svn_log_option ...]"
 		return 0;
 	fi
-	svn log "${@: +2}" | sed -n "/$1/,/-----$/ p"
+	svn log ${@: +2} | sed -n "/$1/,/-----$/ p"
 }
 
 # svnlogsoc: display the svn log with the stop on copy option
 alias svnlogsoc="svn log --stop-on-copy" # [BH]
 
 # svnunv: list all unversioned files and folders in the specified directory (default is current directory)
-svnunv () { svn st "$@" | grep "?" | sed 's/^........//'; } # [BH]
+svnunv () { svn st $@ | grep "?" | sed 's/^........//'; } # [BH]
 # svnunvl: list all unversioned files and folders in the current directory, excluding junk files
 svnunvl () { # [BH]
 	svnunv | egrep -v '\.osyms|\.isyms|\.url_file|\.download_file|\.normalized_file|\.cleaned_file' | \
@@ -553,7 +552,7 @@ svnunvl () { # [BH]
 	egrep -v 'spencer_mined_corpus|tmp_data_conversion|wsj\.fst|test\.arpa|\.cleaned$|\.normalized$'
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
-svnrmunv () { svn st "$@" | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
+svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
 ################################################################################
 
 
@@ -824,7 +823,7 @@ fcmake () { gf "$@" ".*CMakeLists.txt"; } # [BH]
 # Process Management #
 ################################################################################
 # psa: standard ps replacement
-psa () { ps ww -o pid,stat=STATE,%cpu,%mem,vsize=VSIZE,rss,time,command $@; } # [BH]
+alias psa="ps ww -o pid,stat=STATE,%cpu,%mem,vsize=VSIZE,rss,time,command" # [BH]
 
 # topme: show top only for the processes that I own
 topme () { top -U `whoami` $@; } # [BH]
