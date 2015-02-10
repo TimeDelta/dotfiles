@@ -1065,36 +1065,7 @@ ngramcount () { awk -F = -v s=0 -v c=0 '( c==0 && NF==2 ) {s=s+$2} /^\\1-/ {c=1}
 alias clm=create_lm # [BH]
 
 # missing_words: get info about words from a text file that aren't in a pronunciation dictionary
-missing_words (){ # [BH]
-	if [[ $1 == "--help" ]]; then
-		echo "Get information about words that are in a file but are not in a pronunciation dictionary."
-		echo "Usage: missing_words [-d <dictionary_file>] <file>"
-		return 0
-	fi
-	
-	dict=$decdata/dict
-	if [[ $1 == "-d" ]]; then
-		dict="$2"
-		shift 2
-	fi
-	
-	< "$1" tr ' ' '\n' | \
-	sort | \
-	uniq -i | \
-	{
-		count=0
-		echo  Missing Words
-		echo \-------------
-		while read -s word; do
-			if [[ -z `egrep -i "^$word\s" $dict` ]]; then
-				echo $word
-				count=$(($count+`egrep -io "\b$word\b" "$1" | wc -l`))
-			fi
-		done
-		echo
-		echo The words missing from the pronunciation dictionary occur a total of $count times in the specified file
-	}
-}
+alias mw=missing_words #[BH]
 ################################################################################
 
 
