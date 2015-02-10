@@ -1,5 +1,5 @@
 #!/bin/bash
-is_osx || return
+is_osx || ( is_linux && [ `whoami` == "AD\\bherman" ] ) || return
 # This is based on "preexec.bash" but is customized for iTerm2.
 
 # Note: this module requires 2 bash features which you must not otherwise be
