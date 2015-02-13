@@ -10,10 +10,7 @@ is_osx || return 1
 ##########################
 # This File and Sourcing #
 ################################################################################
-# paliases: edit platform-specific aliases
-paliases () { subl ~/.aliases_mac.bash; } # [BH]
-# spalias: source platform-specific aliases
-spalias () { source ~/.aliases_mac.bash; } # [BH]
+export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES ~/.aliases_mac.bash"
 ################################################################################
 
 
