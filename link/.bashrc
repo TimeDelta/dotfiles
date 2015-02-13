@@ -8,7 +8,7 @@ export PATH=$DOTFILES/bin:$PATH
 function src() {
   local file
   if [[ "$1" ]]; then
-    source "$DOTFILES/source/$1.sh"
+    source "$DOTFILES/source/$1"
   else
     local order_file="$DOTFILES/source/ordered_source_files"
     # ordered source files
@@ -22,7 +22,7 @@ function src() {
                 grep -Fvxf "$order_file" | \
                 grep -v ordered_source_files | \
                 tr '\n' ' '`; do
-      source "$file"
+      source "$DOTFILES/source/$file"
     done
   fi
 }
