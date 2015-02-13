@@ -44,6 +44,9 @@ bsizeof () { # [BH]
 	if [[ $# -eq 0 ]]; then while read -s file; do stat -f %z $file; done
 	else stat -f %z $@; fi
 }
+
+# fullpath: get the absolute path
+fullpath (){ realpath "$@"; } # [BH]
 ################################################################################
 
 
