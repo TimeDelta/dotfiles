@@ -671,6 +671,42 @@ cd_func (){
 }
 alias cd=cd_func
 
+#mv_func: wrapper around mv that utilizes directory history
+mv_func (){ # [BH]
+	mv_func_helper (){ #[BH]
+		if [[ ${1:0:1} == '-' ]]; then
+			local index=`echo "$1" | egrep -om 1 "[0-9]([0-9])?"`
+			echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
+		else
+			echo "$1"
+		fi
+	}
+	local mv_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
+	mv `echo "$@" | sed -e "s:$mv_from_to::"` \
+	   "`mv_func_helper "${@:(-2):1}"`" \
+	   "`mv_func_helper "${@:(-1):1}"`"
+	unset mv_func_helper
+}
+alias mv=mv_func
+
+# cp_func: wrapper around cp that utilizes directory history
+cp_func (){ # [BH]
+	cp_func_helper (){ #[BH]
+		if [[ ${1:0:1} == '-' ]]; then
+			local index=`echo "$1" | egrep -om 1 "[0-9]([0-9])?"`
+			echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
+		else
+			echo "$1"
+		fi
+	}
+	local cp_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
+	cp `echo "$@" | sed -e "s:$cp_from_to::"` \
+	   "`cp_func_helper "${@:(-2):1}"`" \
+	   "`cp_func_helper "${@:(-1):1}"`"
+	unset cp_func_helper
+}
+alias cp=cp_func
+
 # cds: switch to the first directory relative to the current one that matches the specified regex (breadth-first search)
 cds () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
