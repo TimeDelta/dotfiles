@@ -10,7 +10,7 @@ is_linux || return 1
 ##########################
 # This File and Sourcing #
 ################################################################################
-export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES ~/.aliases_linux.bash"
+export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_linux.bash"
 ################################################################################
 
 
