@@ -742,16 +742,21 @@ cds () { # [BH]
 	else echo "No directory was found matching the specified regex"; fi
 }
 
-# cd_back: either go up n (default is 1) directories or go back until the specified folder is reached (case-insensitive)
-cd_back () { # [BH]
-	if [[ $# -eq 0 ]]; then cd ..; return 0
+# cd_up: either go up n (default is 1) directories or go back until the specified folder is reached (case-insensitive)
+cd_up () { # [BH]
+	local op=cd
+	[[ $1 == "-p" ]] && shift && op=echo
+	if [[ $# -eq 0 ]]; then $op ..; return 0
 	elif [[ $1 == "--help" ]]; then
 		echo "Usage:"
-		echo "  .. [<integer> [<sub_path>]]"
+		echo "  .. [options] [<integer> [<sub_path>]]"
 		echo "      Go back <integer> directories (1 if excluded) then cd to <sub_path>"
-		echo "  .. [<directory> [<sub_path>]]"
+		echo "  .. [options] [<directory> [<sub_path>]]"
 		echo "      Go back until <directory> (case-insensitive) is reached then cd to"
 		echo "      <sub_path>"
+		echo
+		echo "Options:"
+		echo "  -p : just print the path to stdout instead of switching to it"
 		return 0
 	elif [[ $1 =~ ^-?[0-9]+$ ]]; then
 		local f=".."
@@ -769,9 +774,9 @@ cd_back () { # [BH]
 		done
 	fi
 	if [[ $# -gt 1 ]]; then f="$f/${@: +2}"; fi
-	cd "$f"
+	$op "`fullpath "$f"`"
 }
-alias ..="cd_back" # [BH]
+alias ..="cd_up" # [BH]
 
 # cd: cd wrapper that works with a directory alias (from diralias) followed by a sub-path
 cdd () { cd `env | grep ^${@%%/*}= | sed 's/.*=//'`/${@#*/}; } # [BH]
