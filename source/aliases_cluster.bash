@@ -10,7 +10,7 @@
 ##########################
 # This File and Sourcing #
 ################################################################################
-export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES ~/.aliases_cluster.bash"
+export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_cluster.bash"
 ################################################################################
 
 
