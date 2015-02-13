@@ -1,8 +1,8 @@
 ################################################################################
 # Notes:
-# Aliases and functions followed by a "# [BH]" is written entirely by me
-# Aliases and functions followed by a "# {BH}" is adapted by me from somebody else's code
-# Aliases and functions without a comment after it is completely taken from elsewhere
+# Aliases and functions followed by a "# [BH]" are written entirely by me
+# Aliases and functions followed by a "# {BH}" are adapted by me from somebody else's code
+# Aliases and functions without a comment after it are completely taken from elsewhere
 ################################################################################
 
 
@@ -46,6 +46,10 @@ halias (){ # [BH]
 bashp () { subl ~/.bash_profile; } # [BH]
 # aliases: edit universal aliases
 aliases () { subl ~/.aliases_universal.bash; } # [BH]
+# paliases: edit platform-specific aliases
+paliases (){ subl $PLATFORM_ALIAS_FILES; }
+# spalias: source platform-specific aliases
+spalias (){ for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; }
 
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
