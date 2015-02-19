@@ -686,7 +686,7 @@ mv_func (){ # [BH]
 		fi
 	}
 	local mv_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
-	mv `echo "$@" | sed -e "s:$mv_from_to::"` \
+	cmd mv `echo "$@" | sed -e "s:$mv_from_to::"` \
 	   "`mv_func_helper "${@:(-2):1}"`" \
 	   "`mv_func_helper "${@:(-1):1}"`"
 	unset mv_func_helper
@@ -704,7 +704,7 @@ cp_func (){ # [BH]
 		fi
 	}
 	local cp_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
-	cp `echo "$@" | sed -e "s:$cp_from_to::"` \
+	cmd cp `echo "$@" | sed -e "s:$cp_from_to::"` \
 	   "`cp_func_helper "${@:(-2):1}"`" \
 	   "`cp_func_helper "${@:(-1):1}"`"
 	unset cp_func_helper
