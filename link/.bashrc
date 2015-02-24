@@ -1,3 +1,5 @@
+shopt -q login_shell || return
+
 # Where the magic happens.
 export DOTFILES=~/.dotfiles
 
