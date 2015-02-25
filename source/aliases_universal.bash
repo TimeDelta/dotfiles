@@ -1177,26 +1177,38 @@ xargs_cheat (){ while read -s args; do $@ $args; done; }
 # errcho: echo to STDERR
 errcho () { >&2 echo "$@"; } # [BH]
 
-stopwatch (){
-	local start=`date +%s`
-	echo "Start:   `date`"
-	local cols=`tput cols`
-	
-	# put standard input into non-blocking mode
-	# stty -echo -icanon time 0 min 0
-	
-	# local keypres=""
-	# while [[ "x$keypress" == "x" ]]; do
-	while [[ true ]]; do
-		# seq 1 `tput cols` | echo -n ' '
-		echo -ne "\rElapsed: $(sec2human $((`date +%s`-$start)))"
-		# read keypress
+# rand: generate a sequence of random integers
+rand (){ # [BH]
+	if [[ $1 == "--help" ]]; then
+		echo "Randomly generate a sequence of integers"
+		echo "Usage: $0 <lower_bound> <upper_bound> [<iterations>]"
+	fi
+	iters=${3:-1}
+	for ((i=0; i<$iters; i++)); do
+		python -c "import random; print random.randint($1,$2)"
 	done
-	
-	# reset standard input mode
-	# stty sane
-	# echo
 }
+
+# stopwatch (){
+# 	local start=`date +%s`
+# 	echo "Start:   `date`"
+# 	local cols=`tput cols`
+	
+# 	# put standard input into non-blocking mode
+# 	# stty -echo -icanon time 0 min 0
+	
+# 	# local keypres=""
+# 	# while [[ "x$keypress" == "x" ]]; do
+# 	while [[ true ]]; do
+# 		# seq 1 `tput cols` | echo -n ' '
+# 		echo -ne "\rElapsed: $(sec2human $((`date +%s`-$start)))"
+# 		# read keypress
+# 	done
+	
+# 	# reset standard input mode
+# 	# stty sane
+# 	# echo
+# }
 
 # pts: print time stamp
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
