@@ -503,7 +503,7 @@ svn_files_changed () { # [BH]
 	fi
 	
 	local files_only=0
-	local fid=`mktemp XXXXXXXXXX`
+	local fid=`mktemp XXXXXXXXXX` # provide the template for OS X compatibility
 	local num_args=$#
 	if [[ $1 == "-f" ]]; then
 		files_only=1
@@ -522,17 +522,12 @@ svn_files_changed () { # [BH]
 	rm "$fid"
 }
 
-# svntags: show all svn tags for the current directory
-svntags () { svn ls -v "^/tags"; }
-alias svnt="svntags" # [BH]
-
-# svnconflicts: show all svn conflicts for the current directory
-svnconflicts () { svn st | grep -E '^.{0,6}C'; }
-alias svnc="svnconflicts" # [BH]
-
-# svnbranch: check to see what the url is for the specified subversion working copy (default is .)
-svnbranch () { svn info $@ | grep -C 0 '^URL' | awk '{print $2}' | sed "s|`svn info $@ | grep -C 0 '^Repository Root:' | sed 's/Repository Root: //'`/branches/||" | sed 's|/.*$||'; } # [BH]
-alias svnb="svnbranch" # [BH]
+# svnt: show all svn tags for the current directory
+svnt () { svn ls -v "^/tags"; }
+# svnc: show all svn conflicts for the current directory
+svnc () { svn st | grep -E '^.{0,6}C'; }
+# svnb: check to see what the url is for the specified subversion working copy (default is .)
+svnb () { svn info $@ | grep -C 0 '^URL' | awk '{print $2}' | sed "s|`svn info $@ | grep -C 0 '^Repository Root:' | sed 's/Repository Root: //'`/branches/||" | sed 's|/.*$||'; } # [BH]
 
 # svnuc: display svn log commits for only a specific user
 svnuc () { # {BH}
@@ -674,7 +669,7 @@ cd (){
 	return 0
 }
 
-#mv_func: wrapper around mv that utilizes directory history
+# mv_func: wrapper around mv that utilizes directory history
 mv_func (){ # [BH]
 	mv_func_helper (){ #[BH]
 		if [[ ${1:0:1} == '-' ]]; then
@@ -1382,6 +1377,8 @@ export ndec_url="$svn_url/new_decoder"
 export svn="^/branches"
 export MY_OS=`uname`
 
+# this block is just for compatibility reasons so that i don't need to have the
+# same function in multiple alias files (so i don't need per-platform copies)
 old_nocasematch=`cur_nocasematch`
 shopt -s nocasematch
 if [[ $MY_OS == *Darwin* ]]; then
