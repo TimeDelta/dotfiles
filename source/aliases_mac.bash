@@ -387,26 +387,14 @@ for d in "${build_tools_dirs[@]}"; do
 done
 unset build_tools_dirs
 atp -p "$andsdk/platform-tools"
+atp "$andsdk/tools"
+
 # for homebrew binaries
 atp -p "/usr/local/sbin"
-# for view_fst.sh
-atp "$c1/decoder/scripts"
-# for open fst executables (if new_decoder has been built)
-atp "$c1/build/decoder/openfst-1.3.1/src/bin"
-# for regex2fst
-atp "$c1/build/decoder/grammar"
-# for android platform tools
-atp "$andsdk/platform-tools"
-# for android development tools
-atp "$andsdk/tools"
-# for fst utilities (fstaddauxloops, etc)
-atp "$c1/build/decoder/utils"
 # for subl command line helper
 atp "/Applications/Sublime Text.app/Contents/SharedSupport/bin"
 # for ant
 atp "$development/apache-ant-1.9.4/bin"
-# for mfw
-atp "$c1/build/language_model/scripts"
 # for custom terminal tools
 atp "$termtools"
 # for openvpnstart (command line interface for Tunnelblick)
@@ -426,5 +414,5 @@ export ANDROID_SDK="/Users/bryanherman/development/android-sdk"
 export ANDROID_HOME="$ANDROID_SDK"
 
 export chome="/home/likewise-open/AD/bherman" # cluster home absolute path
-export cfsts="$chome/checkout1/decoder/data/16000_i" # cluster fsts folder absolute path 
+export cfsts="$chome/checkout1/decoder/data/16000_i" # absolute path to main cluster fsts folder
 ################################################################################
