@@ -673,7 +673,6 @@ cd (){
 	
 	return 0
 }
-# alias cd=cd_func
 
 #mv_func: wrapper around mv that utilizes directory history
 mv_func (){ # [BH]
