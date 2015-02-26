@@ -552,6 +552,14 @@ svnunvl () { # [BH]
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
 svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
+
+# upall: update all work-related svn checkouts
+upall (){ # [BH]
+	# NOTE: bash complains when condensing this to a one-liner
+	for i in `env | egrep '^c[0-9]+' | sed $SED_EXT_RE 's/^c[0-9]+=//'`; do
+		cd $i && up "$@" &
+	done
+}
 ################################################################################
 
 
