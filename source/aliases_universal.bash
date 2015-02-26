@@ -628,7 +628,7 @@ shopt -s cdable_vars # set the bash option so that no '$' is required when using
 # mkcd: make a directory and switch to it
 mkcd (){ mkdir -p "$@"; cd "$@"; } # [BH]
 
-cd_func (){
+cd (){
 	local x2 the_new_dir adir index
 	local -i cnt
 	
@@ -673,7 +673,7 @@ cd_func (){
 	
 	return 0
 }
-alias cd=cd_func
+# alias cd=cd_func
 
 #mv_func: wrapper around mv that utilizes directory history
 mv_func (){ # [BH]
@@ -750,19 +750,21 @@ cds () { # [BH]
 cd_up () { # [BH]
 	local op=cd
 	[[ $1 == "-p" ]] && shift && op=echo
-	if [[ $# -eq 0 ]]; then $op ..; return 0
+	[[ $1 == "--" ]] && { shift; dir_only=1; } || dir_only=0
+	if [[ $# -eq 0 ]]; then $op "`fullpath ".."`"; return 0
 	elif [[ $1 == "--help" ]]; then
 		echo "Usage:"
 		echo "  .. [options] [<integer> [<sub_path>]]"
 		echo "      Go back <integer> directories (1 if excluded) then cd to <sub_path>"
-		echo "  .. [options] [<directory> [<sub_path>]]"
+		echo "  .. [options] [[--] <directory> [<sub_path>]]"
 		echo "      Go back until <directory> (case-insensitive) is reached then cd to"
-		echo "      <sub_path>"
+		echo "      <sub_path>. If -- is specified, the following argument will be treated"
+		echo "      as a directory (to be used if the directory name is an integer)."
 		echo
 		echo "Options:"
 		echo "  -p : just print the path to stdout instead of switching to it"
 		return 0
-	elif [[ $1 =~ ^-?[0-9]+$ ]]; then
+	elif [[ $1 =~ ^[0-9]+$ && dir_only -eq 1 ]]; then
 		local f=".."
 		local i
 		for i in `seq 1 $(echo $1 - 1 | bc -q)`; do
@@ -778,6 +780,7 @@ cd_up () { # [BH]
 		done
 	fi
 	if [[ $# -gt 1 ]]; then f="$f/${@: +2}"; fi
+	# fullpath must be implemented per platform in the corresponding platform aliases file
 	$op "`fullpath "$f"`"
 }
 alias ..="cd_up" # [BH]
