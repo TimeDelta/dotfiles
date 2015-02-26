@@ -546,9 +546,9 @@ svnunv () { svn st $@ | grep "?" | sed 's/^........//'; } # [BH]
 # svnunvl: list all unversioned files and folders in the current directory, excluding junk files
 svnunvl () { # [BH]
 	svnunv | egrep -v '\.osyms|\.isyms|\.url_file|\.download_file|\.normalized_file|\.cleaned_file' | \
-	egrep -v '\.combined_file|\.corpus_file|tam\..*\.fst|.{8}-.{4}-.{4}-.{4}-.{12}|[0-9]+_[0-9]+_[0-9]+$' | \
+	egrep -v '\.combined_file|\.corpus(_file)?|tam\..*\.fst|.{8}-.{4}-.{4}-.{4}-.{12}|[0-9]+_[0-9]+_[0-9]+$' | \
 	egrep -v 'local\.properties|data_folder\.zipd|spearnativeConstants\.java|spearnativeJNI\.java|spearnative\.java' | \
-	egrep -v 'spencer_mined_corpus|tmp_data_conversion|wsj\.fst|test\.arpa|\.cleaned$|\.normalized$'
+	egrep -v 'spencer_mined_corpus|tmp_data_conversion|.*\.fst|.*\.arpa|\.cleaned$|\.normalized$'
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
 svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
