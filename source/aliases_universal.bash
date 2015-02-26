@@ -744,7 +744,7 @@ cds () { # [BH]
 cd_up () { # [BH]
 	local op=cd
 	[[ $1 == "-p" ]] && shift && op=echo
-	[[ $1 == "--" ]] && { shift; dir_only=1; } || dir_only=0
+	[[ $1 == "--" ]] && { shift; local dir_only=1; } || local dir_only=0
 	if [[ $# -eq 0 ]]; then $op "`fullpath ".."`"; return 0
 	elif [[ $1 == "--help" ]]; then
 		echo "Usage:"
@@ -758,7 +758,7 @@ cd_up () { # [BH]
 		echo "Options:"
 		echo "  -p : just print the path to stdout instead of switching to it"
 		return 0
-	elif [[ $1 =~ ^[0-9]+$ && dir_only -eq 1 ]]; then
+	elif [[ $1 =~ ^[0-9]+$ && dir_only -eq 0 ]]; then
 		local f=".."
 		local i
 		for i in `seq 1 $(echo $1 - 1 | bc -q)`; do
