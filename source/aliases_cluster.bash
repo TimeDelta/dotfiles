@@ -291,26 +291,10 @@ fi
 ################################################################################
 atp -p "/home/likewise-open/AD/bherman/python/bin"
 atp -p "/home/likewise-open/AD/bherman/.local/bin"
-# for sclite
-atp "$c1/recengine/scripts/setup/bin/"
-atp "$c1/utilities"
-atp "$terminal_tools"
-# for view_fst.sh
-atp "$c1/decoder/scripts"
-# for open fst executables (if they have been built)
-atp "$c1/build/decoder/openfst-1.3.1/src/bin"
-# for regex2fst
-atp "$c1/build/decoder/grammar"
-# for fst utilities (fstaddauxloops, etc)
-atp "$c1/build/decoder/utils"
 # for android sdk tools
 atp "/home/likewise-open/AD/bherman/android-sdk-linux/tools"
-# for mfw
-atp "$c1/build/language_model/scripts"
 # for ant
 atp "/home/likewise-open/AD/bherman/apache-ant-1.9.4"
-# for opengrm binaries
-atp "$c1/build/language_model/scripts/opengrm-ngram/src/bin"
 # for perplexity script (perp)
 atp "/home/likewise-open/AD/bherman/experiments"
 ################################################################################
