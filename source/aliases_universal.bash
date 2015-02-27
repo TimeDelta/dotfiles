@@ -894,9 +894,9 @@ remaxp () { sudo renice -20 `pid "$@"`; } # [BH]
 # reminp: set an already running process to min priority
 reminp () { sudo renice +20 `pid "$@"`; } # [BH]
 # maxp: run a command with the max priority
-maxp () { sudo nice -20 "$@"; } # [BH]
+maxp () { sudo nice -n -20 "$@"; } # [BH]
 # minp: run a command with the min priority
-minp () { sudo nice +20 "$@"; } # [BH]
+minp () { sudo nice -n +20 "$@"; } # [BH]
 
 # pause: pause a running process by name (pipeable)
 pause () { # [BH]
@@ -1119,6 +1119,14 @@ alias mw=missing_words #[BH]
 ################################################################################
 
 
+####################
+# Package Managers #
+################################################################################
+# pipup: update all pip packages and their dependencies
+pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip install -U; }
+################################################################################
+
+
 #########
 # Misc. #
 ################################################################################
@@ -1129,9 +1137,12 @@ notify () { echo -e "$NOTIFY"; } # [BH]
 # _: "less -R"
 _ () { less -R; } # [BH]
 
-# ?: universal command help
+# help: universal command help - so you don't have to remember how to get the help information about a command, script, function, etc
 help () { # [BH]
-	if [[ $# -eq 0 ]]; then return 1; fi
+	if [[ $# -eq 0 ]]; then
+		errcho Must specify a command for which to display the help information
+		return 1
+	fi
 	man $@ 2> /dev/null
 	if [[ $? -ne 0 ]]; then $@ --help 2> /dev/null
 		if [[ $? -ne 0 ]]; then $@ help 2> /dev/null
