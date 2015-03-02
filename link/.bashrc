@@ -5,10 +5,6 @@ shopt -q login_shell || [[ $@ == "force" ]] || return
 # Where the magic happens.
 export DOTFILES=~/.dotfiles
 
-# Add binaries into the path
-# note: move this to end of file and use atp instead
-export PATH=$DOTFILES/bin:$PATH
-
 # Source all files in "source"
 function src() {
   local file
@@ -43,3 +39,5 @@ src
 shopt -q login_shell && if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi
 
 atp -p /usr/local/bin
+# Add binaries into the path
+atp $DOTFILES/bin
