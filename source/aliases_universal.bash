@@ -769,9 +769,11 @@ cd_up () { # [BH]
 	elif [[ $1 =~ ^[0-9]+$ && dir_only -eq 0 ]]; then
 		local f=".."
 		local i
-		for i in `seq 1 $(echo $1 - 1 | bc -q)`; do
-			f="$f/.."
-		done
+		if [[ $1 -gt 1 ]]; then
+			for i in `seq 1 $(echo $1 - 1 | bc -q)`; do
+				f="$f/.."
+			done
+		fi
 	else
 		local f=`pwd`; f="${f%/*}"                     # final directory (skip current directory name)
 		local b=`basename "$f" | tr 'A-Z' 'a-z'`       # bottom-most directory (lowercase)
@@ -992,7 +994,7 @@ bytes2human () { # [BH]
 	unset b2h  # dispose of the b2h declaration
 	trap - ERR SIGHUP SIGINT SIGTERM # clear the error trap
 }
-# human2bytes: translate 
+# human2bytes: translate human readable sizes into bytes
 human2bytes () { # [BH]
 	h2b (){ # [BH]
 		local magnitude=`echo $@ | sed s/[^a-zA-Z]//g | tr [a-z] [A-Z]`
@@ -1318,7 +1320,7 @@ fi
 
 # make tab completion case insensitive
 cic () { bind "set completion-ignore-case on"; }
-cic
+shopt -q login_shell && cic || true
 # csc: make tab completion case sensitive
 csc () { bind "set completion-ignore-case off"; }
 
