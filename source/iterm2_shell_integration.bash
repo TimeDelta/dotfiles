@@ -140,10 +140,10 @@ if ( [ x"$TERM" != xscreen ] ); then
 
       # Finally, install the actual traps.
       if ( [ x"$PROMPT_COMMAND" = x ]); then
-        PROMPT_COMMAND="preexec_invoke_cmd";
+        PROMPT_COMMAND="[[ \$TERM == \"screen\" ]] || preexec_invoke_cmd";
       else
         # If there's a trailing semicolon folowed by spaces, remove it (issue 3358).
-        PROMPT_COMMAND="$(echo -n $PROMPT_COMMAND | sed -e 's/; *$//'); preexec_invoke_cmd";
+        PROMPT_COMMAND="$(echo -n $PROMPT_COMMAND | sed -e 's/; *$//'); [[ \$TERM == \"screen\" ]] || preexec_invoke_cmd";
       fi
       trap 'preexec_invoke_exec' DEBUG;
   }
