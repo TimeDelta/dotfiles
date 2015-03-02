@@ -399,6 +399,8 @@ atp "$development/apache-ant-1.9.4/bin"
 atp "$termtools"
 # for openvpnstart (command line interface for Tunnelblick)
 atp "/Applications/Tunnelblick.app/Contents/Resources"
+# for srilm platform-dependent scripts
+atp "$srilm/bin/macosx"
 ################################################################################
 
 
