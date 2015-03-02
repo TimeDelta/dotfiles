@@ -1258,6 +1258,78 @@ h_ (){ sed $SED_EXT_RE -e "s/[0-9]+ /${FGREEN}&${RES}/" -e "s/ [0-9]{4}-[0-9]{2}
 ################################################################################
 
 
+########
+# PATH #
+################################################################################
+# inpath: check if something is currently included in the path. example usage: inpath /bin && echo in || echo not in
+inpath () { # [BH]
+	if [[ "$PATH" =~ ^(.*:)?$@(:.*)?$ ]]; then return 0
+	else return 1; fi
+}
+
+# atp: add specified directory to PATH (current directory by default)
+atp () { # [BH]
+	if [[ $# -eq 0 ]]; then
+		inpath `pwd`
+		if [[ $? -eq 1 ]]; then export PATH="$PATH:`pwd`"; fi
+	elif [[ $1 == "--help" ]]; then
+		echo "Usage: atp [-p] [<location>]"
+		echo "  -p         : prepend to path instead of appending"
+		echo "  <location> : what to add to the path (current directory if not specified)"
+		echo "If location is already in the path, this does nothing and has an exit status of 0."
+		return 0
+	elif [[ $1 == "-p" ]]; then
+		if [[ $# -gt 1 ]]; then
+			inpath "${@: +2}"
+			if [[ $? -eq 0 ]]; then return 0; fi
+			export PATH="${@: +2}:$PATH"
+		else
+			inpath `pwd`
+			if [[ $? -eq 0 ]]; then return 0; fi
+			export PATH="`pwd`:$PATH"
+		fi
+	else
+		inpath "$@"; if [[ $? -eq 0 ]]; then return 0; fi
+		export PATH="$PATH:$@"
+	fi
+}
+
+# to get around having to type the "./" when running an executable from the current directory
+atp -p .
+
+atp -p /usr/local/bin
+atp $DOTFILES/bin
+
+# for view_fst.sh
+atp "$c1/decoder/scripts"
+# for open fst executables (if they have been built)
+atp "$c1/build/decoder/openfst-1.3.1/src/bin"
+# for regex2fst
+atp "$c1/build/decoder/grammar"
+# for fst utilities (fstaddauxloops, etc)
+atp "$c1/build/decoder/utils"
+# for compiled language_model code (e.g. mfw)
+atp "$c1/build/language_model/scripts"
+# for opengrm binaries
+atp "$c1/build/language_model/scripts/opengrm-ngram/src/bin"
+# for custom terminal tools
+atp "$termtools"
+# for sclite
+atp "$c1/recengine/scripts/setup/bin/"
+atp "$c1/utilities"
+# to get all of the language modeling scripts
+atp "$scripts"
+# to get the mitlm scripts
+atp "$mit"
+
+# where: display all places in path that a command exists
+alias where="type -a"
+
+# Aliasing eachdir like this allows you to use aliases/functions as commands.
+alias indirs=". eachdir"
+################################################################################
+
+
 ##################
 # Tab Completion #
 ################################################################################
@@ -1328,76 +1400,7 @@ csc () { bind "set completion-ignore-case off"; }
 # prevent tab completion from escaping variables that contain a path
 # (like replacing "$HOME/" w/ "\$HOME/") and instead expand the path
 shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr too
-} || true
-################################################################################
-
-
-########
-# PATH #
-################################################################################
-# inpath: check if something is currently included in the path. example usage: inpath /bin && echo in || echo not in
-inpath () { # [BH]
-	if [[ "$PATH" =~ ^(.*:)?$@(:.*)?$ ]]; then return 0
-	else return 1; fi
 }
-
-# atp: add specified directory to PATH (current directory by default)
-atp () { # [BH]
-	if [[ $# -eq 0 ]]; then
-		inpath `pwd`
-		if [[ $? -eq 1 ]]; then export PATH="$PATH:`pwd`"; fi
-	elif [[ $1 == "--help" ]]; then
-		echo "Usage: atp [-p] [<location>]"
-		echo "  -p         : prepend to path instead of appending"
-		echo "  <location> : what to add to the path (current directory if not specified)"
-		echo "If location is already in the path, this does nothing and has an exit status of 0."
-		return 0
-	elif [[ $1 == "-p" ]]; then
-		if [[ $# -gt 1 ]]; then
-			inpath "${@: +2}"
-			if [[ $? -eq 0 ]]; then return 0; fi
-			export PATH="${@: +2}:$PATH"
-		else
-			inpath `pwd`
-			if [[ $? -eq 0 ]]; then return 0; fi
-			export PATH="`pwd`:$PATH"
-		fi
-	else
-		inpath "$@"; if [[ $? -eq 0 ]]; then return 0; fi
-		export PATH="$PATH:$@"
-	fi
-}
-
-# to get around having to type the "./" when running an executable from the current directory
-atp -p .
-
-# for view_fst.sh
-atp "$c1/decoder/scripts"
-# for open fst executables (if they have been built)
-atp "$c1/build/decoder/openfst-1.3.1/src/bin"
-# for regex2fst
-atp "$c1/build/decoder/grammar"
-# for fst utilities (fstaddauxloops, etc)
-atp "$c1/build/decoder/utils"
-# for compiled language_model code (e.g. mfw)
-atp "$c1/build/language_model/scripts"
-# for opengrm binaries
-atp "$c1/build/language_model/scripts/opengrm-ngram/src/bin"
-# for custom terminal tools
-atp "$termtools"
-# for sclite
-atp "$c1/recengine/scripts/setup/bin/"
-atp "$c1/utilities"
-# to get all of the language modeling scripts
-atp "$scripts"
-# to get the mitlm scripts
-atp "$mit"
-
-# where: display all places in path that a command exists
-alias where="type -a"
-
-# Aliasing eachdir like this allows you to use aliases/functions as commands.
-alias indirs=". eachdir"
 ################################################################################
 
 
