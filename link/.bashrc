@@ -1,9 +1,12 @@
-shopt -q login_shell || return
+# only continue if it's a login shell or the login shell requirement is
+# overridden by specifying force
+shopt -q login_shell || [[ $@ == "force" ]] || return
 
 # Where the magic happens.
 export DOTFILES=~/.dotfiles
 
 # Add binaries into the path
+# note: move this to end of file and use atp instead
 export PATH=$DOTFILES/bin:$PATH
 
 # Source all files in "source"
