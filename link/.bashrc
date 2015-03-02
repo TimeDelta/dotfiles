@@ -39,6 +39,7 @@ function dotfiles() {
 
 src
 
-if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi
+# never need tab completion if it's not a login shell
+shopt -q login_shell && if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi
 
 atp -p /usr/local/bin
