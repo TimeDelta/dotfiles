@@ -1321,6 +1321,8 @@ atp "$c1/utilities"
 atp "$scripts"
 # to get the mitlm scripts
 atp "$mit"
+# for the platform-independent srilm scripts
+atp "$srilm/bin"
 
 # where: display all places in path that a command exists
 alias where="type -a"
