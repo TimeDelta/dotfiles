@@ -1261,6 +1261,7 @@ h_ (){ sed $SED_EXT_RE -e "s/[0-9]+ /${FGREEN}&${RES}/" -e "s/ [0-9]{4}-[0-9]{2}
 ##################
 # Tab Completion #
 ################################################################################
+shopt -q login_shell && {
 _svn_remote_files_tab_complete_helper (){ # [BH]
 	echo "local IFS=$' \n'"
 	echo 'local cws="${COMP_WORDS[@]: +1}"'
@@ -1320,13 +1321,14 @@ fi
 
 # make tab completion case insensitive
 cic () { bind "set completion-ignore-case on"; }
-shopt -q login_shell && cic || true
+cic
 # csc: make tab completion case sensitive
 csc () { bind "set completion-ignore-case off"; }
 
 # prevent tab completion from escaping variables that contain a path
 # (like replacing "$HOME/" w/ "\$HOME/") and instead expand the path
 shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr too
+} || true
 ################################################################################
 
 
