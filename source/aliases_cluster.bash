@@ -297,6 +297,8 @@ atp "/home/likewise-open/AD/bherman/android-sdk-linux/tools"
 atp "/home/likewise-open/AD/bherman/apache-ant-1.9.4"
 # for perplexity script (perp)
 atp "/home/likewise-open/AD/bherman/experiments"
+# for srilm platform-dependent scripts
+atp "$srilm/bin/i686-m64"
 ################################################################################
 
 
