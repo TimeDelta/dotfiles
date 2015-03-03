@@ -430,9 +430,6 @@ alias svnl="svn ls" # [BH]
 alias svnm="svn merge" # [BH]
 sw () { svn sw "^/branches/$@"; } # [BH]
 
-# svnr: print svn revision info for the current directory
-svnr () { svn info $@ | grep 'Revision' | awk '{print $2}' ; } # [BH]
-
 # svnrepsize: get the size of a subversion repository branch at the optionally specified revision
 svnrepsize () { # {BH}
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
@@ -522,17 +519,19 @@ svn_files_changed () { # [BH]
 	rm "$fid"
 }
 
-# svnt: show all svn tags for the current directory
+# svnr: print svn revision info for the specified directory (default is current directory)
+svnr () { svn info $@ | grep 'Revision' | awk '{print $2}' ; } # [BH]
+# svnt: show all svn tags for the current subversion repository
 svnt () { svn ls -v "^/tags"; }
-# svnc: show all svn conflicts for the current directory
-svnc () { svn st | grep -E '^.{0,6}C'; }
-# svnb: check to see what the url is for the specified subversion working copy (default is .)
+# svnc: show all svn conflicts for the specified directory (default is current directory)
+svnc () { svn st $@ | grep -E '^.{0,6}C'; }
+# svnb: check to see what branch is checked out in the specified subversion working copy (default path is current directory)
 svnb () { svn info $@ | grep -C 0 '^URL' | awk '{print $2}' | sed "s|`svn info $@ | grep -C 0 '^Repository Root:' | sed 's/Repository Root: //'`/branches/||" | sed 's|/.*$||'; } # [BH]
 
 # svnuc: display svn log commits for only a specific user
 svnuc () { # {BH}
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
-		echo "Usage: svnuc <username> [normal_svn_log_option ...]"
+		echo "Usage: svnuc <username> [<normal_svn_log_option> ...]"
 		return 0;
 	fi
 	svn log ${@: +2} | sed -n "/$1/,/-----$/ p"
@@ -542,20 +541,43 @@ svnuc () { # {BH}
 alias svnlogsoc="svn log --stop-on-copy" # [BH]
 
 # svnunv: list all unversioned files and folders in the specified directory (default is current directory)
-svnunv () { svn st $@ | grep "?" | sed 's/^........//'; } # [BH]
-# svnunvl: list all unversioned files and folders in the current directory, excluding junk files
-svnunvl () { # [BH]
-	svnunv | egrep -v '\.osyms|\.isyms|\.url_file|\.download_file|\.normalized_file|\.cleaned_file' | \
-	egrep -v '\.combined_file|\.corpus(_file)?|tam\..*\.fst|.{8}-.{4}-.{4}-.{4}-.{12}|[0-9]+_[0-9]+_[0-9]+$' | \
-	egrep -v 'local\.properties|data_folder\.zipd|spearnativeConstants\.java|spearnativeJNI\.java|spearnative\.java' | \
-	egrep -v 'spencer_mined_corpus|tmp_data_conversion|.*\.fst|.*\.arpa|\.cleaned$|\.normalized$'
+svnunv () { # [BH]
+	local max_depth=-1
+	if [[ $1 == "--help" ]]; then
+		echo "List unversioned files and folders in a subversion checkout."
+		echo "Usage: svnunv [options] [<root_dir>]"
+		echo "Options:"
+		echo "  -d <depth> : specify the maximum depth to search (0 means only <root_dir>)"
+		echo "               [Default: infinite]"
+		echo "Arguments:"
+		echo "  <root_dir> : specify the starting directory [Default: current directory]"
+		return 0
+	elif [[ $1 == "-d" ]]; then
+		max_depth=$2
+		shift 2
+	fi
+	
+	# build the grep pattern filter if needed
+	if [[ $max_depth -gt -1 ]]; then
+		local grep_pattern=".+"
+		if [[ $max_depth -gt 0 ]]; then
+			for i in `seq 1 $depth`; do
+				grep_pattern="$grep_pattern/.+"
+			done
+		fi
+	fi
+	
+	# display the requested unversioned files and folders
+	if [[ -z "$grep_pattern" ]]; then svn st $@ | grep "?" | sed 's/^........//'
+	else svn st $@ | grep "?" | sed 's/^........//' | grep -v "$grep_pattern"
+	fi
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
 svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
 
 # upall: update all work-related svn checkouts
 upall (){ # [BH]
-	# NOTE: bash complains when condensing this to a one-liner
+	# NOTE: bash complains when condensing this to a one-liner b/c of "& ; done"
 	for i in `env | egrep '^c[0-9]+' | sed $SED_EXT_RE 's/^c[0-9]+=//'`; do
 		cd $i && up "$@" &
 	done
