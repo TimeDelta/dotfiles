@@ -1,3 +1,6 @@
+# only source this file if it's me b/c nobody else has my github private key
+[[ `whoami` =~ AD\\bherman|bryanherman ]] || return
+
 # this makes GitHub accept push commands
 f="$HOME/.ssh-agent-output.`hostname`" # use hostname in case of shared home directory (e.g. cluster machines)
 is_osx && { # OS X grep does not support perl reg exp
