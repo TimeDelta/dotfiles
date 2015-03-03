@@ -560,16 +560,14 @@ svnunv () { # [BH]
 	# build the grep pattern filter if needed
 	if [[ $max_depth -gt -1 ]]; then
 		local grep_pattern=".+"
-		if [[ $max_depth -gt 0 ]]; then
-			for i in `seq 1 $depth`; do
-				grep_pattern="$grep_pattern/.+"
-			done
-		fi
+		for i in `seq 0 $max_depth`; do
+			grep_pattern="$grep_pattern/.+"
+		done
 	fi
 	
 	# display the requested unversioned files and folders
 	if [[ -z "$grep_pattern" ]]; then svn st $@ | grep "?" | sed 's/^........//'
-	else svn st $@ | grep "?" | sed 's/^........//' | grep -v "$grep_pattern"
+	else svn st $@ | grep "?" | sed 's/^........//' | egrep -v "$grep_pattern"
 	fi
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
