@@ -841,21 +841,16 @@ fd () { # [BH]
 # fft: find files in a directory that have been modified in the past given number of minutes
 fft () { # [BH]
 	if [[ $# -eq 0 || $1 -eq "-h" || $1 -eq "--help" || $1 -eq "help" ]]; then
-		echo "Usage: fft <minutes> [-d directory] [<case_insensitive_regex>]"
+		echo "Usage: fft [options] <minutes> [<case_insensitive_regex>]"
+		echo "Options:"
+		echo "  -d <directory>           : Specify the directory in which to search. Default is current directory."
+		echo "Arguments:"
 		echo "  <minutes>                : Max # of minutes ago for a file to have been modified"
-		echo "  -d directory             : Specify the directory in which to search. Default is current directory."
 		echo "  <case_insensitive_regex> : Case-insensitive extended regular expression (see find -E for more information)."
 		return 0
 	fi
-	if [[ $# -eq 1 ]]; then find -L . -mmin "-$1" -type f
-	elif [[ $# -eq 2 ]]; then find -L $FIND_DASH_E . -mmin "-$1" -type f $FIND_REGEXTYPE -iregex "\./$2"
-	elif [[ $# -eq 3 ]]; then
-		local root="`translate_dir_hist "$3"`"
-		find -L "$root" -mmin "-$1" -type f
-	else
-		local root="`translate_dir_hist "$3"`"
-		find -L $FIND_DASH_E "$root" -mmin "-$1" -type f $FIND_REGEXTYPE -iregex "$root/$4"
-	fi
+	if [[ $1 == "-d" ]]; then local root="`translate_dir_hist "$2"`"; shift 2; fi
+	find -L $FIND_DASH_E "${root:-.}" -mmin "-$1" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/${2:-.*}"
 }
 
 # gf: grep through files returned by find
