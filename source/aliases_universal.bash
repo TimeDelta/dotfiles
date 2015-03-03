@@ -9,43 +9,26 @@
 ##########################
 # This File and Sourcing #
 ################################################################################
+# in case the name of this ever changes, it'll be easier to update
+export UNIV_ALIAS_FILE="$HOME/.aliases_universal.bash"
+
 # falias: boolean alias search
 falias () { # [BH]
-	local old_nocasematch=`cur_nocasematch`
-	shopt -s nocasematch
-	case $MY_OS in
-	*darwin*)
-		local results=`cat ~/.aliases_mac.bash ~/.aliases_universal.bash` ;;
-	*linux*)
-		local results=`cat ~/.aliases_linux.bash ~/.aliases_universal.bash` ;;
-	*cygwin*)
-		local results=`cat ~/.aliases_cygwin.bash ~/.aliases_universal.bash` ;;
-	esac
+	local results=`cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
 	local word
 	for word in "$@"; do results=`echo "$results" | egrep -i -a0 --color=always $word`; done
 	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)"
-	shopt $old_nocasematch nocasematch
 }
 # halias: display information about specific aliases (egrep regex)
 halias (){ # [BH]
-	local old_nocasematch=`cur_nocasematch`
-	shopt -s nocasematch
-	case $MY_OS in
-	*darwin*)
-		local results=`cat ~/.aliases_mac.bash ~/.aliases_universal.bash` ;;
-	*linux*)
-		local results=`cat ~/.aliases_linux.bash ~/.aliases_universal.bash` ;;
-	*cygwin*)
-		local results=`cat ~/.aliases_cygwin.bash ~/.aliases_universal.bash` ;;
-	esac
+	local results=`cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
 	echo "$results" | egrep -i -C 0 "# $1:"
-	shopt $old_nocasematch nocasematch
 }
 
 # bashp: edit ~/.bash_profile
 bashp () { subl ~/.bash_profile; } # [BH]
 # aliases: edit universal aliases
-aliases () { subl ~/.aliases_universal.bash; } # [BH]
+aliases () { subl "$UNIV_ALIAS_FILE"; } # [BH]
 # paliases: edit platform-specific aliases
 paliases (){ subl $PLATFORM_ALIAS_FILES; }
 # spalias: source platform-specific aliases
@@ -54,12 +37,16 @@ spalias (){ for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; }
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
 # salias: source this file (make changes active after editing)
-salias () { source ~/.aliases_universal.bash; spalias; } # [BH]
+salias () { source "$UNIV_ALIAS_FILE"; spalias; } # [BH]
 
-# pa_cluster: push universal alias changes to the cluster machines
-pa_cluster () { scp ~/.aliases_universal.bash cluster1:~ ; } # [BH]
-# pa_mac: push universal alias changes to my mac
-pa_mac () { scp ~/.aliases_universal.bash bryanherman@bryanherman:~ ; } # [BH]
+# platform: is the specified function / alias platform-specific or universal?
+platform (){ # [BH]
+	if [[ -n `cat $PLATFORM_ALIAS_FILES | awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' | sed 's/=.*$//' | grep "$@"` ]]; then
+		echo Defined in platform-dependent file
+	else
+		echo Defined in universal file
+	fi
+}
 
 # func: display the definition of an alias or function
 func (){ # [BH]
@@ -78,21 +65,11 @@ code (){ # [BH]
  	fi
 }
 
-# lsfunc: list all available custom functions and aliases
-lsfunc () { # [BH]
-	local old_nocasematch=`cur_nocasematch`
-	shopt -s nocasematch
-	case $MY_OS in
-	*darwin*)
-		local file=.aliases_mac.bash ;;
-	*linux*)
-		local file=.aliases_linux.bash ;;
-	*cygwin*)
-		local file=.aliases_cygwin.bash ;;
-	esac
-	cat ~/$file ~/.aliases_universal.bash | awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' | sed 's/=.*$//' | colify
-	shopt $old_nocasematch nocasematch
-}
+# lscustomfunc: list all available custom functions and aliases that are defined in the normal sourced files
+lscustomfunc () { cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' | sed 's/=.*$//' | colify; } # [BH]
+
+# lsfunc: list all def functions and aliases
+alias lsfunc="compgen -aA function"
 
 # lsallfunc: list all of the available built-ins, commands, functions, and aliases
 alias lsallfunc="compgen -abcA function" # [BH]
