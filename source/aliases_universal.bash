@@ -809,7 +809,7 @@ cdc (){ # [BH]
 }
 
 # cdmr: switch to the most recently modified folder that matches the optional regex
-cdmr (){ cd "`command ls -d1tc ${@:-*}/ | head -1`"; } # [BH]
+cdmr (){ cd "`command ls -d1tc $(translate_dir_hist "${@:-*}/") | head -1`"; } # [BH]
 ################################################################################
 
 
