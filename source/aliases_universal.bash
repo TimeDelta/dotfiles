@@ -180,7 +180,7 @@ alias ofd="lsof +D"
 # rmf: remove files (python regex capable)
 alias rmf="python $terminal_tools/rmfiles.py" # [BH]
 
-# ulines: print every line in the specified file, including only one of each set of duplicate lines
+# ulines: print every line in the specified file, including only one of each line (no duplicates)
 alias ulines="awk '!seen[$0]++'" # [BH]
 # ulize: remove duplicated lines in a file, leaving only one copy of each repeated line.
 ulize () { local fid=`mktemp XXXXXXXXXX`; awk '!seen[$0]++' "$@" > "$fid"; mv "$fid" "$@"; } # [BH]
@@ -575,6 +575,7 @@ up (){ # [BH]
 ci (){ `vcs_type` commit "$@"; } # [BH]
 # st: generic command to check the status of a vcs working copy
 st (){ `vcs_type` status "$@"; } # [BH]
+# vcs_type: helper function for generic version control commands
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
 	[[ -n `git log 2> /dev/null` ]] && echo git && return
@@ -587,7 +588,7 @@ vcs_type (){ # [BH]
 ##############
 # Networking #
 ################################################################################
-# tarscp: securely copy an entire directory recursively using compression
+# tarscp: securely copy an entire remote directory recursively using compression
 tarscp () { # {BH}
 	if [[ $# -ne 2 ]]; then
 		echo "Usage: tarscp [username@]sourcehost <source_path>"
@@ -628,6 +629,7 @@ shopt -s cdable_vars # set the bash option so that no '$' is required when using
 # mkcd: make a directory and switch to it
 mkcd (){ mkdir -p "$@"; cd "$@"; } # [BH]
 
+# cd: wrapper for cd command that tracks the 10 most recent directories for quick & easy switching
 cd (){
 	local x2 the_new_dir adir index
 	local -i cnt
@@ -674,39 +676,31 @@ cd (){
 	return 0
 }
 
-# mv_func: wrapper around mv that utilizes directory history
+# translate_dir_hist: helper function to replace a directory history index with its corresponding path
+translate_dir_hist (){ #[BH]
+	if [[ ${1:0:1} == '-' ]]; then
+		local index=`echo "$1" | egrep -om 1 "[0-9]([0-9])?"`
+		echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
+	else
+		echo "$1"
+	fi
+}
+
+# mv_func: wrapper around mv that utilizes directory history from cd wrapper
 mv_func (){ # [BH]
-	mv_func_helper (){ #[BH]
-		if [[ ${1:0:1} == '-' ]]; then
-			local index=`echo "$1" | egrep -om 1 "[0-9]([0-9])?"`
-			echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
-		else
-			echo "$1"
-		fi
-	}
 	local mv_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
 	cmd mv `echo "$@" | sed -e "s:$mv_from_to::"` \
-	   "`mv_func_helper "${@:(-2):1}"`" \
-	   "`mv_func_helper "${@:(-1):1}"`"
-	unset mv_func_helper
+	   "`translate_dir_hist "${@:(-2):1}"`" \
+	   "`translate_dir_hist "${@:(-1):1}"`"
 }
 alias mv=mv_func
 
-# cp_func: wrapper around cp that utilizes directory history
+# cp_func: wrapper around cp that utilizes directory history from cd wrapper
 cp_func (){ # [BH]
-	cp_func_helper (){ #[BH]
-		if [[ ${1:0:1} == '-' ]]; then
-			local index=`echo "$1" | egrep -om 1 "[0-9]([0-9])?"`
-			echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
-		else
-			echo "$1"
-		fi
-	}
 	local cp_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
 	cmd cp `echo "$@" | sed -e "s:$cp_from_to::"` \
-	   "`cp_func_helper "${@:(-2):1}"`" \
-	   "`cp_func_helper "${@:(-1):1}"`"
-	unset cp_func_helper
+	   "`translate_dir_hist "${@:(-2):1}"`" \
+	   "`translate_dir_hist "${@:(-1):1}"`"
 }
 alias cp=cp_func
 
@@ -721,22 +715,30 @@ cds () { # [BH]
 		echo "      directory for which to search (i.e. for ./path/to/my_directory, you"
 		echo "      could use \"my_.*\")"
 		echo "  <root_path>"
-		echo "      absolute or relative path to the parent directory in which to search"
-		echo "      [Default: current direcotry]"
+		echo "      absolute or relative path to the parent directory in which to search."
+		echo "      compatible with cd directory history [Default: current directory]"
 		return 0
 	fi
 	
 	if [[ $1 == "-d" ]]; then
 		# depth-first search
 		shift
-		local result=$(find $FIND_DASH_E "${2:-.}" -type d $FIND_REGEXTYPE -iregex "$1" -print -quit)
+		
+		# for compatibility with directory history
+		[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
+		
+		local result=$(find $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex ".*/$1" -print -quit)
 	else
 		# breadth-first search
 		local depth=1 result more
+		
+		# for compatibility with directory history
+		[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
+		
 		# keep searching if the current depth yielded no results and there's still more through which to search
-		while result=$(find $FIND_DASH_E "${2:-.}" -mindepth $depth -maxdepth $depth -type d $FIND_REGEXTYPE -iregex "$1" -print -quit) && \
+		while result=$(find $FIND_DASH_E "${root:-.}" -mindepth $depth -maxdepth $depth -type d $FIND_REGEXTYPE -iregex ".*/$1" -print -quit) && \
 		      [[ -z "$result" ]] && \
-		      more=$(find $FIND_DASH_E "${2:-.}" -mindepth $depth -maxdepth $depth -type d $FIND_REGEXTYPE -iregex ".*" -print -quit) && \
+		      more=$(find $FIND_DASH_E "${root:-.}" -mindepth $depth -maxdepth $depth -type d $FIND_REGEXTYPE -iregex ".*" -print -quit) && \
 		      [[ -n $more ]]
 		do ((depth++)) ; done
 	fi
