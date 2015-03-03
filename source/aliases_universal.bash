@@ -1406,6 +1406,9 @@ shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr 
 ###############
 # Environment #
 ################################################################################
+export SVN_EDITOR="subl -w"
+export EDITOR="subl -w"
+
 export donna_url="http://donna.ad.think-a-move.com"
 export svn_url="$donna_url/svn/tam/branches"
 export ndec_url="$svn_url/new_decoder"
