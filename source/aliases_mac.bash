@@ -372,8 +372,8 @@ alias mj="make -j2" # [BH]
 # Tab Completion #
 ################################################################################
 eval "`bzr bash-completion`"
-eval "`task bash-completion`"
-eval "`todo bash-completion`"
+eval "`task bash-completion`" # task is a custom script
+eval "`todo bash-completion`" # todo is a custom script
 ################################################################################
 
 
