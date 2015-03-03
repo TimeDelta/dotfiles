@@ -31,7 +31,7 @@ export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_mac.bash"
 ################################################################################
 alias ls="ls -GFh" # [BH]
 # lskey: display a key for information given by the ls command
-lskey () { echo -e "${FBLUE}directory${RES}/    ${FRED}executable${RES}*    ${FPURPLE}symbolic link${RES}@    socket=    whiteout%    FIFO|    ${FBLACK}${BCYAN}postdrop${RES}*"; } # [BH]
+lskey () { echo -e "${FBLUE}directory${RES}/    ${FRED}executable${RES}*    ${FPURPLE}symbolic link${RES}@    ${FGREEN}socket${RES}=    whiteout%    FIFO|    ${FBLACK}${BCYAN}postdrop${RES}*"; } # [BH]
 
 # ql: show a "Quick Look" view of files
 ql () { qlmanage -p "$@" >& /dev/null & }
