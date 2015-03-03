@@ -239,14 +239,19 @@ alias fs='python $scripts/filter_sentences.py'
 ################################################################################
 # subl: open the specified file in sublime text on remote host machine (if no file is specified, reads from stdin)
 subl (){ # [BH]
-	if [[ $# -eq 0 ]]; then
+	# allow waiting (e.g. for git / svn commit message editing)
+	if [[ $1 == "-w" ]]; then local wait="-w"; shift; fi
+	
+	if [[ $# -eq 0 ]]; then # to allow remote piping to sublime
 		local fid=`mktemp`
 		cat > "$fid"
-		rmate "$fid"
+		rmate $wait "$fid"
 		rm "$fid"
-	else
+	else # rmate only handles one file at a time
 		for file in "$@"; do
-			rmate -f $file
+			# NOTE: if you specify wait with more than one file, it will open one file,
+			#       wait for it to close then oen the next, etc.
+			rmate $wait -f $file
 		done
 	fi
 }
