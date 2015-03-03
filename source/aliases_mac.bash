@@ -10,7 +10,7 @@ is_osx || return 1
 ##########################
 # This File and Sourcing #
 ################################################################################
-export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_mac.bash"
+[[ $PLATFORM_ALIAS_FILES == *$HOME/.aliases_mac.bash* ]] || export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_mac.bash"
 ################################################################################
 
 
