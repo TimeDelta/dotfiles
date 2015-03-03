@@ -824,7 +824,8 @@ ff () { # [BH]
 		echo "  <directory> : Directory in which to search. Default is current directory."
 		return 0
 	fi
-	find -L $FIND_DASH_E "${2:-.}" -type f $FIND_REGEXTYPE -iregex "${2:-\.}/$1"
+	[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
+	find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
 }
 # fd: find directories matching a given regex (case-insensitive)
 fd () { # [BH]
@@ -834,7 +835,8 @@ fd () { # [BH]
 		echo "  <directory> : Directory in which to search."
 		return 0
 	fi
-	find -L $FIND_DASH_E "${2:-.}" -type d $FIND_REGEXTYPE -iregex "${2:-\.}/$1"
+	[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
+	find -L $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
 }
 # fft: find files in a directory that have been modified in the past given number of minutes
 fft () { # [BH]
@@ -847,8 +849,13 @@ fft () { # [BH]
 	fi
 	if [[ $# -eq 1 ]]; then find -L . -mmin "-$1" -type f
 	elif [[ $# -eq 2 ]]; then find -L $FIND_DASH_E . -mmin "-$1" -type f $FIND_REGEXTYPE -iregex "\./$2"
-	elif [[ $# -eq 3 ]]; then find -L "$3" -mmin "-$1" -type f
-	else find -L $FIND_DASH_E "$3" -mmin "-$1" -type f $FIND_REGEXTYPE -iregex "$3/$4"; fi
+	elif [[ $# -eq 3 ]]; then
+		local root="`translate_dir_hist "$3"`"
+		find -L "$root" -mmin "-$1" -type f
+	else
+		local root="`translate_dir_hist "$3"`"
+		find -L $FIND_DASH_E "$root" -mmin "-$1" -type f $FIND_REGEXTYPE -iregex "$root/$4"
+	fi
 }
 
 # gf: grep through files returned by find
@@ -860,13 +867,14 @@ gf () { # [BH]
 		echo "  <directory>                   : Directory in which to search. Default is current directory."
 		return 0
 	fi
-	find -L $FIND_DASH_E "${3:-.}" -type f $FIND_REGEXTYPE -iregex "${3:-\.}/$2" -print0 | xargs -0 egrep -n $GREP_DASH_T --color=always "$1" | less -R
+	[[ -n $3 ]] && local root="`translate_dir_hist "$3"`"
+	find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$2" -print0 | xargs -0 egrep -n $GREP_DASH_T --color=always "$1" | less -R
 }
 # gfa: wrapper for gf that assumes searching all files
-gfa () { gf "$@" ".*"; } # [BH]
+gfa () { gf "$1" ".*" "${2:-.}"; } # [BH]
 
 # fcmake: recursively search all CMakeLists.txt files in current directory for the given regex
-fcmake () { gf "$@" ".*CMakeLists.txt"; } # [BH]
+fcmake () { gf "$1" ".*CMakeLists.txt" "${2:-.}"; } # [BH]
 ################################################################################
 
 
