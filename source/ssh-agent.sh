@@ -2,8 +2,8 @@
 [[ `whoami` =~ AD\\bherman|bryanherman ]] || return
 
 # this makes GitHub accept push commands
-f="$HOME/.ssh-agent-output.`hostname`" # use hostname in case of shared home directory (e.g. cluster machines)
-is_osx && { # OS X grep does not support perl reg exp
+f="$HOME/.ssh-agent-output.`hostname -s`" # use hostname in case of shared home directory (e.g. cluster machines)
+is_osx && { # OS X grep does not support perl regexes
 	# NOTE: this implementation does not work on the cluster machines (i think it's b/c i don't have administrative priveleges there)
 	[[ -n `lsof -tc ssh-agent` ]] || { eval "$(ssh-agent -s | tee "$f")" && ssh-add ~/.ssh/id_github; } # only need one instance of ssh-agent
 } || {
