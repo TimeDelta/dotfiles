@@ -272,7 +272,8 @@ wrapindent (){
 		{ echo "For indenting the beginning of wrapped lines."
 		echo "Usage: wrapindent [-w] [<indent_size>]"
 		echo "  -w"
-		echo "    If <indent_size> is not specified, only . This option does nothing if <indent_size> is given."
+		echo "    If <indent_size> is not specified, use each line's leading whitespace as its hanging \
+indentation level. This option does nothing if <indent_size> is given." # note: any leading whitespace on this line will show
 		echo "  <indent_size>"
 		echo "    The number of spaces to use for indentation. Default is length of first column + leading whitespace"; } | wrapindent -w
 		return 0
