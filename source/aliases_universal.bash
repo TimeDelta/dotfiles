@@ -272,7 +272,7 @@ pad (){ # [BH]
 }
 
 # wrapindent: each time a line is wrapped, indent the beginning of it
-wrapindent (){
+wrapindent (){ # [BH]
 	if [[ $1 == "--help" ]]; then
 		{ echo "For indenting the beginning of wrapped lines."
 		echo "Usage: wrapindent [-w] [<indent_size>]"
