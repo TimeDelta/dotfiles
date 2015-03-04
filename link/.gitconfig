@@ -18,6 +18,7 @@
   rv = review
   st = status
 	ls = ls-files
+  lg = log --abbrev-commit --pretty=oneline
 [branch "master"]
   remote = origin
   merge = refs/heads/master
