@@ -1128,7 +1128,7 @@ alias mw=missing_words #[BH]
 # Package Managers #
 ################################################################################
 # pipup: update all pip packages and their dependencies
-pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip install -U; }
+pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip install -U --allow-all-external; }
 ################################################################################
 
 
