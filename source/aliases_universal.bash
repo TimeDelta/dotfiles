@@ -170,7 +170,7 @@ exists () { if [[ -e "$@" ]]; then echo "$@" exists; else echo "$@" does not exi
 sizes (){ du -chd 0 ${1:-.}/*; } # [BH]
 
 # ofd: list all open files in a directory
-alias ofd="lsof +D"
+ofd (){ lsof +D "`translate_dir_hist "${1:-.}"`"; } # {BH}
 ################################################################################
 
 
@@ -685,6 +685,7 @@ translate_dir_hist (){ #[BH]
 		echo "$1"
 	fi
 }
+alias dh=translate_dir_hist
 
 # mv_func: wrapper around mv that utilizes directory history from cd wrapper
 mv_func (){ # [BH]
