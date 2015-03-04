@@ -66,7 +66,12 @@ code (){ # [BH]
 }
 
 # lscustomfunc: list all available custom functions and aliases that are defined in the normal sourced files
-lscustomfunc () { cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' | sed 's/=.*$//' | colify; } # [BH]
+lscustomfunc () { # [BH]
+	cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" \
+		| awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' \
+		| sed 's/=.*$//' \
+		| colify
+}
 
 # lsfunc: list all def functions and aliases
 alias lsfunc="compgen -aA function"
@@ -547,7 +552,15 @@ svnt () { svn ls -v "^/tags"; }
 # svnc: show all svn conflicts for the specified directory (default is current directory)
 svnc () { svn st $@ | grep -E '^.{0,6}C'; }
 # svnb: check to see what branch is checked out in the specified subversion working copy (default path is current directory)
-svnb () { svn info $@ | grep -C 0 '^URL' | awk '{print $2}' | sed "s|`svn info $@ | grep -C 0 '^Repository Root:' | sed 's/Repository Root: //'`/branches/||" | sed 's|/.*$||'; } # [BH]
+svnb () { # [BH]
+	svn info $@ \
+		| grep -C 0 '^URL' \
+		| awk '{print $2}' \
+		| sed "s|`svn info $@ \
+			| grep -C 0 '^Repository Root:' \
+			| sed 's/Repository Root: //'`/branches/||" \
+		| sed 's|/.*$||'
+}
 
 # svnuc: display svn log commits for only a specific user
 svnuc () { # {BH}
@@ -910,7 +923,9 @@ gf () { # [BH]
 		return 0
 	fi
 	[[ -n $3 ]] && local root="`translate_dir_hist "$3"`"
-	find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$2" -print0 | xargs -0 egrep -n $GREP_DASH_T --color=always "$1" | less -R
+	find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$2" -print0 \
+		| xargs -0 egrep -n $GREP_DASH_T --color=always "$1" \
+		| less -R
 }
 # gfa: wrapper for gf that assumes searching all files
 gfa () { gf "$1" ".*" "${2:-.}"; } # [BH]
@@ -1303,7 +1318,11 @@ export HISTTIMEFORMAT='%F %T '
 if [[ -z "`echo "$PROMPT_COMMAND" | grep 'history -a'`" ]]; then export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"; fi
 
 # h_: colorize the history command's output in less (i.e. history | grep function_name | h_)
-h_ (){ sed $SED_EXT_RE -e "s/[0-9]+ /${FGREEN}&${RES}/" -e "s/ [0-9]{4}-[0-9]{2}-[0-9]{2}/${FYELLOW}&${RES}/" -e "s/ ([0-9]{2}:){2}[0-9]{2}/${FCYAN}&${RES}/" | less -R; } # [BH]
+h_ (){
+	sed $SED_EXT_RE -e "s/[0-9]+ /${FGREEN}&${RES}/" \
+	                -e "s/ [0-9]{4}-[0-9]{2}-[0-9]{2}/${FYELLOW}&${RES}/" \
+	                -e "s/ ([0-9]{2}:){2}[0-9]{2}/${FCYAN}&${RES}/" \
+	| less -R; } # [BH]
 ################################################################################
 
 
