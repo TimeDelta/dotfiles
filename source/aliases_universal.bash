@@ -685,7 +685,7 @@ translate_dir_hist (){ #[BH]
 		echo "$1"
 	fi
 }
-alias dh=translate_dir_hist
+alias tdh=translate_dir_hist
 
 # mv_func: wrapper around mv that utilizes directory history from cd wrapper
 mv_func (){ # [BH]
