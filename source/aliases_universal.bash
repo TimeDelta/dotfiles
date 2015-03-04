@@ -266,6 +266,49 @@ pad (){ # [BH]
 	if [[ $append -eq 0 ]]; then echo -ne "$string"; fi
 }
 
+# wrapindent: each time a line is wrapped, indent the beginning of it
+wrapindent (){
+	if [[ $1 == "--help" ]]; then
+		{ echo "For indenting the beginning of wrapped lines."
+		echo "Usage: wrapindent [-w] [<indent_size>]"
+		echo "  -w"
+		echo "    If <indent_size> is not specified, only . This option does nothing if <indent_size> is given."
+		echo "  <indent_size>"
+		echo "    The number of spaces to use for indentation. Default is length of first column + leading whitespace"; } | wrapindent -w
+		return 0
+	fi
+	
+	# indentation options
+	[[ $1 == "-w" ]] && { local lead_space_only=1; shift; }
+	local line indent=$1
+	[[ -z $indent ]] && local use_default=1
+	
+	local OLD_IFS="$IFS" # read splits based on IFS, which may contain spaces, causing leading whitespace to be dropped
+	IFS="\n"
+	while read -s line; do
+		local cols=`tput cols` # have to reset cols for each line b/c it's modified when a line is wrapped
+		if [[ -n $use_default ]]; then # calculate the amount of indentation to use
+			# start with the length of the leading whitespace
+			indent=`echo "$line" | egrep -o "^ +" | tr -d '\n' | wc -m | col 1`
+			# add in the length of the first column (as defined by awk with no options)
+			[[ -z $lead_space_only ]] && ((indent+=`echo "$line" | awk '{print length($1)}'`+1))
+		fi
+		
+		local first_chunk=0
+		while [[ ${#line} -gt 0 ]]; do
+			# don't indent until after a line has been wrapped the first time
+			[[ $first_chunk -ne 0 ]] && echo -n "`pad " " $indent`"
+			echo "${line:0:$cols}" # print the line content
+			
+			# in cases where $cols > # of remaining chars in line, could get an error with substring assignment
+			[[ ${#line} -gt $cols ]] && line="${line:$cols}" || line=""
+			# number of characters to use with wrapped portions of the line decreases by the indentation level
+			[[ $first_chunk -eq 0 ]] && { first_chunk=1; ((cols-=indent)); }
+		done
+	done
+	IFS="$OLD_IFS"
+}
+
 # colify: print stuff similar to how ls does (Usage: cmd | colify [<#columns>])
 colify (){ pr -l1000 -w `tput cols` -t -${1:-5}; } # [BH]
 ################################################################################
