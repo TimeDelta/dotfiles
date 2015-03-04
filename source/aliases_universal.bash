@@ -630,7 +630,7 @@ shopt -s cdable_vars # set the bash option so that no '$' is required when using
 mkcd (){ mkdir -p "$@"; cd "$@"; } # [BH]
 
 # cd: wrapper for cd command that tracks the 10 most recent directories for quick & easy switching
-cd (){
+cd (){ # {BH}
 	local x2 the_new_dir adir index
 	local -i cnt
 	
@@ -642,17 +642,19 @@ cd (){
 	the_new_dir=$1
 	[[ -z $1 ]] && the_new_dir=$HOME
 	
-	if [[ ${the_new_dir:0:1} == '-' ]]; then
-		# Extract dir N from dirs
-		index=${the_new_dir:1}
-		[[ -z $index ]] && index=1
-		adir=$(dirs +$index)
-		[[ -z $adir ]] && return 1
-		the_new_dir=$adir
-	fi
+	# substitute the directory history flag for its corresponding path
+	[[ ${the_new_dir:0:1} == '-' ]] && the_new_dir="`translate_dir_hist "$the_new_dir"`"
 	
 	# '~' has to be substituted by ${HOME}
 	[[ ${the_new_dir:0:1} == '~' ]] && the_new_dir="${HOME}${the_new_dir:1}"
+	
+	# make cd work without needing to type the "$" before an environment variable
+	# name when including a subpath (i.e. scripts/mitlm instead of $scripts/mitlm)
+	[[ -e "$the_new_dir" ]] || {
+		local temp="`env | grep ^${the_new_dir%%/*}= | sed 's/.*=//'`"
+		[[ -n $temp && $the_new_dir == */* ]] && temp="$temp/${the_new_dir#*/}"
+		the_new_dir="$temp"
+	}
 	
 	# Now change to the new dir and add to the top of the stack
 	pushd "${the_new_dir}" > /dev/null
