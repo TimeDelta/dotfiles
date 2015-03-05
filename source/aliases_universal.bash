@@ -355,10 +355,12 @@ lc () { # [BH]
 		local file
 		while read -s file; do wc -l "$@" | sed s/\ //g; done
 	elif [[ $1 == "-h" || $1 == "--help" ]]; then
-		echo "Usage: <command> | lc [-f]"
+		{ echo "Usage: <command> | lc [-f]"
 		echo "       lc [-f] <file>"
-		echo "  -f   : Treat each input line as a file and output the number of lines for each file separately."
-		echo "  file : Count the number of lines for the file pointed to by this argument."
+		echo "  -f"
+		echo "    Treat each input line as a file and output the number of lines for each file separately."
+		echo "  <file>"
+		echo "    Count the number of lines for the file pointed to by this argument."; } | wrapindent -w
 		return 0
 	else wc -l "$@" | sed s/\ //g; fi
 }
@@ -368,11 +370,14 @@ lcfe () { find . \( `echo -name \"\*.$@ | sed -e s/,/\"\ -or\ -name\ \"\*./g -e 
 # rc: count the number of occurences of a regex in a string or set of files
 rc () { # [BH]
 	if [[ $# -gt 2 || $1 == "-h" || $1 == "--help" ]]; then
-		echo "Usage:"
-		echo "  rc <regex> <string>       : Counts the number occurrences of <regex> in <string>"
-		echo "  <command> | rc <regex>    : Counts the number of occurrences of <regex> in the output of <command>"
-		echo "  <command> | rc -f <regex> : Treats each line in the output of <command> as a file name and counts"
-		echo "                              <regex> occurrences in each of the files individually"
+		{ echo "Usage:"
+		echo "  rc <regex> <string>"
+		echo "    Counts the number occurrences of <regex> in <string>"
+		echo "  <command> | rc <regex>"
+		echo "    Counts the number of occurrences of <regex> in the output of <command>"
+		echo "  <command> | rc -f <regex>"
+		echo "    Treats each line in the output of <command> as a file name and counts \
+<regex> occurrences in each of the files individually"; } | wrapindent -w
 		return 0
 	elif [[ $# -eq 1 && $1 != "-f" ]]; then
 		local string=""
@@ -394,13 +399,12 @@ fc () { # [BH]
 			D) local type="-type d" ;;
 			f) local type="-type f" ;;
 			h)
-				echo "Usage: fc [options] [<regex>]"
+				{ echo "Usage: fc [options] [<regex>]"
 				echo "    -d <directory> : Specify the parent directory in which to search for files"
 				echo "    -r             : Recursively search the parent directory"
 				echo "    -D             : Only count directories"
 				echo "    -f             : Only count files"
-				echo "    <regex>        : Case-insensitive posix-extended regex. If"
-				echo "                     unspecified, match everything."
+				echo "    <regex>        : Case-insensitive posix-extended regex. If unspecified, match everything."; } | wrapindent 21
 				return 0 ;;
 			\?) echo "Invalid Option: -$OPTARG" >&2 && return 1 ;;
 			:) echo "Option -$OPTARG requires an additional argument" >&2 && return 1 ;;
@@ -578,13 +582,12 @@ alias svnlogsoc="svn log --stop-on-copy" # [BH]
 svnunv () { # [BH]
 	local max_depth=-1
 	if [[ $1 == "--help" ]]; then
-		echo "List unversioned files and folders in a subversion checkout."
+		{ echo "List unversioned files and folders in a subversion checkout."
 		echo "Usage: svnunv [options] [<root_dir>]"
 		echo "Options:"
-		echo "  -d <depth> : specify the maximum depth to search (0 means only <root_dir>)"
-		echo "               [Default: infinite]"
+		echo "  -d <depth> : specify the maximum depth to search (0 means only <root_dir>) [Default: infinite]"
 		echo "Arguments:"
-		echo "  <root_dir> : specify the starting directory [Default: current directory]"
+		echo "  <root_dir> : specify the starting directory [Default: current directory]"; } | wrapindent 13
 		return 0
 	elif [[ $1 == "-d" ]]; then
 		max_depth=$2
@@ -765,16 +768,15 @@ alias cp=cp_func # [BH]
 # cds: switch to the first directory relative to the current one that matches the specified regex (breadth-first search)
 cds () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
-		echo "Usage: cds [-d] <dir_name_regex> [<root_path>]"
+		{ echo "Usage: cds [-d] <dir_name_regex> [<root_path>]"
 		echo "  -d"
 		echo "      use depth-first search (default is breadth-first)"
 		echo "  <dir_name_regex>"
-		echo "      case-insensitive posix-extended regex matching the basename of the"
-		echo "      directory for which to search (i.e. for ./path/to/my_directory, you"
-		echo "      could use \"my_.*\")"
+		echo "      case-insensitive posix-extended regex matching the basename of the \
+directory for which to search (i.e. for ./path/to/my_directory, you could use \"my_.*\")"
 		echo "  <root_path>"
-		echo "      absolute or relative path to the parent directory in which to search."
-		echo "      compatible with cd directory history [Default: current directory]"
+		echo "      absolute or relative path to the parent directory in which to search. \
+compatible with cd directory history [Default: current directory]"; } | wrapindent -w
 		return 0
 	fi
 	
@@ -812,16 +814,16 @@ cd_up () { # [BH]
 	[[ $1 == "--" ]] && { shift; local dir_only=1; } || local dir_only=0
 	if [[ $# -eq 0 ]]; then $op "`fullpath ".."`"; return 0
 	elif [[ $1 == "--help" ]]; then
-		echo "Usage:"
+		{ echo "Usage:"
 		echo "  .. [options] [<integer> [<sub_path>]]"
 		echo "      Go back <integer> directories (1 if excluded) then cd to <sub_path>"
 		echo "  .. [options] [[--] <directory> [<sub_path>]]"
-		echo "      Go back until <directory> (case-insensitive) is reached then cd to"
-		echo "      <sub_path>. If -- is specified, the following argument will be treated"
-		echo "      as a directory (to be used if the directory name is an integer)."
+		echo "      Go back until <directory> (case-insensitive) is reached then cd to \
+<sub_path>. If -- is specified, the following argument will be treated as a directory \
+(to be used if the directory name is an integer)."
 		echo
 		echo "Options:"
-		echo "  -p : just print the path to stdout instead of switching to it"
+		echo "  -p : just print the path to stdout instead of switching to it"; } | wrapindent -w
 		return 0
 	elif [[ $1 =~ ^[0-9]+$ && dir_only -eq 0 ]]; then
 		local f=".."
@@ -849,13 +851,13 @@ alias ..="cd_up" # [BH]
 # cdc: change to the current svn directory in a different checkout
 cdc (){ # [BH]
 	if [[ $1 == "--help" ]]; then
-		echo "Switch to the same directory relative to a different svn checkout."
+		{ echo "Switch to the same directory relative to a different svn checkout."
 		echo "Usage: cdc [-p] <checkout_abbreviation>"
-		echo "  -p                    : just print the path to stdout instead of"
-		echo "                          switching to it"
-		echo "  checkout_abbreviation : prefix with \"f\" to signify fresh_checkout"
-		echo "                          required part is the integer suffix of the"
-		echo "                          checkout folder name"
+		echo "  -p"
+		echo "      just print the path to stdout instead of switching to it"
+		echo "  <checkout_abbreviation>"
+		echo "      prefix with \"f\" to signify fresh_checkout required part is \
+the integer suffix of the checkout folder name"; } | wrapindent -w
 	fi
 	local cdc_command=cd
 	if [[ $1 == "-p" ]]; then shift; cdc_command=echo; fi
@@ -874,9 +876,9 @@ cdmr (){ cd "`command ls -d1tc $(translate_dir_hist "${@:-*}/") | head -1`"; } #
 # ff: find files matching a given regex (case-insensitive)
 ff () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
-		echo "Usage: ff <regex> [<directory>]"
+		{ echo "Usage: ff <regex> [<directory>]"
 		echo "  <regex>     : Case-insensitive extended regular expression (see find -E for more information)."
-		echo "  <directory> : Directory in which to search. Default is current directory."
+		echo "  <directory> : Directory in which to search. Default is current directory."; } | wrapindent 16
 		return 0
 	fi
 	[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
@@ -885,9 +887,9 @@ ff () { # [BH]
 # fd: find directories matching a given regex (case-insensitive)
 fd () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
-		echo "Usage: fd <regex> [<directory>]"
+		{ echo "Usage: fd <regex> [<directory>]"
 		echo "  <regex>     : Case-insensitive extended regular expression (see find -E for more information)."
-		echo "  <directory> : Directory in which to search."
+		echo "  <directory> : Directory in which to search."; } | wrapindent 16
 		return 0
 	fi
 	[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
@@ -896,12 +898,15 @@ fd () { # [BH]
 # fft: find files in a directory that have been modified in the past given number of minutes
 fft () { # [BH]
 	if [[ $# -eq 0 || $1 -eq "-h" || $1 -eq "--help" || $1 -eq "help" ]]; then
-		echo "Usage: fft [options] <minutes> [<case_insensitive_regex>]"
+		{ echo "Usage: fft [options] <minutes> [<case_insensitive_regex>]"
 		echo "Options:"
-		echo "  -d <directory>           : Specify the directory in which to search. Default is current directory."
+		echo "  -d <directory>"
+		echo "    Specify the directory in which to search. Default is current directory."
 		echo "Arguments:"
-		echo "  <minutes>                : Max # of minutes ago for a file to have been modified"
-		echo "  <case_insensitive_regex> : Case-insensitive extended regular expression (see find -E for more information)."
+		echo "  <minutes>"
+		echo "    Max # of minutes ago for a file to have been modified"
+		echo "  <case_insensitive_regex>"
+		echo "    Case-insensitive extended regular expression (see find -E for more information)."; } | wrapindent -w
 		return 0
 	fi
 	if [[ $1 == "-d" ]]; then local root="`translate_dir_hist "$2"`"; shift 2; fi
@@ -911,10 +916,13 @@ fft () { # [BH]
 # gf: grep through files returned by find
 gf () { # [BH]
 	if [[ $# -lt 2 ]]; then
-		echo "Usage: gf <egrep_regex> <case_insensitive_find_regex> [<directory>]"
-		echo "  <egrep_regex>                 : egrep style regular expression"
-		echo "  <case_insensitive_find_regex> : Case insensitive extended regular expression representing the files to search (see find -E)"
-		echo "  <directory>                   : Directory in which to search. Default is current directory."
+		{ echo "Usage: gf <egrep_regex> <case_insensitive_find_regex> [<directory>]"
+		echo "  <egrep_regex>"
+		echo "    egrep style regular expression"
+		echo "  <case_insensitive_find_regex>"
+		echo "    Case insensitive extended regular expression representing the files to search (see find -E)"
+		echo "  <directory>"
+		echo "    Directory in which to search. Default is current directory."; } | wrapindent -w
 		return 0
 	fi
 	[[ -n $3 ]] && local root="`translate_dir_hist "$3"`"
@@ -1312,7 +1320,8 @@ atp () { # [BH]
 		echo "Usage: atp [-p] [<location>]"
 		echo "  -p         : prepend to path instead of appending"
 		echo "  <location> : what to add to the path (current directory if not specified)"
-		echo "If location is already in the path, this does nothing and has an exit status of 0."
+		echo "If location is already in the path, this does nothing and has an exit status"
+		echo "of 0."
 		return 0
 	elif [[ $1 == "-p" ]]; then
 		if [[ $# -gt 1 ]]; then
