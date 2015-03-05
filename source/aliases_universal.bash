@@ -682,6 +682,8 @@ diralias () { # {BH}
 diraliased (){ if [[ -z "`egrep "^export $1=" ~/.dirs`" ]]; then echo Not aliased; else echo Aliased; fi; } #[BH]
 # Initialization for the above 'diralias' function:
 sdirs                # source the ~/.dirs file
+# NOTE: the following line is no longer needed for cd built-in thanks to the updates to the cd
+#       wrapper but it's still needed for things like pushd, etc.
 shopt -s cdable_vars # set the bash option so that no '$' is required when using directory alias
 
 # mkcd: make a directory and switch to it
@@ -1217,9 +1219,6 @@ alias ?="help" # [BH]
 # read_key: read a single key press
 read_key () { read -s -n1 keypress; } # [BH]
 
-# undeclare: remove a declaration
-alias undeclare="unset" # [BH]
-
 # rs: resume detached screen session
 alias rs="screen -r" # [BH]
 
@@ -1306,37 +1305,42 @@ h_ (){ # [BH]
 # PATH #
 ################################################################################
 # inpath: check if something is currently included in the path. example usage: inpath /bin && echo in || echo not in
-inpath () { # [BH]
-	if [[ "$PATH" =~ ^(.*:)?$@(:.*)?$ ]]; then return 0
-	else return 1; fi
+inpath () { [[ "$PATH" =~ ^(.*:)?$@(:.*)?$ ]] && return 0 || return 1; } # [BH]
+
+# atp: add a directory to PATH (current directory by default)
+atp () { # [BH]
+	if [[ $1 == "--help" ]]; then
+		{ echo "Usage: atp [-p] [<location>]"
+		echo "Options:"
+		echo "  -p : prepend to path instead of appending"
+		echo "Arguments:"
+		echo "  <location>"
+		echo "      Directory to add to the path. If location is already in PATH, this does \
+nothing and has an exit status of 0. [Default: current directory]"; } | wrapindent -w
+		return 0
+	fi
+	[[ $1 == "-p" ]] && { shift; local prepend=1; } || local prepend=0
+	[[ $# -eq 0 ]] && local path_to_add="`pwd`" || local path_to_add="$@"
+	inpath "$path_to_add" && return 0
+	[[ $prepend -eq 0 ]] && \
+		export PATH="$PATH:$path_to_add" || \
+		export PATH="$path_to_add:$PATH"
 }
 
-# atp: add specified directory to PATH (current directory by default)
-atp () { # [BH]
-	if [[ $# -eq 0 ]]; then
-		inpath `pwd`
-		if [[ $? -eq 1 ]]; then export PATH="$PATH:`pwd`"; fi
-	elif [[ $1 == "--help" ]]; then
-		echo "Usage: atp [-p] [<location>]"
-		echo "  -p         : prepend to path instead of appending"
-		echo "  <location> : what to add to the path (current directory if not specified)"
-		echo "If location is already in the path, this does nothing and has an exit status"
-		echo "of 0."
+# rfp: remove a directory from PATH
+rfp () { # [BH]
+	if [[ $1 == "--help" ]]; then
+		{ echo "Usage: rfp [<location>]"
+		echo "Arguments:"
+		echo "  <location>"
+		echo "      What to add to the path. Though this is posix-extended regex compatible, \
+it is not recommended to use a regex. If a regex is used, partial matches will NOT be removed. \
+This is also compatible with directory history. [Default: current directory]"; } | wrapindent -w
 		return 0
-	elif [[ $1 == "-p" ]]; then
-		if [[ $# -gt 1 ]]; then
-			inpath "${@: +2}"
-			if [[ $? -eq 0 ]]; then return 0; fi
-			export PATH="${@: +2}:$PATH"
-		else
-			inpath `pwd`
-			if [[ $? -eq 0 ]]; then return 0; fi
-			export PATH="`pwd`:$PATH"
-		fi
-	else
-		inpath "$@"; if [[ $? -eq 0 ]]; then return 0; fi
-		export PATH="$PATH:$@"
 	fi
+	local path_to_rm="$1"
+	[[ $# -eq 0 ]] && path_to_rm="`pwd`"
+	export PATH="`echo "$PATH" | tr ':' '\n' | egrep -v "^${path_to_rm}$" | tr '\n' ':'`"
 }
 
 # to get around having to type the "./" when running an executable from the current directory
