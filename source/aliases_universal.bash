@@ -848,9 +848,6 @@ cd_up () { # [BH]
 }
 alias ..="cd_up" # [BH]
 
-# cd: cd wrapper that works with a directory alias (from diralias) followed by a sub-path
-cdd () { cd `env | grep ^${@%%/*}= | sed 's/.*=//'`/${@#*/}; } # [BH]
-
 # cdc: change to the current svn directory in a different checkout
 cdc (){ # [BH]
 	if [[ $1 == "--help" ]]; then
