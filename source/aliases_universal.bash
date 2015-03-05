@@ -30,9 +30,9 @@ bashp () { subl ~/.bash_profile; } # [BH]
 # aliases: edit universal aliases
 aliases () { subl "$UNIV_ALIAS_FILE"; } # [BH]
 # paliases: edit platform-specific aliases
-paliases (){ subl $PLATFORM_ALIAS_FILES; }
+paliases (){ subl $PLATFORM_ALIAS_FILES; } # [BH]
 # spalias: source platform-specific aliases
-spalias (){ for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; }
+spalias (){ for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
 
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
@@ -74,7 +74,7 @@ lscustomfunc () { # [BH]
 }
 
 # lsfunc: list all def functions and aliases
-alias lsfunc="compgen -aA function"
+alias lsfunc="compgen -aA function" # [BH]
 
 # lsallfunc: list all of the available built-ins, commands, functions, and aliases
 alias lsallfunc="compgen -abcA function" # [BH]
@@ -668,8 +668,6 @@ alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET
 ################################################################################
 # sdirs: update the directory aliases for the current session according to the master file
 sdirs () { source ~/.dirs; }
-# pdirs: manually edit the directory aliases file with pico
-pdirs () { pico ~/.dirs; } # [BH]
 # diralias: set an alias for a directory that can be used with cd from anywhere without a "$" (must use "$" if directory alias not used by itself)
 diralias () { # {BH}
 	sed "/export $1=/d" ~/.dirs > ~/.dirs1 # delete any existing alias with the same name
@@ -744,7 +742,7 @@ translate_dir_hist (){ #[BH]
 		echo "$1"
 	fi
 }
-alias tdh=translate_dir_hist
+alias tdh=translate_dir_hist # [BH]
 
 # mv_func: wrapper around mv that utilizes directory history from cd wrapper
 mv_func (){ # [BH]
@@ -753,7 +751,7 @@ mv_func (){ # [BH]
 	   "`translate_dir_hist "${@:(-2):1}"`" \
 	   "`translate_dir_hist "${@:(-1):1}"`"
 }
-alias mv=mv_func
+alias mv=mv_func # [BH]
 
 # cp_func: wrapper around cp that utilizes directory history from cd wrapper
 cp_func (){ # [BH]
@@ -762,7 +760,7 @@ cp_func (){ # [BH]
 	   "`translate_dir_hist "${@:(-2):1}"`" \
 	   "`translate_dir_hist "${@:(-1):1}"`"
 }
-alias cp=cp_func
+alias cp=cp_func # [BH]
 
 # cds: switch to the first directory relative to the current one that matches the specified regex (breadth-first search)
 cds () { # [BH]
@@ -1164,13 +1162,6 @@ pgrams () { # [BH]
 # num_url_files: how many url files are there in the current directory?
 num_url_files () { ls -1 *.url_file | wc -l; } # [BH]
 
-# rm0counts: remove n-grams with zero count (overwrites given file)
-rm0counts () { # [BH]
-	f=`mktemp XXXXXXXXXX`
-	awk -v s=0 '$NF !~ /^0$/' "$@" > "$f"
-	mv "$f" "$@"
-}
-
 # ngramcount: get the total ngram count from an ARPA file
 ngramcount () { awk -F = -v s=0 -v c=0 '( c==0 && NF==2 ) {s=s+$2} /^\\1-/ {c=1} END {print s}' "$@"; } # [BH]
 
@@ -1186,7 +1177,7 @@ alias mw=missing_words #[BH]
 # Package Managers #
 ################################################################################
 # pipup: update all pip packages and their dependencies
-pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip install -U --allow-all-external; }
+pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip install -U --allow-all-external; } # [BH]
 ################################################################################
 
 
@@ -1239,7 +1230,7 @@ sms () {
 # sms_me: send myself an sms message
 sms_me () { sms 3306979807 "$@"; } # [BH]
 
-# on_process_done: 
+# on_process_done: do something when a background process finishes
 on_process_done () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Wait for an existing background process to finish, then execute a command."
@@ -1251,7 +1242,7 @@ on_process_done () { # [BH]
 alias opd="on_process_done" # [BH]
 
 # xargs_cheat: for when xargs won't work right (e.g. xargs-ing a function)
-xargs_cheat (){ while read -s args; do $@ $args; done; }
+xargs_cheat (){ while read -s args; do $@ $args; done; } # [BH]
 
 # errcho: echo to STDERR
 errcho () { >&2 echo "$@"; } # [BH]
@@ -1267,27 +1258,6 @@ rand (){ # [BH]
 		python -c "import random; print random.randint($1,$2)"
 	done
 }
-
-# stopwatch (){
-# 	local start=`date +%s`
-# 	echo "Start:   `date`"
-# 	local cols=`tput cols`
-	
-# 	# put standard input into non-blocking mode
-# 	# stty -echo -icanon time 0 min 0
-	
-# 	# local keypres=""
-# 	# while [[ "x$keypress" == "x" ]]; do
-# 	while [[ true ]]; do
-# 		# seq 1 `tput cols` | echo -n ' '
-# 		echo -ne "\rElapsed: $(sec2human $((`date +%s`-$start)))"
-# 		# read keypress
-# 	done
-	
-# 	# reset standard input mode
-# 	# stty sane
-# 	# echo
-# }
 
 # pts: print time stamp
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
@@ -1315,11 +1285,12 @@ export HISTTIMEFORMAT='%F %T '
 if [[ -z "`echo "$PROMPT_COMMAND" | grep 'history -a'`" ]]; then export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"; fi
 
 # h_: colorize the history command's output in less (i.e. history | grep function_name | h_)
-h_ (){
+h_ (){ # [BH]
 	sed $SED_EXT_RE -e "s/[0-9]+ /${FGREEN}&${RES}/" \
 	                -e "s/ [0-9]{4}-[0-9]{2}-[0-9]{2}/${FYELLOW}&${RES}/" \
 	                -e "s/ ([0-9]{2}:){2}[0-9]{2}/${FCYAN}&${RES}/" \
-	| less -R; } # [BH]
+	| less -R
+}
 ################################################################################
 
 
@@ -1435,7 +1406,8 @@ svnl_tab_completion (){ # [BH]
 }
 eval "`svnl_tab_completion`"
 
-cdd_tab_completion (){
+# TODO: look into migrating this completion to cd wrapper
+cdd_tab_completion (){ # [BH]
 	echo 'shopt -s progcomp'
 	echo '_cdd_tab_complete (){'
 	echo "	local IFS=$' \n'"
@@ -1504,8 +1476,4 @@ shopt -s checkwinsize
 
 shopt -s globstar >& /dev/null # enables recursive globbing with ** (bash 4.0+ only)
 shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
-
-# export all of the functions in this file
-# this causes weird issues
-# export -f `egrep -C 0 "^\S+\s*\(\)" ~/.aliases_universal.bash | awk '{print $1}' | tr '\n' ' '` # [BH]
 ################################################################################
