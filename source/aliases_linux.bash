@@ -52,13 +52,14 @@ total_ram () { grep MemTotal /proc/meminfo | sed s/[^0-9BKk]//g | human2bytes | 
 # email_file: email a file to somebody
 email_file () { # {BH}
 	if [[ $# -lt 2 || $1 == "-h" || $1 == "--help" || $1 == "-help" ]]; then
-		echo "Usage: email_file <file> [options] <email_address>"
+		{ echo "Usage: email_file <file> [options] <email_address>"
 		echo "  -s subject"
-		echo "      Specify subject on command line. (Only the first argument after the -s flag is used as a subject; be careful to quote subjects containing spaces.)"
+		echo "      Specify subject on command line. (Only the first argument after the -s flag is used as a subject; \
+be careful to quote subjects containing spaces.)"
 		echo "  -c addresses"
 		echo "      Send carbon copies to addresses list of users. The addresses argument should be a comma-separated list of names."
 		echo "  -b addresses"
-		echo "      Send blind carbon copies to addresses list of users. The addresses argument should be a comma-separated list of names."
+		echo "      Send blind carbon copies to addresses list of users. The addresses argument should be a comma-separated list of names."; } | wrapindent -w
 		return 0
 	fi
 	uuencode $1 $1 | mailx ${@: +2}

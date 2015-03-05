@@ -25,8 +25,7 @@ snapdiff (){ # [BH]
 		echo "Date Format: YYYY-MM-DD"
 		echo "<file_path> can be absolute or relative."
 		echo "If <date2> is not provided, default is the most recent snapshot."
-		echo "If -c is specified, the current version of the file is used as the second"
-		echo "version."
+		echo "If -c is specified, the current version of the file is used as the second version."
 		return 0
 	fi
 	if [[ $1 == "-c" ]]; then
@@ -54,12 +53,12 @@ snapdiff (){ # [BH]
 # cdsnap: switch to the snapshot for the specified directory (default is current) on the specified date (YYYY-MM-DD) [Default date: most recent]
 cdsnap (){ # [BH]
 	if [[ "$1" == "--help" ]]; then
-		echo "Switch to the snapshot version of a directory."
+		{ echo "Switch to the snapshot version of a directory."
 		echo "Usage: cdsnap [-p <path>] [<date>]"
-		echo "  -p <path>:"
+		echo "  -p <path>"
 		echo "      A relative or absolute path to the directory in question [Default: current directory]"
-		echo "  <date>:"
-		echo "      Format: \"YYYY-MM-DD\" [Default: most recent snapshot (`command ls -1 /shared/.zfs/snapshot/ | tail -1`)]"
+		echo "  <date>"
+		echo "      Format: \"YYYY-MM-DD\" [Default: most recent snapshot (`command ls -1 /shared/.zfs/snapshot/ | tail -1`)]"; } | wrapindent -w
 		return 0
 	fi
 	
