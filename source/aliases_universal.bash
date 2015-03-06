@@ -1419,25 +1419,6 @@ svnl_tab_completion (){ # [BH]
 }
 eval "`svnl_tab_completion`"
 
-# TODO: look into migrating this completion to cd wrapper
-cdd_tab_completion (){ # [BH]
-	echo 'shopt -s progcomp'
-	echo '_cdd_tab_complete (){'
-	echo "	local IFS=$' \n'"
-	echo '	local cws="${COMP_WORDS[@]: +1}"'
-	echo '	local path="$cws"'
-	echo '	local extra="${path##*/}"'
-	echo '	local var="${path%%/*}"'
-	echo '	local middle="${path#$var}"'
-	echo '	prefix="${path%/$extra}"'
-	echo '	local var_value="$(env | grep ^${var%%/*}= | sed "s/.*=//")"'
-	echo '	path="${prefix/$var/$var_value}"'
-	echo '	COMPREPLY=( $( compgen -P "$prefix/" -W "\`command ls -1 "$path" | egrep "/$"\`" -- $extra ) )'
-	echo '}'
-	echo 'complete -F _cdd_tab_complete -o nospace -o filenames cdd'
-}
-eval "`cdd_tab_completion`"
-
 # SSH auto-completion based on entries in known_hosts
 if [[ -e ~/.ssh/known_hosts ]]; then
   complete -o default -W "$(cat ~/.ssh/known_hosts | sed 's/[, ].*//' | sort | uniq | grep -v '[0-9]')" ssh scp sftp
