@@ -1164,16 +1164,13 @@ pgrams () { # [BH]
 	local arpa_file="$1"
 	shift
 	while [[ $# -gt 0 ]]; do
-		< "$arpa_file" awk -v pattern="$1-grams" '$0 ~ pattern {s = 1;} $0 !~ pattern {if ($0 ~ /^$/) s=0;} {if (s == 1 && $0 !~ pattern) print $0;}'
+		awk -v pattern="$1-grams" '(s == 1 && NF == 0) {exit} (s == 1) {print $0} $0 ~ pattern {s=1}' "$arpa_file"
 		shift
 	done
 }
 
-# num_url_files: how many url files are there in the current directory?
-num_url_files () { ls -1 *.url_file | wc -l; } # [BH]
-
 # ngramcount: get the total ngram count from an ARPA file
-ngramcount () { awk -F = -v s=0 -v c=0 '( c==0 && NF==2 ) {s=s+$2} /^\\1-/ {c=1} END {print s}' "$@"; } # [BH]
+ngramcount () { awk -F = -v s=0 -v c=0 '( c==0 && NF==2 ) {s=s+$2} /^\\1-/ {print s; exit}' "$@"; } # [BH]
 
 # clm: create language model
 alias clm=create_lm # [BH]
@@ -1194,9 +1191,8 @@ pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1  | xargs pip insta
 #########
 # Misc. #
 ################################################################################
-export NOTIFY=`tput bel` # [BH]
 # notify: play a notification sound (beep)
-notify () { echo -e "$NOTIFY"; } # [BH]
+notify () { tput bel; } # [BH]
 
 # _: "less -R"
 _ () { less -R; } # [BH]
@@ -1216,8 +1212,8 @@ help () { # [BH]
 }
 alias ?="help" # [BH]
 
-# read_key: read a single key press
-read_key () { read -s -n1 keypress; } # [BH]
+# readkey: read a single key press
+readkey () { read -s -n1 keypress; echo "$keypress"; } # [BH]
 
 # rs: resume detached screen session
 alias rs="screen -r" # [BH]
@@ -1347,7 +1343,7 @@ This is also compatible with directory history. [Default: current directory]"; }
 atp -p .
 
 atp -p /usr/local/bin
-atp $DOTFILES/bin
+atp "$DOTFILES/bin"
 
 # for view_fst.sh
 atp "$c1/decoder/scripts"
@@ -1421,7 +1417,7 @@ eval "`svnl_tab_completion`"
 
 # SSH auto-completion based on entries in known_hosts
 if [[ -e ~/.ssh/known_hosts ]]; then
-  complete -o default -W "$(cat ~/.ssh/known_hosts | sed 's/[, ].*//' | sort | uniq | grep -v '[0-9]')" ssh scp sftp
+	complete -o default -W "$(cat ~/.ssh/known_hosts | sed 's/[, ].*//' | sort | uniq | grep -v '[0-9]')" ssh scp sftp
 fi
 
 # make tab completion case insensitive
