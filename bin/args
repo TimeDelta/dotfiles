@@ -1,0 +1,13 @@
+if [[ $1 == "--help" ]]; then
+	echo "Use xargs with an alias or function"
+	echo "Usage: ... | xargs args [-f <source_file>] <command> [<args> ...]"
+	echo "  -f <source_file>"
+	echo "      Source this file before attempting to run the command. [Default: ~/.bashrc]"
+fi
+
+# determine which file to source to get the declarations for functions / aliases
+[[ $1 == "-f" ]] && { file_to_source="$2"; shift 2; } || file_to_source="$HOME/.bashrc"
+source "$file_to_source" force &> /dev/null # force is for default ~/.bashrc file
+
+# evaluate the specified command
+eval "$@"

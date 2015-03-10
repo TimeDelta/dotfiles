@@ -81,6 +81,9 @@ alias lsallfunc="compgen -abcA function" # [BH]
 
 # cmd: short for command
 alias cmd=command # [BH]
+
+# decs: this function will print the declaration for every function and alias in the current session (useful for xargs args -f <(decs) function)
+decs () { compgen -aA "function" | { local name; while read -s name; do func "$name"; done; }; } # [BH]
 ################################################################################
 
 
@@ -1244,8 +1247,19 @@ on_process_done () { # [BH]
 }
 alias opd="on_process_done" # [BH]
 
-# xargs_cheat: for when xargs won't work right (e.g. xargs-ing a function)
-xargs_cheat (){ while read -s args; do $@ $args; done; } # [BH]
+# xargs: wrapper around xargs that lets functions and aliases be used
+xargs () { # [BH]
+	if [[ $1 == "--help" ]]; then
+		echo "Usage: ... | xargs [<xargs_option> ...] -- <command> [<args> ...]"
+		return 0
+	fi
+	if [[ "$@" == *--* ]]; then
+		local a="$@"
+		cmd xargs ${a%%--*} args ${a#*--}
+	else
+		cmd xargs "$@"
+	fi
+}
 
 # errcho: echo to STDERR
 errcho () { >&2 echo "$@"; } # [BH]
@@ -1255,6 +1269,7 @@ rand (){ # [BH]
 	if [[ $1 == "--help" ]]; then
 		echo "Randomly generate a sequence of integers"
 		echo "Usage: $0 <lower_bound> <upper_bound> [<iterations>]"
+		return 0
 	fi
 	iters=${3:-1}
 	for ((i=0; i<$iters; i++)); do
