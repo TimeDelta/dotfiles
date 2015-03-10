@@ -1018,7 +1018,7 @@ cpu_usage () { ps -Ao %cpu | grep -v %CPU | egrep -o [0-9\.]+ | awk '{s += $1} E
 mem_usage () { # [BH]
 	local percent=`ps -Ao %mem | grep -v %MEM | egrep -o [0-9\.]+ | awk '{s += $1} END {print s}'`
 	local total=`total_ram`
-	local physical=$(echo $(calc $percent*`echo $total | human2bytes`/10000) | sed s/\.[0-9]*$// | bytes2human)
+	local physical=$(calc -t "$percent*`echo $total | human2bytes`/100" | bytes2human)
 	echo "$percent% of $total = $physical"
 }
 # vsize: get the current total vsize
@@ -1047,45 +1047,39 @@ usage () { # [BH]
 # bytes2human: translate bytes to a human readable size
 bytes2human () { # [BH]
 	b2h (){ # [BH]
-		if [[ $1 -lt 1024 ]]; then echo "$1B"
-		elif [[ $1 -ge 1024 && $1 -lt 1048576 ]]; then echo "`calc $1 / 1024`KB"
-		elif [[ $1 -ge 1048576 && $1 -lt 1073741824 ]]; then echo "`calc $1 / 1048576`MB"
-		elif [[ $1 -ge 1073741824 && $1 -lt 1099511627776 ]]; then echo "`calc $1 / 1073741824`GB"
+		if [[ `calc $1'<'1024` -eq 1 ]]; then echo "$1B"
+		elif [[ `calc $1'<'1048576` -eq 1 ]]; then echo "`calc $1 / 1024`KB"
+		elif [[ `calc $1'<'1073741824` -eq 1 ]]; then echo "`calc $1 / 1048576`MB"
+		elif [[ `calc $1'<'1099511627776` -eq 1 ]]; then echo "`calc $1 / 1073741824`GB"
 		else echo "`calc $1 / 1099511627776`TB"
 		fi
 	}
 	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset b2h; exit 1' ERR SIGHUP SIGINT SIGTERM
-	local OLD_FP_PRECISION=$FP_PRECISION
-	export FP_PRECISION=2
 	if [[ $# -ne 1 ]]; then
 		while read -s bytes; do
 			b2h $bytes
 		done
 	else b2h $1; fi
-	export FP_PRECISION=$OLD_FP_PRECISION
 	unset b2h  # dispose of the b2h declaration
 	trap - ERR SIGHUP SIGINT SIGTERM # clear the error trap
 }
 # human2bytes: translate human readable sizes into bytes
 human2bytes () { # [BH]
 	h2b (){ # [BH]
-		local magnitude=`echo $@ | sed s/[^a-zA-Z]//g | tr [a-z] [A-Z]`
-		local number=`echo $@ | sed s/[^0-9]//g`
-		if [[ $magnitude == "KB" ]]; then echo "`calc $number*1024`"
-		elif [[ $magnitude == "MB" ]]; then echo "`calc $number*1048576`"
-		elif [[ $magnitude == "GB" ]]; then echo "`calc $number*1073741824`"
-		elif [[ $magnitude == "TB" ]]; then echo "`calc $number*1099511627776`"
+		local magnitude=`echo $@ | sed s/[^a-zA-Z]//g | toupper`
+		local number=`echo $@ | sed s/[^0-9\.]//g`
+		if [[ $magnitude == "KB" ]]; then calc $number\*1024
+		elif [[ $magnitude == "MB" ]]; then calc $number\*1048576
+		elif [[ $magnitude == "GB" ]]; then calc $number\*1073741824
+		elif [[ $magnitude == "TB" ]]; then calc $number\*1099511627776
 		fi
 	}
 	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset h2b; exit 1' ERR SIGHUP SIGINT SIGTERM
-	local OLD_FP_PRECISION=$FP_PRECISION
-	export FP_PRECISION=2
 	if [[ $# -ne 1 ]]; then
 		while read -s human; do
 			h2b $human
 		done
 	else h2b $@; fi
-	export FP_PRECISION=$OLD_FP_PRECISION
 	unset h2b  # dispose of the h2b declaration
 	trap - ERR SIGHUP SIGINT SIGTERM # clear the error trap
 }
