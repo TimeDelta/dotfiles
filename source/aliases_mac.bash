@@ -82,6 +82,9 @@ alias openports='sudo lsof -i | grep LISTEN'
 # flushdns: flush the DNS cache
 alias flushdns='dscacheutil -flushcache'
 
+# httpdump: view http traffic
+alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
+
 # vpn: wrapper for openvpnstart (command line interface for Tunnelblick)
 vpn (){ # [BH]
 	# requires that the PATH environment variable has a certain prefix
