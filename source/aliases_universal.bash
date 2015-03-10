@@ -861,13 +861,13 @@ cdc (){ # [BH]
 		echo "  -p"
 		echo "      just print the path to stdout instead of switching to it"
 		echo "  <checkout_abbreviation>"
-		echo "      prefix with \"f\" to signify fresh_checkout required part is \
+		echo "      prefix with \"f\" to signify fresh_checkout. required part is \
 the integer suffix of the checkout folder name"; } | wrapindent -w
 	fi
 	local cdc_command=cd
 	if [[ $1 == "-p" ]]; then shift; cdc_command=echo; fi
 	if [[ -n `echo "$@" | grep f` ]]; then local use_fresh=fresh_; fi
-	$cdc_command "`pwd | sed -E "s/(fresh_)?checkout[0-9]+/${use_fresh}checkout$(echo "$@" | sed 's/[^0-9]//g')/"`"
+	$cdc_command "`pwd | sed $SED_EXT_RE "s/(fresh_)?checkout[0-9]+/${use_fresh}checkout$(echo "$@" | sed 's/[^0-9]//g')/"`"
 }
 
 # cdmr: switch to the most recently modified folder that matches the optional regex
@@ -894,7 +894,7 @@ fd () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		{ echo "Usage: fd <regex> [<directory>]"
 		echo "  <regex>     : Case-insensitive extended regular expression (see find -E for more information)."
-		echo "  <directory> : Directory in which to search."; } | wrapindent 16
+		echo "  <directory> : Directory in which to search. Default is current directory."; } | wrapindent 16
 		return 0
 	fi
 	[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
