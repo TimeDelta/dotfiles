@@ -1241,12 +1241,12 @@ alias opd="on_process_done" # [BH]
 # xargs: wrapper around xargs that lets functions and aliases be used
 xargs () { # [BH]
 	if [[ $1 == "--help" ]]; then
-		echo "Usage: ... | xargs [<xargs_option> ...] -- <command> [<args> ...]"
+		echo "Usage: ... | xargs [<xargs_option> ...] --- <command> [<args> ...]"
 		return 0
 	fi
-	if [[ "$@" == *--* ]]; then
+	if [[ "$@" == *---* ]]; then
 		local a="$@"
-		cmd xargs ${a%%--*} args ${a#*--}
+		cmd xargs ${a%%---*} args ${a#*---}
 	else
 		cmd xargs "$@"
 	fi
