@@ -741,7 +741,7 @@ cd (){ # {BH}
 # translate_dir_hist: helper function to replace a directory history index with its corresponding path
 translate_dir_hist (){ #[BH]
 	if [[ ${1:0:1} == '-' ]]; then
-		local index=`echo "$1" | egrep -om 1 "[0-9]([0-9])?"`
+		local index=`echo "$1" | egrep -om 1 "^-[0-9]+" | sed 's/^-//'`
 		echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
 	else
 		echo "$1"
