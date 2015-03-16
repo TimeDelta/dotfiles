@@ -620,6 +620,9 @@ upall (){ # [BH]
 		cd $i && up "$@" &
 	done
 }
+
+# svnmke: set the executable permissions to true for a file in svn
+alias svnmke='svn propset svn:executable true'
 ################################################################################
 
 
