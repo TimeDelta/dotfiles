@@ -196,7 +196,7 @@ alias mj="make -j16" # [BH]
 if [[ -z "`echo "$PROMPT_COMMAND" | grep 'append_command'`" ]]; then
 	trap "rm -f \$PREV_EXP_DIR/.yn\$\$" SIGHUP SIGINT SIGTERM
 	export PROMPT_COMMAND="$PROMPT_COMMAND \
-	if [[ -n \`pwd | egrep \"\$HOME/experiments/[0-9]{4}(-[0-9]{2}){2}_([0-9]{2}.){2}[0-9]{2}\" | grep -v \"^/shared/.zfs/snapshot/\"\` ]]; then \
+	if [[ -n \`pwd | egrep \"\$HOME/experiments/[0-9]{4}(-[0-9]{2}){2}_([0-9]{2}.){2}[0-9]{2}$\" | grep -v \"^/shared/.zfs/snapshot/\"\` ]]; then \
 		../append_command \$\$; \
 		export PREV_IN_EXP_DIR=1; \
 		export PREV_EXP_DIR=\"\`pwd\`\"; \
