@@ -383,9 +383,7 @@ rc () { # [BH]
 <regex> occurrences in each of the files individually"; } | wrapindent -w
 		return 0
 	elif [[ $# -eq 1 && $1 != "-f" ]]; then
-		local string=""
-		while read -s line; do string="$string$line"; done
-		egrep -o "$1" <<< "$string" | wc -l | sed s/\ //g
+		egrep -o "$1" | wc -l | sed s/\ //g
 	elif [[ $1 == "-f" ]]; then
 		while read -s file; do egrep -o "$2" "$file" | wc -l | sed s/\ //g; done
 	else egrep -o "$1" <<< "$2" | wc -l | sed s/\ //g; fi
