@@ -150,6 +150,17 @@ prep_medical () { buildall $@ -DCMAKE_BUILD_TYPE=Release -DRUN_TEST_tardec=OFF -
 
 # fs: filter sentences
 alias fs='python $scripts/filter_sentences.py' # [BH]
+
+# active_tests: list all of the active tests and their corresponding FST
+active_tests (){ #[BH]
+	test.sh -B | {
+		while read -s line; do
+			cd $line
+			echo -ne "${line##*/}:\t"
+			cmake -L 2> /dev/null | grep FST | sed 's/FST:STRING=//'
+		done
+	}
+}
 ################################################################################
 
 
