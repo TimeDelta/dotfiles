@@ -157,7 +157,10 @@ active_tests (){ #[BH]
 		while read -s line; do
 			cd $line
 			echo -ne "${line##*/}:\t"
-			cmake -L 2> /dev/null | grep FST | sed 's/FST:STRING=//'
+			cmake -L 2> /dev/null | grep FST | sed 's/FST:STRING=//' | xargs echo -n
+			echo -n ' ['
+			cmake -L 2> /dev/null | grep RUN_TEST | grep ON | sed -e 's/RUN_TEST_//' -e 's/:.*//' | tr '\n' ',' | xargs echo -n | sed 's/,$//'
+			echo ']'
 		done
 	}
 }
