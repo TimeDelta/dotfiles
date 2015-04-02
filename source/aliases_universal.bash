@@ -614,7 +614,7 @@ svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; 
 # upall: update all work-related svn checkouts
 upall (){ # [BH]
 	# NOTE: bash complains when condensing this to a one-liner b/c of "& ; done"
-	for i in `env | egrep '^c[0-9]+' | sed $SED_EXT_RE 's/^c[0-9]+=//'`; do
+	for i in `env | egrep '^(c[0-9]+|fresh)' | sed $SED_EXT_RE 's/^.*=//'`; do
 		cd $i && up "$@" &
 	done
 }
@@ -1229,16 +1229,15 @@ sms () {
 # sms_me: send myself an sms message
 sms_me () { sms 3306979807 "$@"; } # [BH]
 
-# on_process_done: do something when a background process finishes
-on_process_done () { # [BH]
+# opd: do something when a background process finishes
+opd () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Wait for an existing background process to finish, then execute a command."
-		echo "Usage: on_process_done <job_id> commands"
+		echo "Usage: opd <job_id> commands"
 		return 0
 	fi
 	wait $1 && ${@: +2}
 }
-alias opd="on_process_done" # [BH]
 
 # xargs: wrapper around xargs that lets functions and aliases be used
 xargs () { # [BH]
@@ -1272,6 +1271,9 @@ rand (){ # [BH]
 
 # pts: print time stamp
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
+
+# btype: print the build type for the current cmake build directory
+btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; }
 ################################################################################
 
 
