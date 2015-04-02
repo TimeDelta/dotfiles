@@ -713,12 +713,13 @@ cd (){ # {BH}
 	# name when including a subpath (i.e. scripts/mitlm instead of $scripts/mitlm)
 	[[ -e "$the_new_dir" ]] || {
 		local temp="`env | grep ^${the_new_dir%%/*}= | sed 's/.*=//'`"
-		[[ -n $temp && $the_new_dir == */* ]] && temp="$temp/${the_new_dir#*/}"
+		[[ -z $temp ]] && { echo "Error: $the_new_dir does not exist." >&2; return 1; }
+		[[ $the_new_dir == */* ]] && temp="$temp/${the_new_dir#*/}"
 		the_new_dir="$temp"
 	}
 	
 	# Now change to the new dir and add to the top of the stack
-	pushd "${the_new_dir}" > /dev/null
+	pushd "$the_new_dir" > /dev/null
 	[[ $? -ne 0 ]] && return 1
 	the_new_dir=$(pwd)
 	
