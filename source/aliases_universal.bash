@@ -769,6 +769,21 @@ cp_func (){ # [BH]
 }
 alias cp=cp_func # [BH]
 
+# cpdirs: copy directory structure (without files) from one directory to another
+cpdirs (){ # [BH]
+	if [[ $1 == "--help" ]]; then
+		echo "Copy the directory structure (no files) from one directory to another."
+		echo "Usage: cp_dir_struc [-d <max_depth>] <from> <to>"
+		return 0
+	fi
+	if [[ $# -gt 2 ]]; then
+		depth="-maxdepth $2"
+		shift 2
+	fi
+	from="$1"; to="$2"
+	find "$from" -type d $depth -name \* | grep -v "^.$" | sed "s:^$from:$to:" | xargs -L 1 mkdir -p
+}
+
 # cds: switch to the first directory relative to the current one that matches the specified regex (breadth-first search)
 cds () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
@@ -1273,7 +1288,7 @@ rand (){ # [BH]
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
 
 # btype: print the build type for the current cmake build directory
-btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; }
+btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; } # [BH]
 ################################################################################
 
 
