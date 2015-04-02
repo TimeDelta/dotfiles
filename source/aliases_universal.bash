@@ -1452,6 +1452,7 @@ export svn_url="$donna_url/svn/tam/branches"
 export ndec_url="$svn_url/new_decoder"
 export svn="^/branches"
 export MY_OS=`uname`
+export null="/dev/null"
 
 # this block is just for compatibility reasons so that i don't need to have the
 # same function in multiple alias files (so i don't need per-platform copies)
