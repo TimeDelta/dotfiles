@@ -1186,6 +1186,9 @@ ngramcount () { awk -F = -v s=0 -v c=0 '( c==0 && NF==2 ) {s=s+$2} /^\\1-/ {prin
 # clm: create language model
 alias clm=create_lm # [BH]
 
+# glm: guess language model
+alias glm=guess_lm # [BH]
+
 # missing_words: get info about words from a text file that aren't in a pronunciation dictionary
 alias mw=missing_words #[BH]
 ################################################################################
