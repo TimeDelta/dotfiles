@@ -1292,6 +1292,14 @@ pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
 
 # btype: print the build type for the current cmake build directory
 btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; } # [BH]
+
+# sbtype: set the cmake build type for the specified directory
+sbtype (){ # [BH]
+	if [[ $1 == "--help" ]]; then echo "Usage: sbtype <build_type> [<build_directory>]"; fi
+	if [[ $# -eq 2 ]]; then pushd "$2" > /dev/null; fi
+	cmake -DCMAKE_BUILD_TYPE="$1" ..
+	if [[ $# -eq 2 ]]; then popd > /dev/null; fi
+}
 ################################################################################
 
 
@@ -1442,6 +1450,19 @@ svnl_tab_completion (){ # [BH]
 	echo "complete -F _svnl_tab_complete -o nospace -o filenames svnl"
 }
 eval "`svnl_tab_completion`"
+
+sbtype_tab_completion (){ # [BH]
+	echo 'shopt -s progcomp'
+	echo '_sbtype_tab_completion (){'
+	echo '	COMPREPLY=()'
+	echo '	local cur=${COMP_WORDS[$COMP_CWORD]}'
+	echo '	if [[ $COMP_CWORD -eq 1 ]]; then'
+	echo '		COMPREPLY=( $( compgen -W "Release RelWithDebInfo Debug" -- $cur ) )'
+	echo '	fi'
+	echo '}'
+	echo 'complete -F _sbtype_tab_completion sbtype'
+}
+eval "`sbtype_tab_completion`"
 
 # SSH auto-completion based on entries in known_hosts
 if [[ -e ~/.ssh/known_hosts ]]; then
