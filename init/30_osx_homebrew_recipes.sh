@@ -14,6 +14,7 @@ recipes=(
   colordiff
   gfortran
   gnuplot
+  gperftools
   graphviz
   htop-osx
   lame

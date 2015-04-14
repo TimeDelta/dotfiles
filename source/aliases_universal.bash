@@ -1197,8 +1197,21 @@ alias mw=missing_words #[BH]
 #############
 # Profiling #
 ################################################################################
-# callgrind: 
-alias callgrind="valgrind --tool=callgrind -v --dump-every-bb=10000000 --simulate-cache=yes"
+# callgrind: run valgrind's callgrind tool on a process with default options
+alias callgrind="valgrind --tool=callgrind -v --simulate-cache=yes" # [BH]
+
+# gprof: use Google's profiler
+gprof (){ # [BH]
+	if [[ $1 == "--help" ]]; then
+		echo "Usage: gperf <output_file> <command> [<arg> ...]" >&2
+		return 0
+	fi
+	output="$1"
+	profile="/tmp/`basename "$output"`.prof"
+	shift
+	env CPUPROFILE="$profile" LD_PRELOAD="$LIB_PROFILER" "$@"
+	$GPROFILER_BIN --callgrind `which "$1"` "$profile" > "$output"
+}
 ################################################################################
 
 
