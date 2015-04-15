@@ -1,8 +1,22 @@
+#########
+# Notes #
 ################################################################################
-# Notes:
+# Credit:
+# Main author is Bryan Herman
 # Aliases and functions followed by a "# [BH]" are written entirely by me
 # Aliases and functions followed by a "# {BH}" are adapted by me from somebody else's code
 # Aliases and functions without a comment after it are completely taken from elsewhere
+# ------------------------------------------------------------------------------
+# Regexes to look for common mistakes:
+# conditional statements using variables without the "$"
+# \[\[.*[ \t](("?[a-zA-Z_][a-zA-Z0-9_]*"?[ \t]+(-(eq|ne|lt|le|gt|ge)|==|=~))|((-(eq|ne|lt|le|gt|ge)|==|=~)[ \t]+"?[a-zA-Z_][a-zA-Z0-9_]*"?[ \t])|(-[a-zA-Z][ \t]+"?[a-zA-Z_][a-zA-Z0-9_]*"?[ \t])).*\]\]
+# 
+# non-local variables
+# (?<!local|alias|xport)\s+[a-zA-Z_][a-zA-Z0-9_]*=|for\s+[a-zA-Z_][a-zA-Z0-9_]*\s+in\s|while\s+read\s+
+# ------------------------------------------------------------------------------
+# To do:
+# - fix lc function to match help message
+# - change all functions that contain a help message display that message if --help is given as first argument
 ################################################################################
 
 
@@ -14,8 +28,7 @@ export UNIV_ALIAS_FILE="$HOME/.aliases_universal.bash"
 
 # falias: boolean alias search
 falias () { # [BH]
-	local results=`cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
-	local word
+	local results=`cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"` word
 	for word in "$@"; do results=`echo "$results" | egrep -i -a0 --color=always $word`; done
 	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)"
 }
@@ -32,7 +45,7 @@ aliases () { subl "$UNIV_ALIAS_FILE"; } # [BH]
 # paliases: edit platform-specific aliases
 paliases (){ subl $PLATFORM_ALIAS_FILES; } # [BH]
 # spalias: source platform-specific aliases
-spalias (){ for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
+spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
 
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
@@ -164,6 +177,7 @@ lslh () { ls -lGFhd ${@:-.}/.*; } # [BH]
 
 # sizeof: display the size of a file
 sizeof () { # [BH]
+	local file
 	if [[ $# -eq 0 ]]; then while read -s file; do du -ch $APPARENT_SIZE "$file" | awk 'END {print $1}'; done
 	else du -ch $APPARENT_SIZE "$@" | awk 'END {print $1}'; fi
 }
@@ -217,8 +231,8 @@ tolower () { tr 'A-Z' 'a-z'; } # [BH]
 
 # uw: print a list of unique words
 uw () { # [BH]
+	local ignore
 	if [[ $# -gt 0 ]]; then
-		local ignore=""
 		if [[ $1 == "-i" ]]; then shift; ignore="tr 'A-Z' 'a-z' |"
 		elif [[ $1 == "--help" || $1 == "-h" ]]; then
 			echo "Usage: <command> | uw [-i]"
@@ -234,8 +248,8 @@ uw () { # [BH]
 
 # ul: print a list of unique lines
 ul () { # [BH]
+	local ignore
 	if [[ $# -gt 0 ]]; then
-		local ignore=""
 		if [[ $1 == "-i" ]]; then shift; ignore="tr 'A-Z' 'a-z' |"
 		elif [[ $1 == "-h" || $1 == "--help" ]]; then
 			echo "Usage: <command> | ul [-i]"
@@ -288,19 +302,20 @@ indentation level. This option does nothing if <indent_size> is given." # note: 
 	fi
 	
 	# indentation options
-	[[ $1 == "-w" ]] && { local lead_space_only=1; shift; }
-	local line indent=$1
-	[[ -z $indent ]] && local use_default=1
+	local lead_space_only=0
+	[[ $1 == "-w" ]] && { lead_space_only=1; shift; }
+	local indent=$1 line
+	[[ -z $indent ]] && local use_default=1 || local use_default=0
 	
 	local OLD_IFS="$IFS" # read splits based on IFS, which may contain spaces, causing leading whitespace to be dropped
 	IFS="\n"
 	while read -s line; do
 		local cols=`tput cols` # have to reset cols for each line b/c it's modified when a line is wrapped
-		if [[ -n $use_default ]]; then # calculate the amount of indentation to use
+		if [[ $use_default -eq 1 ]]; then # calculate the amount of indentation to use
 			# start with the length of the leading whitespace
 			indent=`echo "$line" | egrep -o "^ +" | tr -d '\n' | wc -m | col 1`
 			# add in the length of the first column (as defined by awk with no options)
-			[[ -z $lead_space_only ]] && ((indent+=`echo "$line" | awk '{print length($1)}'`+1))
+			[[ $lead_space_only -eq 0 ]] && ((indent+=`echo "$line" | awk '{print length($1)}'`+1))
 		fi
 		
 		local first_chunk=0
@@ -385,6 +400,7 @@ rc () { # [BH]
 	elif [[ $# -eq 1 && $1 != "-f" ]]; then
 		egrep -o "$1" | wc -l | sed s/\ //g
 	elif [[ $1 == "-f" ]]; then
+		local file
 		while read -s file; do egrep -o "$2" "$file" | wc -l | sed s/\ //g; done
 	else egrep -o "$1" <<< "$2" | wc -l | sed s/\ //g; fi
 }
@@ -392,13 +408,13 @@ rc () { # [BH]
 # fc: count files in a directoy that match a given regex
 fc () { # [BH]
 	# parse options
-	local non_recursive="-mindepth 1 -maxdepth 1"
+	local non_recursive="-mindepth 1 -maxdepth 1" type root_dir
 	while getopts ":d:rDfh" opt; do
 		case $opt in
-			d) local root_dir="$OPTARG" ;;
+			d) root_dir="$OPTARG" ;;
 			r) non_recursive="" ;;
-			D) local type="-type d" ;;
-			f) local type="-type f" ;;
+			D) type="-type d" ;;
+			f) type="-type f" ;;
 			h)
 				{ echo "Usage: fc [options] [<regex>]"
 				echo "    -d <directory> : Specify the parent directory in which to search for files"
@@ -468,9 +484,8 @@ svnrepsize () { # {BH}
 		echo "  Default revision is \"HEAD\""
 		return 0
 	fi
-	local _rev=""
-	if [[ $# -eq 1 ]]; then _rev="HEAD"
-	else _rev="$2"; fi
+	if [[ $# -eq 1 ]]; then local _rev="HEAD"
+	else local _rev="$2"; fi
 	bytes2human $(svn list --xml --recursive -r${_rev} "$1" | grep size | egrep -o [0-9]+ | awk '{s += $1 } END {print s}')
 }
 
@@ -486,6 +501,7 @@ diffhist (){
 		echo
 		
 		# remaining revisions as differences to previous revision
+		local r
 		while read r; do
 			echo
 			svn log -r$r $url@HEAD
@@ -532,20 +548,15 @@ svn_files_changed () { # [BH]
 	
 	local files_only=0
 	local fid=`mktemp XXXXXXXXXX` # provide the template for OS X compatibility
-	local num_args=$#
-	if [[ $1 == "-f" ]]; then
-		files_only=1
-		shift
-		num_args=`calc $num_args-1`
-	fi
+	[[ $1 == "-f" ]] && { files_only=1; shift; }
 	
 	# in case you're feeling lazy and don't want to include the year
 	if [[ `rc - $1` -lt 2 ]]; then set -- "`date \"+%Y-\"`$1"; fi
 	if [[ `rc - $2` -lt 2 ]]; then set -- "`date \"+%Y-\"`$2"; fi
 	
 	if [[ $# -eq 2 ]]; then svn log -vqr {$1}:{$2} > "$fid"
-	else svn log -vqr {$1}:{$(date "+%Y-%m-%dT%H:%M:%S")} > "$fid"; fi
-	if [[ files_only -eq 0 ]]; then cat "$fid"
+	else svn log -vqr "{$1}:{$(date "+%Y-%m-%dT%H:%M:%S")}" > "$fid"; fi
+	if [[ $files_only -eq 0 ]]; then cat "$fid"
 	else < "$fid" egrep -v "Changed path|----| `date +%Y`\)"; fi
 	rm "$fid"
 }
@@ -582,6 +593,7 @@ alias svnlogsoc="svn log --stop-on-copy" # [BH]
 # svnunv: list all unversioned files and folders in the specified directory (default is current directory)
 svnunv () { # [BH]
 	local max_depth=-1
+	local grep_pattern
 	if [[ $1 == "--help" ]]; then
 		{ echo "List unversioned files and folders in a subversion checkout."
 		echo "Usage: svnunv [options] [<root_dir>]"
@@ -597,7 +609,8 @@ svnunv () { # [BH]
 	
 	# build the grep pattern filter if needed
 	if [[ $max_depth -gt -1 ]]; then
-		local grep_pattern=".+"
+		grep_pattern=".+"
+		local i
 		for i in `seq 0 $max_depth`; do
 			grep_pattern="$grep_pattern/.+"
 		done
@@ -613,6 +626,7 @@ svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; 
 
 # upall: update all work-related svn checkouts
 upall (){ # [BH]
+	local i
 	# NOTE: bash complains when condensing this to a one-liner b/c of "& ; done"
 	for i in `env | egrep '^(c[0-9]+|fresh)' | sed $SED_EXT_RE 's/^.*=//'`; do
 		cd $i && up "$@" &
@@ -692,7 +706,7 @@ mkcd (){ mkdir -p "$@"; cd "$@"; } # [BH]
 
 # cd: wrapper for cd command that tracks the 10 most recent directories for quick & easy switching
 cd (){ # {BH}
-	local x2 the_new_dir adir index
+	local adir
 	local -i cnt
 	
 	if [[ $1 ==  "--" ]]; then
@@ -700,8 +714,7 @@ cd (){ # {BH}
 		return 0
 	fi
 	
-	the_new_dir=$1
-	[[ -z $1 ]] && the_new_dir=$HOME
+	local the_new_dir="${1:-$HOME}"
 	
 	# substitute the directory history flag for its corresponding path
 	[[ ${the_new_dir:0:1} == '-' ]] && the_new_dir="`translate_dir_hist "$the_new_dir"`"
@@ -712,7 +725,7 @@ cd (){ # {BH}
 	# make cd work without needing to type the "$" before an environment variable
 	# name when including a subpath (i.e. scripts/mitlm instead of $scripts/mitlm)
 	[[ -e "$the_new_dir" ]] || {
-		local temp="`env | grep ^${the_new_dir%%/*}= | sed 's/.*=//'`"
+		local temp="`env | grep "^${the_new_dir%%/*}=" | sed 's/.*=//'`"
 		[[ -z $temp ]] && { echo "Error: $the_new_dir does not exist." >&2; return 1; }
 		[[ $the_new_dir == */* ]] && temp="$temp/${the_new_dir#*/}"
 		the_new_dir="$temp"
@@ -721,19 +734,19 @@ cd (){ # {BH}
 	# Now change to the new dir and add to the top of the stack
 	pushd "$the_new_dir" > /dev/null
 	[[ $? -ne 0 ]] && return 1
-	the_new_dir=$(pwd)
+	the_new_dir="$(pwd)"
 	
 	# Trim down everything beyond 11th entry
 	popd -n +11 2>/dev/null 1>/dev/null
 	
 	# Remove any other occurence of this dir, skipping the top of the stack
 	for ((cnt=1; cnt <= 10; cnt++)); do
-		x2=$(dirs +${cnt} 2>/dev/null)
+		local x2="$(dirs +${cnt} 2>/dev/null)"
 		[[ $? -ne 0 ]] && return 0
 		[[ ${x2:0:1} == '~' ]] && x2="${HOME}${x2:1}"
 		if [[ "${x2}" == "${the_new_dir}" ]]; then
 			popd -n +$cnt 2>/dev/null 1>/dev/null
-			cnt=cnt-1
+			((cnt=cnt-1))
 		fi
 	done
 	
@@ -777,10 +790,11 @@ cpdirs (){ # [BH]
 		return 0
 	fi
 	if [[ $# -gt 2 ]]; then
-		depth="-maxdepth $2"
+		local depth="-maxdepth $2"
 		shift 2
 	fi
-	from="$1"; to="$2"
+	local from="$1"
+	local to="$2"
 	find "$from" -type d $depth -name \* | grep -v "^.$" | sed "s:^$from:$to:" | xargs -L 1 mkdir -p
 }
 
@@ -799,20 +813,21 @@ compatible with cd directory history [Default: current directory]"; } | wrapinde
 		return 0
 	fi
 	
+	local root result
 	if [[ $1 == "-d" ]]; then
 		# depth-first search
 		shift
 		
 		# for compatibility with directory history
-		[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
+		[[ -n $2 ]] && root="`translate_dir_hist "$2"`"
 		
-		local result=$(find $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex ".*/$1" -print -quit)
+		result=$(find $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex ".*/$1" -print -quit)
 	else
 		# breadth-first search
-		local depth=1 result more
+		local depth=1 more
 		
 		# for compatibility with directory history
-		[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
+		[[ -n $2 ]] && root="`translate_dir_hist "$2"`"
 		
 		# keep searching if the current depth yielded no results and there's still more through which to search
 		while result=$(find $FIND_DASH_E "${root:-.}" -mindepth $depth -maxdepth $depth -type d $FIND_REGEXTYPE -iregex ".*/$1" -print -quit) && \
@@ -844,7 +859,7 @@ cd_up () { # [BH]
 		echo "Options:"
 		echo "  -p : just print the path to stdout instead of switching to it"; } | wrapindent -w
 		return 0
-	elif [[ $1 =~ ^[0-9]+$ && dir_only -eq 0 ]]; then
+	elif [[ $1 =~ ^[0-9]+$ && $dir_only -eq 0 ]]; then
 		local f=".."
 		local i
 		if [[ $1 -gt 1 ]]; then
@@ -878,9 +893,9 @@ cdc (){ # [BH]
 		echo "      prefix with \"f\" to signify fresh_checkout. required part is \
 the integer suffix of the checkout folder name"; } | wrapindent -w
 	fi
-	local cdc_command=cd
+	local cdc_command=cd use_fresh
 	if [[ $1 == "-p" ]]; then shift; cdc_command=echo; fi
-	if [[ -n `echo "$@" | grep f` ]]; then local use_fresh=fresh_; fi
+	if [[ -n `echo "$@" | grep f` ]]; then use_fresh=fresh_; fi
 	$cdc_command "`pwd | sed $SED_EXT_RE "s/(fresh_)?checkout[0-9]+/${use_fresh}checkout$(echo "$@" | sed 's/[^0-9]//g')/"`"
 }
 
@@ -989,6 +1004,7 @@ minp () { sudo nice -n +20 "$@"; } # [BH]
 # pause: pause a running process by name (pipeable)
 pause () { # [BH]
 	if [[ $# -eq 0 ]]; then
+		local process
 		while read -s process; do
 			killall -STOP $process
 		done
@@ -999,6 +1015,7 @@ pauseall () { ps -Ao command | egrep "$@" | pause; } # [BH]
 # resume: resume a paused process by name (pipeable)
 resume () { # [BH]
 	if [[ $# -eq 0 ]]; then
+		local process
 		while read -s process; do
 			killall -STOP $process
 		done
@@ -1070,6 +1087,7 @@ bytes2human () { # [BH]
 	}
 	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset b2h; exit 1' ERR SIGHUP SIGINT SIGTERM
 	if [[ $# -ne 1 ]]; then
+		local bytes
 		while read -s bytes; do
 			b2h $bytes
 		done
@@ -1090,6 +1108,7 @@ human2bytes () { # [BH]
 	}
 	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset h2b; exit 1' ERR SIGHUP SIGINT SIGTERM
 	if [[ $# -ne 1 ]]; then
+		local human
 		while read -s human; do
 			h2b $human
 		done
@@ -1151,13 +1170,14 @@ calc () { # [BH]
 		echo "  -t : truncate all decimal places"
 		return 0
 	fi
-	if [[ $1 == "-t" ]]; then shift; local truncate=1; fi
+	local truncate=0
+	[[ $1 == "-t" ]] && { shift; truncate=1; }
 	if [[ $# -eq 0 ]]; then
 		local line
 		while read -s line; do
-			echo "$line" | bc -l | { [[ -n $truncate ]] && sed s/\\..*$// || xargs echo; }
+			echo "$line" | bc -l | { [[ $truncate -eq 1 ]] && sed s/\\..*$// || xargs echo; }
 		done
-	else echo "$@" | bc -l | { [[ -n $truncate ]] && sed s/\\..*$// || xargs echo; }; fi
+	else echo "$@" | bc -l | { [[ $truncate -eq 1 ]] && sed s/\\..*$// || xargs echo; }; fi
 }
 ################################################################################
 
@@ -1200,16 +1220,20 @@ alias mw=missing_words #[BH]
 # callgrind: run valgrind's callgrind tool on a process with default options
 alias callgrind="valgrind --tool=callgrind -v --simulate-cache=yes" # [BH]
 
-# gprof: use Google's profiler
+# gprof: use Google's CPU profiler
 gprof (){ # [BH]
-	if [[ $1 == "--help" ]]; then
-		echo "Usage: gperf <output_file> <command> [<arg> ...]" >&2
-		return 0
-	fi
-	output="$1"
-	profile="/tmp/`basename "$output"`.prof"
+	local frequency
+	case $1 in
+		--help)
+			echo "Usage: gprof [-f <profile_frequency>] <output_file> <command> [<arg> ...]" >&2
+			return 0 ;;
+		-f) frequency="CPU_PROFILE_FREQUENCY=$2"; shift 2 ;;
+	esac
+	local output="$1"
+	local profile="/tmp/`basename "$output"`.prof"
 	shift
-	env CPUPROFILE="$profile" LD_PRELOAD="$LIB_PROFILER" "$@"
+	
+	env CPUPROFILE="$profile" LD_PRELOAD="$LIB_PROFILER" $frequency "$@"
 	$GPROFILER_BIN --callgrind `which "$1"` "$profile" > "$output"
 }
 ################################################################################
@@ -1248,7 +1272,7 @@ help () { # [BH]
 alias ?="help" # [BH]
 
 # readkey: read a single key press
-readkey () { read -s -n1 keypress; echo "$keypress"; } # [BH]
+readkey () { local keypress; read -sn 1 keypress; echo "$keypress"; } # [BH]
 
 # rs: resume detached screen session
 alias rs="screen -r" # [BH]
@@ -1302,7 +1326,7 @@ rand (){ # [BH]
 		echo "Usage: $0 <lower_bound> <upper_bound> [<iterations>]"
 		return 0
 	fi
-	iters=${3:-1}
+	local iters=${3:-1}
 	for ((i=0; i<$iters; i++)); do
 		python -c "import random; print random.randint($1,$2)"
 	done
@@ -1530,6 +1554,7 @@ else
 	SED_EXT_RE="-r"
 fi
 shopt $old_nocasematch nocasematch
+unset old_nocasematch
 
 # Check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
