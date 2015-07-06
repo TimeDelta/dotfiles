@@ -314,7 +314,9 @@ alias mj="make -j2" # [BH]
 ##################
 # Tab Completion #
 ################################################################################
-eval "`bzr bash-completion`"
+if [[ "$(type -P bzr)" ]]; then
+	eval "`bzr bash-completion`"
+fi
 eval "`task bash-completion`" # task is a custom script
 eval "`todo bash-completion`" # todo is a custom script
 ################################################################################
@@ -324,13 +326,15 @@ eval "`todo bash-completion`" # todo is a custom script
 # PATH #
 ################################################################################
 # android tools
-build_tools_dirs=( `ls $andsdk/build-tools` )
-for d in "${build_tools_dirs[@]}"; do
-	atp -p "$andsdk/build-tools/${d%/}"
-done
-unset build_tools_dirs
-atp -p "$andsdk/platform-tools"
-atp "$andsdk/tools"
+if [[ -n $andsdk ]]; then
+	build_tools_dirs=( `ls $andsdk/build-tools` )
+	for d in "${build_tools_dirs[@]}"; do
+		atp -p "$andsdk/build-tools/${d%/}"
+	done
+	unset build_tools_dirs
+	atp -p "$andsdk/platform-tools"
+	atp "$andsdk/tools"
+fi
 
 # for homebrew binaries
 atp -p "/usr/local/sbin"
@@ -352,10 +356,9 @@ atp "$srilm/bin/macosx"
 ################################################################################
 export JAVA_HOME=`/usr/libexec/java_home`
 
-export ANDROID_NDK="/Users/bryanherman/development/android-ndk-r9d"
-export ANDROID_SDK="/Users/bryanherman/development/android-sdk"
-export ANDROID_HOME="$ANDROID_SDK"
-
-export chome="/home/likewise-open/AD/bherman" # cluster home absolute path
-export cfsts="$chome/checkout1/decoder/data/16000_i" # absolute path to main cluster fsts folder
+if [[ `whoami` == "bryanherman" ]]; then
+	export ANDROID_NDK="/Users/bryanherman/development/android-ndk-r9d"
+	export ANDROID_SDK="/Users/bryanherman/development/android-sdk"
+	export ANDROID_HOME="$ANDROID_SDK"
+fi
 ################################################################################
