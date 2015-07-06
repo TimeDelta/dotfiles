@@ -9,7 +9,7 @@ recipes=(
   autoconf
   automake
   bash
-  bazaar
+  # bazaar
   cmake
   colordiff
   gfortran
