@@ -1,5 +1,5 @@
 # only source this file if it's me b/c nobody else has my github private key
-[[ `whoami` =~ AD\\bherman|bryanherman ]] || return
+[[ `whoami` =~ bherman|bryanherman ]] || return
 
 # this makes GitHub accept push commands
 f="$HOME/.ssh-agent-output.`hostname -s`" # use hostname in case of shared home directory (e.g. cluster machines)
