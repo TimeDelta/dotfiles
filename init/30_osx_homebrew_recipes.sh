@@ -10,6 +10,7 @@ recipes=(
   automake
   bash
   # bazaar
+  brew-cask
   cmake
   colordiff
   gfortran
@@ -23,6 +24,7 @@ recipes=(
   openssl
   pip-completion
   pkg-config
+  qcachegrind
   sox
   sshfs
   swig
