@@ -53,7 +53,7 @@ salias () { source "$UNIV_ALIAS_FILE"; spalias; smalias; } # [BH]
 # spalias: source platform-specific aliases
 spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
 # smalias: source machine-specific aliases
-smalias (){ source "$MACHINE_ALIAS_FILE"; }
+smalias (){ source "$MACHINE_ALIAS_FILE"; } # [BH]
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
 
