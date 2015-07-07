@@ -228,7 +228,11 @@ function link_do() {
 # Copy, link, init, etc.
 function do_stuff() {
   local base dest skip
-  local files=($DOTFILES/$1/*)
+  if [[ $1 == "init" ]]; then
+    local files=(`< "$DOTFILES/init/ordered_init_files" sed -e "s:^:$DOTFILES/init/:" | tr '\n' ' ' | sed s/,$//`)
+  else
+    local files=($DOTFILES/$1/*)
+  fi
   [[ $(declare -f "$1_files") ]] && files=($($1_files "${files[@]}"))
   # No files? abort.
   if (( ${#files[@]} == 0 )); then return; fi
@@ -306,9 +310,12 @@ elif [[ "$1" != "restart" ]]; then
   fi
 fi
 
-# Add binaries into the path
-[[ -d $DOTFILES/bin ]] && PATH=$DOTFILES/bin:$PATH
-export PATH
+# Add binaries into the path if they're not there already
+[[ -d $DOTFILES/bin && ! "$PATH" =~ ^(.*:)?$DOTFILES/bin(:.*)?$ ]] && export PATH=$DOTFILES/bin:$PATH
+
+# make sure that the .path and .vars files exist
+if [[ ! -e $HOME/.path ]]; then touch $HOME/.path; fi
+if [[ ! -e $HOME/.vars ]]; then touch $HOME/.vars; fi
 
 # Tweak file globbing.
 shopt -s dotglob

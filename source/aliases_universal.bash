@@ -1426,30 +1426,6 @@ atp -p .
 atp -p /usr/local/bin
 atp "$DOTFILES/bin"
 
-# for view_fst.sh
-atp "$c1/decoder/scripts"
-# for open fst executables (if they have been built)
-atp "$c1/build/decoder/openfst-1.3.1/src/bin"
-# for regex2fst
-atp "$c1/build/decoder/grammar"
-# for fst utilities (fstaddauxloops, etc)
-atp "$c1/build/decoder/utils"
-# for compiled language_model code (e.g. mfw)
-atp "$c1/build/language_model/scripts"
-# for opengrm binaries
-atp "$c1/build/language_model/scripts/opengrm-ngram/src/bin"
-# for custom terminal tools
-atp "$termtools"
-# for sclite
-atp "$c1/recengine/scripts/setup/bin/"
-atp "$c1/utilities"
-# to get all of the language modeling scripts
-atp "$scripts"
-# to get the mitlm scripts
-atp "$mit"
-# for the platform-independent srilm scripts
-atp "$srilm/bin"
-
 # where: display all places in path that a command exists
 alias where="type -a"
 
@@ -1530,12 +1506,6 @@ shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr 
 ###############
 # Environment #
 ################################################################################
-export SVN_EDITOR="subl -w"
-export EDITOR="subl -w"
-
-export donna_url="http://donna.ad.think-a-move.com"
-export svn_url="$donna_url/svn/tam/branches"
-export ndec_url="$svn_url/new_decoder"
 export svn="^/branches"
 export MY_OS=`uname`
 export null="/dev/null"
@@ -1562,4 +1532,8 @@ shopt -s checkwinsize
 
 shopt -s globstar >& /dev/null # enables recursive globbing with ** (bash 4.0+ only)
 shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
+
+# source environment variables and set up PATH
+source $HOME/.path
+source $HOME/.vars
 ################################################################################
