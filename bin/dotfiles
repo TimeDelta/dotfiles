@@ -313,9 +313,10 @@ fi
 # Add binaries into the path if they're not there already
 [[ -d $DOTFILES/bin && ! "$PATH" =~ ^(.*:)?$DOTFILES/bin(:.*)?$ ]] && export PATH=$DOTFILES/bin:$PATH
 
-# make sure that the .path and .vars files exist
+# make sure that the required unversioned files exist
 if [[ ! -e $HOME/.path ]]; then touch $HOME/.path; fi
 if [[ ! -e $HOME/.vars ]]; then touch $HOME/.vars; fi
+if [[ ! -e $HOME/.aliases_machine.bash ]]; then touch $HOME/.aliases_machine.bash; fi
 
 # Tweak file globbing.
 shopt -s dotglob
