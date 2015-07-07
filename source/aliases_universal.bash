@@ -25,16 +25,17 @@
 ################################################################################
 # in case the name of this ever changes, it'll be easier to update
 export UNIV_ALIAS_FILE="$HOME/.aliases_universal.bash"
+export MACHINE_ALIAS_FILE="$HOME/.aliases_machine.bash"
 
 # falias: boolean alias search
 falias () { # [BH]
-	local results=`cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"` word
+	local results=`cat $MACHINE_ALIAS_FILE $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"` word
 	for word in "$@"; do results=`echo "$results" | egrep -i -a0 --color=always $word`; done
 	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)"
 }
 # halias: display information about specific aliases (egrep regex)
 halias (){ # [BH]
-	local results=`cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
+	local results=`cat $MACHINE_ALIAS_FILE $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
 	echo "$results" | egrep -i -C 0 "# $1:"
 }
 
@@ -44,13 +45,17 @@ bashp () { subl ~/.bash_profile; } # [BH]
 aliases () { subl "$UNIV_ALIAS_FILE"; } # [BH]
 # paliases: edit platform-specific aliases
 paliases (){ subl $PLATFORM_ALIAS_FILES; } # [BH]
+# maliases: edit machine-specific aliases
+maliases (){ subl "$MACHINE_ALIAS_FILE"; } # [BH]
+
+# salias: source this file (make changes active after editing)
+salias () { source "$UNIV_ALIAS_FILE"; spalias; smalias; } # [BH]
 # spalias: source platform-specific aliases
 spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
-
+# smalias: source machine-specific aliases
+smalias (){ source "$MACHINE_ALIAS_FILE"; }
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
-# salias: source this file (make changes active after editing)
-salias () { source "$UNIV_ALIAS_FILE"; spalias; } # [BH]
 
 # platform: is the specified function / alias platform-specific or universal?
 platform (){ # [BH]
@@ -1420,6 +1425,11 @@ This is also compatible with directory history. [Default: current directory]"; }
 	export PATH="`echo "$PATH" | tr ':' '\n' | egrep -v "^${path_to_rm}$" | tr '\n' ':'`"
 }
 
+# epath: open $HOME/.path
+epath (){ subl "$HOME/.path"; } # [BH]
+# spath: source $HOME/.path
+spath (){ source "$HOME/.path"; } # [BH]
+
 # to get around having to type the "./" when running an executable from the current directory
 atp -p .
 
@@ -1506,6 +1516,9 @@ shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr 
 ###############
 # Environment #
 ################################################################################
+# evars: open $HOME/.vars
+evars (){ subl "$HOME/.vars"; }
+
 export svn="^/branches"
 export MY_OS=`uname`
 export null="/dev/null"
