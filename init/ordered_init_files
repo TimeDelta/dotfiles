@@ -1,0 +1,8 @@
+osx_xcode.sh
+osx_homebrew.sh
+ubuntu_apt.sh
+osx_homebrew_recipes.sh
+osx_homebrew_casks.sh
+osx_compile.sh
+osx_fonts.sh
+osx_prefs.sh
