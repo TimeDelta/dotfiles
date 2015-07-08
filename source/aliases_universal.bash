@@ -1522,6 +1522,8 @@ shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr 
 # evars: open $HOME/.vars
 evars (){ subl "$HOME/.vars"; }
 
+shopt -u nocasematch
+
 export svn="^/branches"
 export MY_OS=`uname`
 export null="/dev/null"
