@@ -848,6 +848,9 @@ compatible with cd directory history [Default: current directory]"; } | wrapinde
 
 # cd_up: either go up n (default is 1) directories or go back until the specified folder is reached (case-insensitive)
 cd_up () { # [BH]
+	# bug note: create a directory and switch to it, then delete that directory from another terminal
+	#           and do cd_up in the original terminal ("Error: Usage: realpath path does not exist.")
+	#           bug is known to happen on Macs.
 	local op=cd
 	[[ $1 == "-p" ]] && shift && op=echo
 	[[ $1 == "--" ]] && { shift; local dir_only=1; } || local dir_only=0
