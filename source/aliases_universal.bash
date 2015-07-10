@@ -480,7 +480,6 @@ zipf () { zip -r "${@%/}".zip "${@%/}" ; } # [BH]
 ################################################################################
 alias svnl="svn ls" # [BH]
 alias svnm="svn merge" # [BH]
-sw () { svn sw "^/branches/$@"; } # [BH]
 
 # svnrepsize: get the size of a subversion repository branch at the optionally specified revision
 svnrepsize () { # {BH}
@@ -658,6 +657,15 @@ up (){ # [BH]
 ci (){ `vcs_type` commit "$@"; } # [BH]
 # st: generic command to check the status of a vcs working copy
 st (){ `vcs_type` status "$@"; } # [BH]
+# sw: generic command to switch branches in a version control repository
+sw (){ # [BH]
+	local vcs=`vcs_type`
+	case $vcs in
+		svn) svn sw "^/branches/$@" ;;
+		git) git checkout "$@" ;;
+	esac
+}
+
 # vcs_type: helper function for generic version control commands
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
@@ -1478,7 +1486,21 @@ _svn_remote_files_tab_complete_helper (){ # [BH]
 sw_tab_completion (){ # [BH]
 	echo "shopt -s progcomp"
 	echo "_sw_tab_complete (){"
-	_svn_remote_files_tab_complete_helper dir-only
+	echo '	COMPREPLY=()'
+	echo '	local current_word=${COMP_WORDS[$COMP_CWORD]}'
+	echo '	local branch_name="${COMP_WORDS[@]: +1}"'
+	echo '	local vcs=`vcs_type`'
+	echo '	case $vcs in'
+	echo '		svn)'
+					_svn_remote_files_tab_complete_helper dir-only
+	echo '			;;'
+	echo '		git)'
+	echo '			if [[ $COMP_CWORD -eq 1 && -z $current_word ]]; then'
+	echo '				COMPREPLY=( $( compgen -W "`git branch | sed "s/^\*//"`" ) )'
+	echo '			else'
+	echo '				COMPREPLY=( $( compgen -W "`git branch | sed "s/^\*//"`" -- $branch_name ) )'
+	echo '			fi ;;'
+	echo '	esac'
 	echo "}"
 	echo "complete -F _sw_tab_complete -o nospace -o filenames sw"
 }
