@@ -1413,7 +1413,7 @@ nothing and has an exit status of 0. [Default: current directory]"; } | wrapinde
 		return 0
 	fi
 	[[ $1 == "-p" ]] && { shift; local prepend=1; } || local prepend=0
-	[[ $# -eq 0 ]] && local path_to_add="`pwd`" || local path_to_add="$@"
+	[[ $# -eq 0 ]] && local path_to_add="`pwd`" || local path_to_add="${@%/}"
 	inpath "$path_to_add" && return 0
 	[[ $prepend -eq 0 ]] && \
 		export PATH="$PATH:$path_to_add" || \
