@@ -691,6 +691,8 @@ alias whois="whois -h whois-servers.net"
 ################################################################################
 # sdirs: update the directory aliases for the current session according to the master file
 sdirs () { source ~/.dirs; }
+# edirs: edit directory aliases file
+edirs () { subl ~/.dirs; }
 # diralias: set an alias for a directory that can be used with cd from anywhere without a "$" (must use "$" if directory alias not used by itself)
 diralias () { # {BH}
 	sed "/export $1=/d" ~/.dirs > ~/.dirs1 # delete any existing alias with the same name
@@ -1392,13 +1394,16 @@ h_ (){ # [BH]
 ########
 # PATH #
 ################################################################################
+export PATH_FILE="$HOME/.path"
+
 # inpath: check if something is currently included in the path. example usage: inpath /bin && echo in || echo not in
 inpath () { [[ "$PATH" =~ ^(.*:)?$@(:.*)?$ ]] && return 0 || return 1; } # [BH]
 
 # atp: add a directory to PATH (current directory by default)
 atp () { # [BH]
 	if [[ $1 == "--help" ]]; then
-		{ echo "Usage: atp [-p] [<location>]"
+		{ echo "Add a location to PATH"
+		echo "Usage: atp [options] [<location>]"
 		echo "Options:"
 		echo "  -p : prepend to path instead of appending"
 		echo "Arguments:"
@@ -1431,10 +1436,10 @@ This is also compatible with directory history. [Default: current directory]"; }
 	export PATH="`echo "$PATH" | tr ':' '\n' | egrep -v "^${path_to_rm}$" | tr '\n' ':'`"
 }
 
-# epath: open $HOME/.path
-epath (){ subl "$HOME/.path"; } # [BH]
-# spath: source $HOME/.path
-spath (){ source "$HOME/.path"; } # [BH]
+# epath: open path setup file
+epath (){ subl "$PATH_FILE"; } # [BH]
+# spath: source path setup file
+spath (){ source "$PATH_FILE"; } # [BH]
 
 # to get around having to type the "./" when running an executable from the current directory
 atp -p .
@@ -1522,8 +1527,13 @@ shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr 
 ###############
 # Environment #
 ################################################################################
-# evars: open $HOME/.vars
-evars (){ subl "$HOME/.vars"; }
+# VARS_FILE contains environment variables whose values may differ on each machine
+export VARS_FILE="$HOME/.vars"
+
+# evars: open the environment variable setup file
+evars (){ subl "$VARS_FILE"; }
+# svars: source the environment variable setup file
+svars (){ source "$VARS_FILE"; }
 
 shopt -u nocasematch
 
@@ -1555,6 +1565,6 @@ shopt -s globstar >& /dev/null # enables recursive globbing with ** (bash 4.0+ o
 shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
 
 # source environment variables and set up PATH
-source $HOME/.path
-source $HOME/.vars
+source $PATH_FILE
+source $VARS_FILE
 ################################################################################
