@@ -25,6 +25,8 @@ function src() {
                 tr '\n' ' '`; do
       source "$DOTFILES/source/$file"
     done
+    
+    source "$MACHINE_ALIAS_FILE"
   fi
 }
 
