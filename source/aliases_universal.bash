@@ -669,6 +669,14 @@ sw (){ # [BH]
 		git) git checkout "$@" ;;
 	esac
 }
+# br: get active branch
+br (){
+	local vcs=`vcs_type`
+	case $vcs in
+		svn) svnb ;;
+		git) git branch | egrep '^\*' | sed 's/^..//' ;;
+	esac
+}
 
 # vcs_type: helper function for generic version control commands
 vcs_type (){ # [BH]
