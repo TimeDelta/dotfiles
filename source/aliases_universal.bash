@@ -165,6 +165,9 @@ show_formatting (){ # [BH]
 	echo -e "\${BOLD}${BOLD}bold${RES}\${RES}"
 	echo -e "\${BLINK}${BLINK}blink${RES}\${RES}"
 }
+
+# fjson: pretty print JSON
+fjson (){ python -m json.tool; }
 ################################################################################
 
 
@@ -670,11 +673,20 @@ sw (){ # [BH]
 	esac
 }
 # br: get active branch
-br (){
+br (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
 		svn) svnb ;;
 		git) git branch | egrep '^\*' | sed 's/^..//' ;;
+	esac
+}
+
+# log: show the commit log
+log (){ # [BH]
+	local vcs=`vcs_type`
+	case $vcs in
+		svn) svn log "$@" ;;
+		git) git log --date=local --pretty="format:%C(auto)%h   %Cgreen%ad   %Cred%an%Creset %n%s" "$@" ;;
 	esac
 }
 
