@@ -11,7 +11,7 @@ prompt (){
 	if [[ -n `svnr 2> /dev/null` ]]; then
 		echo "[${FBLUE}`svnb`${RES}:${FCYAN}`svnr`${RES}]"
 	elif [[ -n `git log 2> /dev/null` ]]; then
-		echo "[${FBLUE}`git branch | egrep '^\*' | sed 's/^..//'`${RES}]"
+		echo "[${FBLUE}`git branch --no-color | egrep '^\*' | sed 's/^..//'`${RES}]"
 	fi
 }
 
