@@ -677,7 +677,7 @@ br (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
 		svn) svnb ;;
-		git) git branch | egrep '^\*' | sed 's/^..//' ;;
+		git) git branch --no-color | egrep '^\*' | sed 's/^..//' ;;
 	esac
 }
 
@@ -686,7 +686,12 @@ log (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
 		svn) svn log "$@" ;;
-		git) git log --date=local --pretty="format:%C(auto)%h   %Cgreen%ad   %Cred%an%Creset %n%s" "$@" ;;
+		git)
+			if [[ -z "$@" ]]; then
+				git log --date=local --pretty="format:%C(auto)%h   %Cgreen%ad   %Cred%an%Creset %n%s"
+			else
+				git log "$@"
+			fi ;;
 	esac
 }
 
