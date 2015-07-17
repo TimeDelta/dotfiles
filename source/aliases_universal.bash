@@ -1520,9 +1520,9 @@ sw_tab_completion (){ # [BH]
 	echo '			;;'
 	echo '		git)'
 	echo '			if [[ $COMP_CWORD -eq 1 && -z $current_word ]]; then'
-	echo '				COMPREPLY=( $( compgen -W "`git branch | sed "s/^\*//"`" ) )'
+	echo '				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" ) )'
 	echo '			else'
-	echo '				COMPREPLY=( $( compgen -W "`git branch | sed "s/^\*//"`" -- $branch_name ) )'
+	echo '				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" -- $branch_name ) )'
 	echo '			fi ;;'
 	echo '	esac'
 	echo "}"
