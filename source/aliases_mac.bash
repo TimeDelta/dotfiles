@@ -308,6 +308,9 @@ alias remake="make clean; make -j2" # [BH]
 
 # mj: run make using at most 2 jobs
 alias mj="make -j2" # [BH]
+
+# fix_audio: fix locked volume issue
+alias fix_audio="sudo killall coreaudiod"
 ################################################################################
 
 
