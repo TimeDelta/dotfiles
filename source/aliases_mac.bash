@@ -275,13 +275,6 @@ be careful to quote subjects containing spaces.)"
 # remake: rebuild from scratch
 alias remake="make clean; make -j2" # [BH]
 
-# man: b/c something got screwed up with the man command after updating to bash 4.*
-# man () {
-# 	local man_file=`find -L -E '/usr/share/man' -type f -iregex ".*/$1(\.1m|\.1ssl|\.1tcl|\.gz|\.1)" -print -quit`
-# 	if [[ -z "$man_file" ]]; then echo "No man page for $1"; return 1; fi
-# 	(echo ".ll 16.1i"; echo ".nr LL 16.1i"; /bin/cat $man_file) | /usr/bin/tbl | /usr/bin/groff -Wall -mtty-char -Tascii -mandoc -c | (/usr/bin/less -is || true)
-# }
-
 # mj: run make using at most 2 jobs
 alias mj="make -j2" # [BH]
 
