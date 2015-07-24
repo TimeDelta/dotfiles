@@ -128,30 +128,6 @@ clipuniq () { paste | sort | uniq -u | copy; }
 ################################################################################
 
 
-#######
-# ssh #
-################################################################################
-mima () { ssh mima; } # [BH]
-xmima () { ssh -Y mima; } # [BH]
-cluster1 () { ssh cluster1; } # [BH]
-xcluster1 () { ssh -Y cluster1; } # [BH]
-cluster2 () { ssh cluster2; } # [BH]
-xcluster2 () { ssh -Y cluster2; } # [BH]
-cluster3 () { ssh cluster3; } # [BH]
-xcluster3 () { ssh -Y cluster3; } # [BH]
-cluster4 () { ssh cluster4; } # [BH]
-xcluster4 () { ssh -Y cluster4; } # [BH]
-cluster5 () { ssh cluster5; } # [BH]
-xcluster5 () { ssh -Y cluster5; } # [BH]
-cluster6 () { ssh cluster6; } # [BH]
-xcluster7 () { ssh -Y cluster6; } # [BH]
-cluster7 () { ssh cluster7; } # [BH]
-xcluster7 () { ssh -Y cluster7; } # [BH]
-cluster8 () { ssh cluster8; } # [BH]
-xcluster8 () { ssh -Y cluster8; } # [BH]
-################################################################################
-
-
 ##########
 # Finder #
 ################################################################################
