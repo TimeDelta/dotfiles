@@ -10,7 +10,7 @@
 # Regexes to look for common mistakes:
 # conditional statements using variables without the "$"
 # \[\[.*[ \t](("?[a-zA-Z_][a-zA-Z0-9_]*"?[ \t]+(-(eq|ne|lt|le|gt|ge)|==|=~))|((-(eq|ne|lt|le|gt|ge)|==|=~)[ \t]+"?[a-zA-Z_][a-zA-Z0-9_]*"?[ \t])|(-[a-zA-Z][ \t]+"?[a-zA-Z_][a-zA-Z0-9_]*"?[ \t])).*\]\]
-# 
+#
 # non-local variables
 # (?<!local|alias|xport)\s+[a-zA-Z_][a-zA-Z0-9_]*=|for\s+[a-zA-Z_][a-zA-Z0-9_]*\s+in\s|while\s+read\s+
 # ------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ uw () { # [BH]
 			return 0
 		fi
 	fi
-	
+
 	if [[ $# -gt 0 ]]; then < "$@" $ignore sed "s/[^a-zA-Z']/ /g" | tr ' ' '\n' | sort | uniq | awk '$0 !~ /^$/'
 	else $ignore sed "s/[^a-zA-Z']/ /g" | tr ' ' '\n' | sort | uniq | awk '$0 !~ /^$/'; fi
 }
@@ -282,17 +282,17 @@ pad (){ # [BH]
 		echo "  Default padding character is a space"
 		return 0
 	fi
-	
+
 	local append=0
 	if [[ $1 == "-a" ]]; then shift; append=1; fi
-	
+
 	# arguments
 	local string="$1"  min_length=$2  pad_char="${3:- }"
-	
+
 	# calculate the required padding length
 	local length=$(( $min_length - ${#string} ))  sed_sep
 	[[ $length -lt 0 ]] && ( echo -ne "$string"; return 0 )
-	
+
 	if [[ $pad_char == "\\" ]]; then pad_char="\\\\"; fi
 	if [[ $pad_char == "/" ]]; then sed_sep=":"; else sed_sep="/"; fi
 	if [[ $append -eq 1 ]]; then echo -ne "$string"; fi
@@ -312,13 +312,13 @@ indentation level. This option does nothing if <indent_size> is given." # note: 
 		echo "    The number of spaces to use for indentation. Default is length of first column + leading whitespace"; } | wrapindent -w
 		return 0
 	fi
-	
+
 	# indentation options
 	local lead_space_only=0
 	[[ $1 == "-w" ]] && { lead_space_only=1; shift; }
 	local indent=$1 line
 	[[ -z $indent ]] && local use_default=1 || local use_default=0
-	
+
 	local OLD_IFS="$IFS" # read splits based on IFS, which may contain spaces, causing leading whitespace to be dropped
 	IFS="\n"
 	while read -s line; do
@@ -329,13 +329,13 @@ indentation level. This option does nothing if <indent_size> is given." # note: 
 			# add in the length of the first column (as defined by awk with no options)
 			[[ $lead_space_only -eq 0 ]] && ((indent+=`echo "$line" | awk '{print length($1)}'`+1))
 		fi
-		
+
 		local first_chunk=0
 		while [[ ${#line} -gt 0 ]]; do
 			# don't indent until after a line has been wrapped the first time
 			[[ $first_chunk -ne 0 ]] && echo -n "`pad " " $indent`"
 			echo "${line:0:$cols}" # print the line content
-			
+
 			# in cases where $cols > # of remaining chars in line, could get an error with substring assignment
 			[[ ${#line} -gt $cols ]] && line="${line:$cols}" || line=""
 			# number of characters to use with wrapped portions of the line decreases by the indentation level
@@ -440,11 +440,11 @@ fc () { # [BH]
 		esac
 	done
 	shift $(($OPTIND-1))
-	
+
 	# if recursive then add the .* to the front to allow recursive search
 	if [[ -z "$non_recursive" ]]; then local regex=".*$1"
 	else local regex="${1:-.*}"; fi
-	
+
 	find -L $FIND_DASH_E "${root_dir:-.}" $non_recursive $type $FIND_REGEXTYPE -iregex "\./$regex" | wc -l | awk '{print $1}'
 }
 # fch: number of files (including hidden) in a directory that match given regex
@@ -510,7 +510,7 @@ diffhist (){
 		svn log -r$r $url@HEAD
 		svn cat -r$r $url@HEAD
 		echo
-		
+
 		# remaining revisions as differences to previous revision
 		local r
 		while read r; do
@@ -556,15 +556,15 @@ svn_files_changed () { # [BH]
 		echo "  Note that the time (24hr clock) is optional and must be prefaced with a \"T\""
 		return 0
 	fi
-	
+
 	local files_only=0
 	local fid=`mktemp XXXXXXXXXX` # provide the template for OS X compatibility
 	[[ $1 == "-f" ]] && { files_only=1; shift; }
-	
+
 	# in case you're feeling lazy and don't want to include the year
 	if [[ `rc - $1` -lt 2 ]]; then set -- "`date \"+%Y-\"`$1"; fi
 	if [[ `rc - $2` -lt 2 ]]; then set -- "`date \"+%Y-\"`$2"; fi
-	
+
 	if [[ $# -eq 2 ]]; then svn log -vqr {$1}:{$2} > "$fid"
 	else svn log -vqr "{$1}:{$(date "+%Y-%m-%dT%H:%M:%S")}" > "$fid"; fi
 	if [[ $files_only -eq 0 ]]; then cat "$fid"
@@ -617,7 +617,7 @@ svnunv () { # [BH]
 		max_depth=$2
 		shift 2
 	fi
-	
+
 	# build the grep pattern filter if needed
 	if [[ $max_depth -gt -1 ]]; then
 		grep_pattern=".+"
@@ -626,7 +626,7 @@ svnunv () { # [BH]
 			grep_pattern="$grep_pattern/.+"
 		done
 	fi
-	
+
 	# display the requested unversioned files and folders
 	if [[ -z "$grep_pattern" ]]; then svn st $@ | grep "?" | sed 's/^........//'
 	else svn st $@ | grep "?" | sed 's/^........//' | egrep -v "$grep_pattern"
@@ -752,20 +752,20 @@ mkcd (){ mkdir -p "$@"; cd "$@"; } # [BH]
 cd (){ # {BH}
 	local adir
 	local -i cnt
-	
+
 	if [[ $1 ==  "--" ]]; then
 		dirs -v
 		return 0
 	fi
-	
+
 	local the_new_dir="${1:-$HOME}"
-	
+
 	# substitute the directory history flag for its corresponding path
 	[[ ${the_new_dir:0:1} == '-' ]] && the_new_dir="`translate_dir_hist "$the_new_dir"`"
-	
+
 	# '~' has to be substituted by ${HOME}
 	[[ ${the_new_dir:0:1} == '~' ]] && the_new_dir="${HOME}${the_new_dir:1}"
-	
+
 	# make cd work without needing to type the "$" before an environment variable
 	# name when including a subpath (i.e. scripts/mitlm instead of $scripts/mitlm)
 	[[ -e "$the_new_dir" ]] || {
@@ -774,15 +774,15 @@ cd (){ # {BH}
 		[[ $the_new_dir == */* ]] && temp="$temp/${the_new_dir#*/}"
 		the_new_dir="$temp"
 	}
-	
+
 	# Now change to the new dir and add to the top of the stack
 	pushd "$the_new_dir" > /dev/null
 	[[ $? -ne 0 ]] && return 1
 	the_new_dir="$(pwd)"
-	
+
 	# Trim down everything beyond 11th entry
 	popd -n +11 2>/dev/null 1>/dev/null
-	
+
 	# Remove any other occurence of this dir, skipping the top of the stack
 	for ((cnt=1; cnt <= 10; cnt++)); do
 		local x2="$(dirs +${cnt} 2>/dev/null)"
@@ -793,7 +793,7 @@ cd (){ # {BH}
 			((cnt=cnt-1))
 		fi
 	done
-	
+
 	return 0
 }
 
@@ -856,23 +856,23 @@ directory for which to search (i.e. for ./path/to/my_directory, you could use \"
 compatible with cd directory history [Default: current directory]"; } | wrapindent -w
 		return 0
 	fi
-	
+
 	local root result
 	if [[ $1 == "-d" ]]; then
 		# depth-first search
 		shift
-		
+
 		# for compatibility with directory history
 		[[ -n $2 ]] && root="`translate_dir_hist "$2"`"
-		
+
 		result=$(find $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex ".*/$1" -print -quit)
 	else
 		# breadth-first search
 		local depth=1 more
-		
+
 		# for compatibility with directory history
 		[[ -n $2 ]] && root="`translate_dir_hist "$2"`"
-		
+
 		# keep searching if the current depth yielded no results and there's still more through which to search
 		while result=$(find $FIND_DASH_E "${root:-.}" -mindepth $depth -maxdepth $depth -type d $FIND_REGEXTYPE -iregex ".*/$1" -print -quit) && \
 		      [[ -z "$result" ]] && \
@@ -880,7 +880,7 @@ compatible with cd directory history [Default: current directory]"; } | wrapinde
 		      [[ -n $more ]]
 		do ((depth++)) ; done
 	fi
-	
+
 	if [[ -n $result ]]; then cd "$result"
 	else echo "No directory was found matching the specified regex"; fi
 }
@@ -1282,7 +1282,7 @@ gprof (){ # [BH]
 	local output="$1"
 	local profile="/tmp/`basename "$output"`.prof"
 	shift
-	
+
 	env CPUPROFILE="$profile" LD_PRELOAD="$LIB_PROFILER" $frequency "$@"
 	$GPROFILER_BIN --callgrind `which "$1"` "$profile" > "$output"
 }
