@@ -97,16 +97,16 @@ vpn (){ # [BH]
 		local OLD_SHELL="$SHELL"
 		export SHELL="/bin/bash"
 	fi
-	
+
 	# quote args
 	local args
 	while [[ $# -gt 0 ]]; do
 		args="$args \"$1\""
 		shift
 	done
-	
+
 	openvpnstart $args
-	
+
 	# put things back the way they were
 	if [[ -n $OLD_SHELL ]]; then export SHELL="$OLD_SHELL"; fi
 	if [[ -n $OLD_PATH ]]; then export PATH="$OLD_PATH"; fi
