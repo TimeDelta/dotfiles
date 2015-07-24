@@ -476,6 +476,8 @@ extract () {
 		echo "'$1' is not a file" >&2
 	fi
 }
+# xtr: shortened form of extract function
+alias xtr=extract
 
 # zipf: to create a ZIP archive of a file or folder
 zipf () { zip -r "${@%/}".zip "${@%/}" ; } # [BH]
