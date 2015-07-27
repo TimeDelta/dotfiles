@@ -186,6 +186,8 @@ lst () { ls -GFhR $@ | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e '
 lsh () { ls -GFhd ${@:-.}/.*; } # [BH]
 # lsh: list only hidden files and directories (default: current directory, non-recursively)
 lslh () { ls -lGFhd ${@:-.}/.*; } # [BH]
+# lsmr: list files in order of last modified date (most recently modified at top)
+lsmr (){ ls -1tc "$@"; } # [BH]
 
 # sizeof: display the size of a file
 sizeof () { # [BH]
