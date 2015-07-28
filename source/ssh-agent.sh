@@ -2,15 +2,27 @@
 AGENT_SESSION_FILE="$HOME/.ssh-agent-output.`hostname -s`"
 export SSH_IDS_FILE="$HOME/.ssh/ids_to_add"
 
+if [[ ! -e "$SSH_IDS_FILE" ]]; then
+	mkdir -p "`dirname "$SSH_IDS_FILE"`"
+	{
+		echo "# Any files listed here will automatically be added to ssh-agent"
+		echo "# Files should be listed one per line"
+		echo "# File paths are relative to ~/.ssh"
+		echo "# Any line starting with \"#\" will be treated as a comment"
+		echo "# Empty lines will also be ignored"
+	} > "$SSH_IDS_FILE"
+fi
+
 add_id_files (){
 	# only need one instance of ssh-agent
 	if [[ `eval "$(ssh-agent -s | tee "$AGENT_SESSION_FILE")"` ]]; then
-		{
+		# use egrep to ignore comments and empty lines
+		egrep -v '^#|^$' "$SSH_IDS_FILE" | {
 			local id_file
 			while read -s id_file; do
 				ssh-add "$HOME/.ssh/$id_file"
 			done
-		} < "$SSH_IDS_FILE"
+		}
 	fi
 }
 
