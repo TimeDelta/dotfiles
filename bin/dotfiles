@@ -317,6 +317,7 @@ fi
 if [[ ! -e $HOME/.path ]]; then touch $HOME/.path; fi
 if [[ ! -e $HOME/.vars ]]; then touch $HOME/.vars; fi
 if [[ ! -e $HOME/.aliases_machine.bash ]]; then touch $HOME/.aliases_machine.bash; fi
+if [[ ! -e $HOME/.ssh/ids_to_add ]]; then touch $HOME/.ssh/ids_to_add; fi
 
 # Tweak file globbing.
 shopt -s dotglob
