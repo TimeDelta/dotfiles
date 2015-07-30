@@ -1,3 +1,4 @@
+#!/bin/bash
 if [[ $1 == "--help" ]]; then
 	echo "Use xargs with an alias or function"
 	echo "Usage: ... | xargs args [-f <source_file>] <command> [<args> ...]"
