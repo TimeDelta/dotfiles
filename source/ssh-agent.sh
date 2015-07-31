@@ -34,12 +34,14 @@ is_osx && { # OS X grep does not support perl regexes
 	if [[ -z `lsof -tc ssh-agent` ]]; then
 		add_id_files
 	fi
-} || {
+}
+is_linux && {
 	# use negative look-behind assertion to make sure we don't find the process for our grep
 	if [[ -z `ps -A | grep -P '(?<!grep).*ssh-agent'` ]]; then
 		add_id_files
 	fi
 }
+# is_cygwin && {}
 
 # basically this is for when a new session is opened and ssh-agent is already running
 if [[ -z $SSH_AGENT_PID ]]; then
