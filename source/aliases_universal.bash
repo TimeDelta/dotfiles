@@ -89,7 +89,7 @@ code (){ # [BH]
 
 # lscustomfunc: list all available custom functions and aliases that are defined in the normal sourced files
 lscustomfunc () { # [BH]
-	cat $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" \
+	cat "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" \
 		| awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' \
 		| sed 's/=.*$//' \
 		| colify
