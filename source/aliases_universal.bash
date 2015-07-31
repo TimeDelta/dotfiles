@@ -92,10 +92,10 @@ lscustomfunc () { # [BH]
 	cat "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" \
 		| awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' \
 		| sed 's/=.*$//' \
-		| colify
+		| sed 's/(.*//'
 }
 
-# lsfunc: list all def functions and aliases
+# lsfunc: list all defined functions and aliases in the current environment
 alias lsfunc="compgen -aA function" # [BH]
 
 # lsallfunc: list all of the available built-ins, commands, functions, and aliases
