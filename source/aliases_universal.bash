@@ -348,7 +348,15 @@ indentation level. This option does nothing if <indent_size> is given." # note: 
 }
 
 # colify: print stuff similar to how ls does (Usage: cmd | colify [<#columns>])
-colify (){ pr -l1000 -w `tput cols` -t -${1:-5}; } # [BH]
+colify (){ # [BH]
+	local cols="${1:-$DEFAULT_COLS}"
+	cols="${cols:-0}"
+	if [[ $cols -gt 0 ]]; then
+		pr -l1000 -w `tput cols` -t -$cols
+	else
+		xargs echo
+	fi
+}
 ################################################################################
 
 
@@ -508,6 +516,8 @@ svnrepsize () { # {BH}
 diffhist (){
 	local url=$1 # current url of file
 	svn log -q --stop-on-copy $url | grep -E -e "^r[[:digit:]]+" -o | cut -c2- | sort -n | {
+		local r
+
 		# first revision as full text
 		echo
 		read r
@@ -516,7 +526,6 @@ diffhist (){
 		echo
 
 		# remaining revisions as differences to previous revision
-		local r
 		while read r; do
 			echo
 			svn log -r$r $url@HEAD
