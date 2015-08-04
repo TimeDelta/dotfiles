@@ -15,7 +15,7 @@
   rv = review
   st = status
 	ls = ls-files
-  lg = log --date=local --pretty="format:%C(auto)%h %Cgreen%ad %Cred%an%Creset %n%s"
+  lg = log --date=local --pretty=\"format:%C(auto)%h %Cgreen%ad %Cred%an%Creset %n%s\"
 [color]
   ui = always
 [color "branch"]
