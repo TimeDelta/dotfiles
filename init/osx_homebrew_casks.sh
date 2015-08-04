@@ -20,15 +20,15 @@ brew cask info this-is-somewhat-annoying 2>/dev/null
 casks=(
   # Applications
   # bettertouchtool
-  iterm2
-  # moom
+  iterm2-beta
+  moom
   # remote-desktop-connection
   # sonos
   # totalfinder
   # transmission-remote-gui
   # vagrant
   virtualbox
-  # vlc
+  vlc
   # Quick Look plugins
   # betterzipql
   # qlcolorcode
