@@ -9,7 +9,7 @@ recipes=(
   autoconf
   automake
   bash
-  # bazaar
+  bazaar
   brew-cask
   cmake
   colordiff
