@@ -26,7 +26,6 @@ recipes=(
   pkg-config
   qcachegrind
   sox
-  sshfs
   swig
   watch
   wdiff
@@ -38,6 +37,7 @@ recipes=(
   terminal-notifier
   the_silver_searcher
   tree
+  homebrew/fuse/sshfs
 )
 
 brew_install_recipes
