@@ -32,6 +32,10 @@
 *.deb
 *.rpm
 
+# Programming Projects #
+########################
+*.sublime-*
+
 # Logs and databases #
 ######################
 *.log
@@ -50,7 +54,7 @@
 .Trashes
 
 # Windows image file caches
-Thumbs.db 
+Thumbs.db
 
 # Folder config file
 Desktop.ini
