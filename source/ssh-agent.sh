@@ -15,30 +15,27 @@ if [[ ! -e "$SSH_IDS_FILE" ]]; then
 fi
 
 add_id_files (){
-	# only need one instance of ssh-agent
-	if [[ `eval "$(ssh-agent -s | tee "$AGENT_SESSION_FILE")"` ]]; then
-		# use egrep to ignore comments and empty lines
-		egrep -v '^#|^$' "$SSH_IDS_FILE" | {
-			local id_file
-			while read -s id_file; do
-				ssh-add "$HOME/.ssh/$id_file"
-			done
-		}
-	fi
+	# use egrep to ignore comments and empty lines
+	egrep -v '^#|^$' "$SSH_IDS_FILE" | {
+		local id_file
+		while read -s id_file; do
+			ssh-add "$HOME/.ssh/$id_file"
+		done
+	}
 }
 
-# this makes GitHub accept push commands
+# only need one instance of ssh-agent
 is_osx && { # OS X grep does not support perl regexes
 	# NOTE: this implementation does not work on the cluster machines (i think it's b/c i don't have
 	#       administrative priveleges there)
 	if [[ -z `lsof -tc ssh-agent` ]]; then
-		add_id_files
+		eval "$(ssh-agent -s | tee "$AGENT_SESSION_FILE")"
 	fi
 }
 is_linux && {
 	# use negative look-behind assertion to make sure we don't find the process for our grep
 	if [[ -z `ps -A | grep -P '(?<!grep).*ssh-agent'` ]]; then
-		add_id_files
+		eval "$(ssh-agent -s | tee "$AGENT_SESSION_FILE")"
 	fi
 }
 # is_cygwin && {}
@@ -47,6 +44,8 @@ is_linux && {
 if [[ -z $SSH_AGENT_PID ]]; then
 	eval "$(cat "$AGENT_SESSION_FILE")"
 fi
+
+add_id_files
 
 # clean up
 unset AGENT_SESSION_FILE
