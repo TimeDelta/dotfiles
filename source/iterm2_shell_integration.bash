@@ -55,7 +55,7 @@ if ( [ x"$TERM" != xscreen ] ); then
       # and have prompt_prefix set a global variable that tells precmd not to
       # output anything and have prompt_suffix reset that variable.
       # Unfortunately, command substitutions run in subshells and can't
-      # communicate to the outside world. 
+      # communicate to the outside world.
       # Instead, we have this workaround. We save the original value of PS1 in
       # $orig_ps1. Then each time this function is run (it's called from
       # PROMPT_COMMAND just before the prompt is shown) it will change PS1 to a
@@ -139,11 +139,13 @@ if ( [ x"$TERM" != xscreen ] ); then
       shopt -s extdebug > /dev/null 2>&1
 
       # Finally, install the actual traps.
+      local addition="[[ \$TERM == \"screen\" ]] || preexec_invoke_cmd"
+      local modify="`echo "$PROMPT_COMMAND" | grep -v '\[\[ \$TERM == "screen" \]\] \|\| preexec_invoke_cmd'`"
       if ( [ x"$PROMPT_COMMAND" = x ]); then
-        PROMPT_COMMAND="[[ \$TERM == \"screen\" ]] || preexec_invoke_cmd";
-      else
+        PROMPT_COMMAND="$addition";
+      elif [[ -n $modify ]]; then
         # If there's a trailing semicolon folowed by spaces, remove it (issue 3358).
-        PROMPT_COMMAND="$(echo -n $PROMPT_COMMAND | sed -e 's/; *$//'); [[ \$TERM == \"screen\" ]] || preexec_invoke_cmd";
+        PROMPT_COMMAND="$(echo -n "$PROMPT_COMMAND" | sed -e 's/; *$//'); $addition";
       fi
       trap 'preexec_invoke_exec' DEBUG;
   }
