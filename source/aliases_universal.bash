@@ -1313,6 +1313,29 @@ pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs pip instal
 ################################################################################
 
 
+###########################
+# Automated Build Systems #
+################################################################################
+# props: display the ant properties for the current project
+props() { # [BH]
+	ant -debug -p \
+		| awk '/^Setting project property/' \
+		| sed $SED_EXT_RE 's/^.*: //' \
+		| grep -v "^env\."
+}
+
+# btype: print the build type for the current cmake build directory
+btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; } # [BH]
+# sbtype: set the cmake build type for the specified directory
+sbtype (){ # [BH]
+	if [[ $1 == "--help" ]]; then echo "Usage: sbtype <build_type> [<build_directory>]"; fi
+	if [[ $# -eq 2 ]]; then pushd "$2" > /dev/null; fi
+	cmake -DCMAKE_BUILD_TYPE="$1" ..
+	if [[ $# -eq 2 ]]; then popd > /dev/null; fi
+}
+################################################################################
+
+
 #########
 # Misc. #
 ################################################################################
@@ -1400,17 +1423,6 @@ rand (){ # [BH]
 
 # pts: print time stamp
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
-
-# btype: print the build type for the current cmake build directory
-btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; } # [BH]
-
-# sbtype: set the cmake build type for the specified directory
-sbtype (){ # [BH]
-	if [[ $1 == "--help" ]]; then echo "Usage: sbtype <build_type> [<build_directory>]"; fi
-	if [[ $# -eq 2 ]]; then pushd "$2" > /dev/null; fi
-	cmake -DCMAKE_BUILD_TYPE="$1" ..
-	if [[ $# -eq 2 ]]; then popd > /dev/null; fi
-}
 ################################################################################
 
 
