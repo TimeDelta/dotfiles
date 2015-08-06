@@ -1030,8 +1030,11 @@ gf () { # [BH]
 # gfa: wrapper for gf that assumes searching all files
 gfa () { gf "$1" ".*" "${2:-.}"; } # [BH]
 
-# fcmake: recursively search all CMakeLists.txt files in current directory for the given regex
+# fcmake: recursively search all CMakeLists.txt files in specified directory for the given regex
 fcmake () { gf "$1" ".*CMakeLists.txt" "${2:-.}"; } # [BH]
+
+# fjava: recursively search all java files in specified directory for the given regex
+fjava() { gf "$1" ".*java" "${2:-.}"; } # [BH]
 ################################################################################
 
 
@@ -1431,12 +1434,11 @@ export HISTTIMEFORMAT='%F %T '
 # immediately append the history to the history file in case of improper session termination
 if [[ -z "`echo "$PROMPT_COMMAND" | grep 'history -a'`" ]]; then export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"; fi
 
-# h_: colorize the history command's output in less (i.e. history | grep function_name | h_)
-h_ (){ # [BH]
+# colorhist: colorize the history command's output in less (i.e. history | grep function_name | colorhist)
+colorhist (){ # [BH]
 	sed $SED_EXT_RE -e "s/[0-9]+ /${FGREEN}&${RES}/" \
 	                -e "s/ [0-9]{4}-[0-9]{2}-[0-9]{2}/${FYELLOW}&${RES}/" \
-	                -e "s/ ([0-9]{2}:){2}[0-9]{2}/${FCYAN}&${RES}/" \
-	| less -R
+	                -e "s/ ([0-9]{2}:){2}[0-9]{2}/${FCYAN}&${RES}/"
 }
 ################################################################################
 
