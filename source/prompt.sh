@@ -9,17 +9,16 @@ fi
 
 _prompt() { # [BH]
 	if [[ -n `svnr 2> /dev/null` ]]; then
-		echo "[${FBLUE}`svnb`${RES}:${FCYAN}`svnr`${RES}]"
+		echo -n "[${FBLUE}`svnb`${RES}:${FCYAN}`svnr`${RES}]"
 	elif [[ -n `git log 2> /dev/null` ]]; then
-		echo "[${FBLUE}`git branch --no-color | egrep '^\*' | sed 's/^..//'`${RES}]"
+		echo -n "[${FBLUE}`git branch --no-color | egrep '^\*' | sed 's/^..//'`${RES}]"
 	fi
+	echo "${FGREEN}\h${RES}${FYELLOW}${BOLD}\w${RES}\n\$ "
 }
 
-escaped_prompt() { echo "$prompt" | sed -E -e 's/\$/\\$/g' -e 's/(\[|\])/\\\1/g'; } # [BH]
-
-export prompt="export $ps1_var=\"\$(_prompt)${FGREEN}\h${RES}:${FYELLOW}${BOLD}\w${RES}\n\$ \";"
+export prompt="export $ps1_var=\$(_prompt);"
 # make sure there's only one copy of the prompt code
-export PROMPT_COMMAND="${prompt}`echo "$PROMPT_COMMAND" | sed "s|$(escaped_prompt)||"`"
+export PROMPT_COMMAND="${prompt}`echo "${PROMPT_COMMAND}" | sed "s|$prompt||g"`"
 
 # clean up
 unset ps1_var
