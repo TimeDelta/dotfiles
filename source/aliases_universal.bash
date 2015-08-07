@@ -708,6 +708,18 @@ log (){ # [BH]
 	esac
 }
 
+# dif: run diff for the current version control repository
+dif() { # [BH]
+	local vcs=`vcs_type`
+	$vcs diff "$@" | {
+		case $vcs in
+			bzr|svn) colordiff ;;
+			# NOTE: without the tr here, whitespace will not be preserved correctly
+			*) tr '\n' '\0' | xargs -0L 1 echo ;;
+		esac
+	}
+}
+
 # vcs_type: helper function for generic version control commands
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
