@@ -227,7 +227,13 @@ ulize () { local fid=`mktemp XXXXXXXXXX`; awk '!seen[$0]++' "$@" > "$fid"; mv "$
 # Text Manipulation #
 ################################################################################
 # col: get columns in specified order
-col () { awk '{print $('$(echo $* | sed -e s/-/NF-/g -e 's/ /),$(/g')')}'; }
+col() { # {BH}
+	if [[ $1 == "-F" ]]; then
+		awk -F "$2" '{print $('$(echo "${@: +3}" | sed -e s/-/NF-/g -e 's/ /),$(/g')')}'
+	else
+		awk '{print $('$(echo "$@" | sed -e s/-/NF-/g -e 's/ /),$(/g')')}'
+	fi
+}
 
 # numberlines: print the lines of a file preceded by line number
 alias numberlines="perl -pe 's/^/$. /'"
