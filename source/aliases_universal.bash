@@ -668,6 +668,30 @@ alias svnmke='svn propset svn:executable true'
 ################################################################################
 
 
+#######
+# Git #
+################################################################################
+# gitcf: print the files changed for a
+gitcf() { # [BH]
+	if [[ $1 == '--help' ]]; then
+		echo "List the files changed for a commit in the current repository."
+		echo "Usage: gitcf [<commit_id>]"
+		echo "Arguments:"
+		echo "  [<commit_id>]"
+		echo "    The id of the commit at which to look. If not provided, the"
+		echo "    most recent commit id will be used."
+		return 0
+	fi
+
+	local commit_id="$@"
+	if [[ -z $commit_id ]]; then
+		commit_id=`git log -n 1 --format=oneline --no-color | col 1`
+	fi
+	git diff-tree --no-commit-id --name-only -r "$commit_id"
+}
+################################################################################
+
+
 #############################
 # Version Control - Generic #
 ################################################################################
