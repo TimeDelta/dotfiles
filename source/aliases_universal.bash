@@ -738,6 +738,15 @@ log (){ # [BH]
 	esac
 }
 
+# branches: show the available branches for the current repository
+branches() { # [BH]
+	local vcs=`vcs_type`
+	case $vcs in
+		svn) svn ls "^/branches/$path" | egrep "/$" ;;
+		git) git branch --no-color | sed -e 's/^\*//' -e 's/^ *//g' ;;
+	esac
+}
+
 # dif: run diff for the current version control repository
 dif() { # [BH]
 	local vcs=`vcs_type`
