@@ -712,7 +712,12 @@ sw (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
 		svn) svn sw "^/branches/$@" ;;
-		git) git checkout "$@" ;;
+		git)
+			local branch="$@"
+			if [[ $branch =~ ^-[0-9]+ ]]; then
+				branch="@{$branch}"
+			fi
+			git checkout "$branch" ;;
 	esac
 }
 # br: get active branch
