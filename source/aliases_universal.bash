@@ -728,7 +728,7 @@ br (){ # [BH]
 log (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
-		svn) svn log "$@" ;;
+		bzr|svn) svn log "$@" ;;
 		git)
 			if [[ -z "$@" ]]; then
 				git log --date=local --pretty="format:%C(auto)%h   %Cgreen%ad   %Cred%an%Creset %n%s"
