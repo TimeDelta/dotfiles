@@ -759,6 +759,15 @@ dif() { # [BH]
 	}
 }
 
+# prevci: get the previous commit id for specified repository
+prevci() { # [BH]
+	local vcs=`vcs_type`
+	case $vcs in
+		git) git log --no-color -n 2 --format=oneline | line 2 | col 1 ;;
+		svn) echo $((`svn info "$@" | grep 'Revision' | awk '{print $2}'`-1)) ;;
+	esac
+}
+
 # vcs_type: helper function for generic version control commands
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
@@ -1589,10 +1598,8 @@ _svn_remote_files_tab_complete_helper (){ # [BH]
 	echo 'return 0'
 }
 
-# sw_tab_completion: display tab completion code for the sw (alias for 'svn sw') function
-sw_tab_completion (){ # [BH]
-	echo "shopt -s progcomp"
-	echo "_sw_tab_complete (){"
+_repo_branches_tab_complete_helper() { # [BH]
+	echo '_repo_branches_tab_complete() {'
 	echo '	COMPREPLY=()'
 	echo '	local current_word=${COMP_WORDS[$COMP_CWORD]}'
 	echo '	local branch_name="${COMP_WORDS[@]: +1}"'
@@ -1608,8 +1615,14 @@ sw_tab_completion (){ # [BH]
 	echo '				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" -- $branch_name ) )'
 	echo '			fi ;;'
 	echo '	esac'
-	echo "}"
-	echo "complete -F _sw_tab_complete -o nospace -o filenames sw"
+	echo '}'
+}
+
+# sw_tab_completion: display tab completion code for the sw function
+sw_tab_completion (){ # [BH]
+	echo "shopt -s progcomp"
+	_repo_branches_tab_complete_helper
+	echo "complete -F _repo_branches_tab_complete -o nospace -o filenames sw"
 }
 eval "`sw_tab_completion`"
 
