@@ -1386,9 +1386,9 @@ pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs pip instal
 # props: display the ant properties for the current project
 props() { # [BH]
 	ant -debug -p \
-		| awk '/^Setting project property/' \
-		| sed $SED_EXT_RE 's/^.*: //' \
-		| grep -v "^env\."
+		| grep -i '^setting.*property' \
+		| sed 's/^.*: //' \
+		| grep -v '^env\.'
 }
 
 # btype: print the build type for the current cmake build directory
