@@ -280,6 +280,22 @@ alias mj="make -j2" # [BH]
 
 # fix_audio: fix locked volume issue
 alias fix_audio="sudo killall coreaudiod"
+
+# bangcp: copy a previously entered command to the clipboard
+bangcp() { # [BH]
+	history $((${1:-1}+1)) | \
+		head -1 | \
+		awk '{$1=""; print $0}' | \
+		awk -v f=`echo "$HISTTIMEFORMAT" | awk '{print NF}'` '\
+			{ \
+				for (i=1; i<=f; i++)\
+					$i=""; \
+				print $0 \
+			}' | \
+		stripws | \
+		tr -d '\n' | \
+		pbcopy
+}
 ################################################################################
 
 
