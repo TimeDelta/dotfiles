@@ -77,7 +77,7 @@ alias lsockudp='sudo /usr/sbin/lsof -nP | grep UDP'
 # lsocktcp: list open TCP sockets
 alias lsocktcp='sudo /usr/sbin/lsof -nP | grep TCP'
 # openports: show listening connections
-alias openports='sudo lsof -i | grep LISTEN'
+alias openports='sudo lsof -i | egrep "^COMMAND|LISTEN"'
 
 # flushdns: flush the DNS cache
 alias flushdns='dscacheutil -flushcache'
