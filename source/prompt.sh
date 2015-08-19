@@ -12,6 +12,8 @@ _prompt() { # [BH]
 		echo -n "[${FBLUE}`svnb`${RES}:${FCYAN}`svnr`${RES}]"
 	elif [[ -n `git log 2> /dev/null` ]]; then
 		echo -n "[${FBLUE}`git branch --no-color | egrep '^\*' | sed 's/^..//'`${RES}]"
+	elif [[ -n `bzr info 2> /dev/null` ]]; then
+		echo -n "[${FBLUE}`bzr branches | egrep '^\*' | sed 's/^[ *]*//'`${RES}]"
 	fi
 	echo "${FGREEN}\h${RES}${FYELLOW}${BOLD}\w${RES}\n\$ "
 }
