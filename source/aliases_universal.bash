@@ -711,6 +711,7 @@ st (){ `vcs_type` status "$@"; } # [BH]
 sw (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
+		bzr) bzr switch "$@" ;;
 		svn) svn sw "^/branches/$@" ;;
 		git)
 			local branch="$@"
@@ -724,6 +725,7 @@ sw (){ # [BH]
 br (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
+		bzr) bzr branches | egrep '^\*' | sed 's/^[ *]*//' ;;
 		svn) svnb ;;
 		git) git branch --no-color | egrep '^\*' | sed 's/^..//' ;;
 	esac
@@ -733,7 +735,7 @@ br (){ # [BH]
 log (){ # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
-		bzr|svn) svn log "$@" ;;
+		bzr|svn) $vcs log "$@" ;;
 		git)
 			if [[ -z "$@" ]]; then
 				git log --date=local --pretty="format:%C(auto)%h   %Cgreen%ad   %Cred%an%Creset %n%s"
