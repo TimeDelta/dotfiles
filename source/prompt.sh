@@ -1,7 +1,7 @@
 # this reconciles a conflict between the iterm integration script and having a custom prompt
 if [[ is_osx && "$TERM" != "screen" ]]; then
 	ps1_var=orig_ps1
-elif [[ `hostname` =~ cluster*|mima && "$TERM" != "screen" ]]; then
+elif [[ is_linux && "$TERM" != "screen" ]]; then
 	ps1_var=orig_ps1
 else
 	ps1_var=PS1
