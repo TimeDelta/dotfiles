@@ -13,7 +13,7 @@ _prompt() { # [BH]
 	elif [[ -n `git log 2> /dev/null` ]]; then
 		echo -n "[${FBLUE}`git branch --no-color | egrep '^\*' | sed 's/^..//'`${RES}]"
 	elif [[ -n `bzr info 2> /dev/null` &&
-			-n $(bzr ls --versioned -k directory .. | grep -Fx "../`basename "$(pwd)"`/") ]]; then
+			-n $(bzr ls --versioned -k directory .. | grep -Fx "../`basename "$(pwd)"`/" 2> /dev/null) ]]; then
 		echo -n "[${FBLUE}`bzr branches | egrep '^\*' | sed 's/^[ *]*//'`${RES}]"
 	fi
 	echo "${FGREEN}\h${RES}${FYELLOW}${BOLD}\w${RES}\n\$ "
