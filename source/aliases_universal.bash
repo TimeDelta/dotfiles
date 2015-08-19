@@ -749,7 +749,7 @@ log (){ # [BH]
 branches() { # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
-		svn) svn ls "^/branches/$path" | egrep "/$" ;;
+		svn) svn ls "^/branches" ;;
 		git) git branch --no-color | sed -e 's/^\*//' -e 's/^ *//g' ;;
 	esac
 }
