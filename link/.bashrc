@@ -16,7 +16,7 @@ function src() {
     for file in `< "$order_file" tr '\n' ' '`; do
       source "$DOTFILES/source/$file"
     done
-    
+
     # unordered source files
     for file in `command ls -1 $DOTFILES/source/* | \
                 sed "s:^$DOTFILES/source/::" | \
@@ -25,7 +25,7 @@ function src() {
                 tr '\n' ' '`; do
       source "$DOTFILES/source/$file"
     done
-    
+
     source "$MACHINE_ALIAS_FILE"
   fi
 }
@@ -34,6 +34,14 @@ function src() {
 function dotfiles() {
   $DOTFILES/bin/dotfiles "$@" && src
 }
+
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+  SESSION_TYPE=remote/ssh
+else
+  case $(ps -o comm= -p $PPID) in
+    sshd|*/sshd) SESSION_TYPE=remote/ssh;;
+  esac
+fi
 
 # never need tab completion if it's not a login shell
 shopt -q login_shell && if [ -f /etc/bash_completion ]; then . /etc/bash_completion; fi
