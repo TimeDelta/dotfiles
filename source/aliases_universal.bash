@@ -1490,6 +1490,14 @@ rand (){ # [BH]
 
 # pts: print time stamp
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
+
+subl() { # [BH]
+	if [[ $SESSION_TYPE == remote/ssh ]]; then
+		rsub "$@"
+	else
+		command subl "$@"
+	fi
+}
 ################################################################################
 
 
