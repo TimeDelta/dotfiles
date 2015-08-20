@@ -58,7 +58,7 @@ spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; do
 smalias (){ source "$MACHINE_ALIAS_FILE"; } # [BH]
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
-# sbashp: source .bashrc (to make changes active after editing)
+# sbashrc: source .bashrc (to make changes active after editing)
 sbashrc () { source "$HOME/.bashrc"; } # [BH]
 
 # platform: is the specified function / alias platform-specific or universal?
