@@ -766,12 +766,22 @@ dif() { # [BH]
 	}
 }
 
-# prevci: get the previous commit id for specified repository
+# prevci: get the previous commit id for the current repository
 prevci() { # [BH]
+	if [[ $1 == "--help" ]]; then
+		echo "Get a previous commit id for the current repository"
+		echo "Usage: prevci [<commits_ago>]"
+		echo "Arguments:"
+		echo "  <commits_ago>"
+		echo "    Number of commits back for which to retrieve the id. 0 retrieves most recent"
+		echo "    commit id. [Default: 1]"
+	fi
+
+	local commits_ago=${1:-1}
 	local vcs=`vcs_type`
 	case $vcs in
-		git) git log --no-color -n 2 --format=oneline | line 2 | col 1 ;;
-		svn) echo $((`svn info "$@" | grep 'Revision' | awk '{print $2}'`-1)) ;;
+		git) git log --no-color -n 2 --format=oneline | line $(($commits_ago+1)) | col 1 ;;
+		svn) echo $((`svn info "$@" | grep 'Revision' | awk '{print $2}'`-$commits_ago)) ;;
 	esac
 }
 
