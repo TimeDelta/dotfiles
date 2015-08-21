@@ -1,7 +1,7 @@
 # this reconciles a conflict between the iterm integration script and having a custom prompt
-if [[ `is_osx` && "$TERM" != "screen" ]]; then
+if [[ `uname 2> /dev/null` =~ ^[Dd]arwin && "$TERM" != "screen" ]]; then
 	ps1_var=orig_ps1
-elif [[ `is_linux` && $SESSION_TYPE == remote/ssh && "$TERM" != "screen" ]]; then
+elif [[ `uname 2> /dev/null` =~ ^[Ll]inux && $SESSION_TYPE == remote/ssh && "$TERM" != "screen" ]]; then
 	ps1_var=orig_ps1
 else
 	ps1_var=PS1
