@@ -26,11 +26,14 @@ _prompt() { # [BH]
 			-n $(bzr ls --versioned -k directory .. 2> /dev/null | grep -Fx "../`basename "$(pwd)"`/") ]]; then
 		branch="`bzr branches | egrep '^\*' | sed 's/^[ *]*//'`"
 	fi
-	echo -n "[${FBLUE}`_trim_branch_name "${branch}"`${RES}"
-	if [[ -n $commit ]]; then
-		echo -n ":${FCYAN}${commit}${RES}"
+	if [[ -n $branch ]]; then
+		echo -n "[${FBLUE}`_trim_branch_name "${branch}"`${RES}"
+		if [[ -n $commit ]]; then
+			echo -n ":${FCYAN}${commit}${RES}"
+		fi
+		echo -n "]"
 	fi
-	echo "]${FGREEN}\h${RES}:${FYELLOW}${BOLD}\w${RES}\n\$ "
+	echo "${FGREEN}\h${RES}:${FYELLOW}${BOLD}\w${RES}\n\$ "
 	unset _trim_branch_name
 }
 
