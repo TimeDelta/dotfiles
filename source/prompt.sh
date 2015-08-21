@@ -8,15 +8,30 @@ else
 fi
 
 _prompt() { # [BH]
+	_trim_branch_name() { # [BH]
+		local max_length=${MAX_BRANCH_NAME_LENGTH:-25}
+		local branch_name="$1"
+		if [[ ${#branch_name} -gt $max_length ]]; then
+			branch_name="${branch_name:0:$((${max_length}-3))}..."
+		fi
+		echo "$branch_name"
+	}
+	local branch commit
 	if [[ -n `svnr 2> /dev/null` ]]; then
-		echo -n "[${FBLUE}`svnb`${RES}:${FCYAN}`svnr`${RES}]"
+		branch="`svnb`"
+		commit="`svnr`"
 	elif [[ -n `git log 2> /dev/null` ]]; then
-		echo -n "[${FBLUE}`git branch --no-color | egrep '^\*' | sed 's/^..//'`${RES}]"
+		branch="`git branch --no-color | egrep '^\*' | sed 's/^..//'`"
 	elif [[ -n `bzr info 2> /dev/null` &&
 			-n $(bzr ls --versioned -k directory .. 2> /dev/null | grep -Fx "../`basename "$(pwd)"`/") ]]; then
-		echo -n "[${FBLUE}`bzr branches | egrep '^\*' | sed 's/^[ *]*//'`${RES}]"
+		branch="`bzr branches | egrep '^\*' | sed 's/^[ *]*//'`"
 	fi
-	echo "${FGREEN}\h${RES}:${FYELLOW}${BOLD}\w${RES}\n\$ "
+	echo -n "[${FBLUE}`_trim_branch_name "${branch}"`${RES}"
+	if [[ -n $commit ]]; then
+		echo -n ":${FCYAN}${commit}${RES}"
+	fi
+	echo "]${FGREEN}\h${RES}:${FYELLOW}${BOLD}\w${RES}\n\$ "
+	unset _trim_branch_name
 }
 
 export prompt="export $ps1_var=\$(_prompt);"
