@@ -984,8 +984,28 @@ cd_up () { # [BH]
 	#           Next, do cd_up and you end up in the parent of the actual directory instead of the directory
 	#           in which the symlink exists.
 	local op=cd
-	[[ $1 == "-p" ]] && shift && op=echo
-	[[ $1 == "--" ]] && { shift; local dir_only=1; } || local dir_only=0
+	local dir_only=0
+	local relative=
+	OPTIND=0
+
+	# parse options
+	while getopts ":pr:-" opt; do
+		case $opt in
+			p) op=echo ;;
+			r) relative="$OPTARG" ;;
+			-) dir_only=1 ;;
+			\?)
+				echo "Invalid Option: -$OPTARG" >&2
+				usage >&2; exit 1 ;;
+			:)
+				echo "Option -$OPTARG requires an additional argument" >&2
+				usage >&2; exit 1 ;;
+		esac
+	done
+
+	shift $(($OPTIND-1))
+	OPTIND=0
+
 	if [[ $# -eq 0 ]]; then $op "`fullpath ".."`"; return 0
 	elif [[ $1 == "--help" ]]; then
 		{ echo "Usage:"
@@ -997,7 +1017,10 @@ cd_up () { # [BH]
 (to be used if the directory name is an integer)."
 		echo
 		echo "Options:"
-		echo "  -p : just print the path to stdout instead of switching to it"; } | wrapindent -w
+		echo "  -p : just print the path to stdout instead of switching to it"
+		echo "  -r <new_dir>"
+		echo "      Resolve directory according to usage but append <new_dir> + the \
+stuff between the current directory and the resolved <back_dir> before switching."; } | wrapindent -w
 		return 0
 	elif [[ $1 =~ ^[0-9]+$ && $dir_only -eq 0 ]]; then
 		local f=".."
@@ -1016,7 +1039,19 @@ cd_up () { # [BH]
 			b=`basename "$f" | tr 'A-Z' 'a-z'` # next bottom-most directory
 		done
 	fi
+
+	# handle <relative_dir>
+	if [[ -n $relative ]]; then
+		local relative_dir="`pwd | sed "s:$f::"`"
+		relative_dir="${relative_dir#/}"
+		relative_dir="${relative_dir#*/}"
+		relative="${relative%/}/$relative_dir"
+	fi
+	# handle <sub_path>
 	if [[ $# -gt 1 ]]; then f="$f/${@: +2}"; fi
+
+	f="$f/$relative"
+
 	# fullpath must be implemented per platform in the corresponding platform aliases file
 	$op "`fullpath "$f"`"
 }
