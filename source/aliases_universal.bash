@@ -273,7 +273,7 @@ alias numberlines="perl -pe 's/^/$. /'"
 line () { sed -n $1p; } # [BH]
 
 # stripws: strip whitespace from the beginning and end of the input. takes input from STDIN
-stripws () { sed -e s/^[\ \t]*// -e s/[\ \t]*$//; } # [BH]
+stripws () { sed $SED_EXT_RE "s/^( |`echo -e '\t'`)*//;s/( |`echo -e '\t'`)*$//"; } # [BH]
 
 # toupper: convert stdin to upper case
 toupper () { tr 'a-z' 'A-Z'; } # [BH]
