@@ -61,13 +61,47 @@ sbashp () { source ~/.bash_profile; } # [BH]
 # sbashrc: source .bashrc (to make changes active after editing)
 sbashrc () { source "$HOME/.bashrc"; } # [BH]
 
-# platform: is the specified function / alias platform-specific or universal?
-platform (){ # [BH]
-	if [[ -n `cat $PLATFORM_ALIAS_FILES | awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' | sed 's/=.*$//' | grep "$@"` ]]; then
-		echo Defined in platform-dependent file
+# funcplatform: where is the specified custom function declared (universal / platform / machine)?
+funcplatform() { # [BH]
+	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
+	if [[ -n `< "$MACHINE_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+		echo "machine"
+	elif [[ -n `cat $PLATFORM_ALIAS_FILES | parsefuncdefs | grep -Fx "$@"` ]]; then
+		echo "platform"
+	elif [[ -n `< "$UNIV_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+		echo "universal"
 	else
-		echo Defined in universal file
+		echo "not defined in custom function files"
 	fi
+}
+
+# funcfile: print the name of the file in which the specified custom function is defined
+funcfile() { # [BH]
+	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
+	for file in "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"; do
+		if [[ -n `< "$file" parsefuncdefs | grep -Fx "$@"` ]]; then
+			echo "$file"
+			return 0
+		fi
+	done
+	return 1
+}
+
+# editfunc: edit the specified custom alias / function in sublime text
+editfunc() { # [BH]
+	local file="`funcfile "$@"`"
+	if [[ -z $file ]]; then
+		echo "Error: \"$@\" is not a custom alias / function" >&2
+		return 1
+	fi
+	subl "$file":`egrep -n "^((alias|function) +)?$@(\\(| |=)" "$file" | col 1`
+}
+
+# parsefuncdefs: parse function and alias definitions from STDIN and print the name of each found alias / function
+parsefuncdefs() { # [BH]
+	awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' \
+		| sed 's/=.*$//' \
+		| sed 's/(.*//'
 }
 
 # func: display the definition of an alias or function
@@ -89,10 +123,7 @@ code (){ # [BH]
 
 # lscustomfunc: list all available custom functions and aliases that are defined in the normal sourced files
 lscustomfunc () { # [BH]
-	cat "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" \
-		| awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' \
-		| sed 's/=.*$//' \
-		| sed 's/(.*//'
+	cat "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | parsefuncdefs
 }
 
 # lsfunc: list all defined functions and aliases in the current environment
