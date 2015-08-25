@@ -87,8 +87,8 @@ funcfile() { # [BH]
 	return 1
 }
 
-# editfunc: edit the specified custom alias / function in sublime text
-editfunc() { # [BH]
+# efunc: edit the specified custom alias / function in sublime text
+efunc() { # [BH]
 	local file="`funcfile "$@"`"
 	if [[ -z $file ]]; then
 		echo "Error: \"$@\" is not a custom alias / function" >&2
