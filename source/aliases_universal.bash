@@ -1567,6 +1567,7 @@ rand (){ # [BH]
 # pts: print time stamp
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
 
+# subl: CLI for sublime text
 subl() { # [BH]
 	if [[ $SESSION_TYPE == remote/ssh ]]; then
 		rsub "$@"
@@ -1574,6 +1575,9 @@ subl() { # [BH]
 		command subl "$@"
 	fi
 }
+
+# osubl: open files passed from stdin in Sublime Text
+alias osubl="xargs -L 1 --- subl" # [BH]
 ################################################################################
 
 
