@@ -23,8 +23,16 @@ def all_depends(main_target, resolve):
 	to_process = depends(main_target)
 	while len(to_process) > 0:
 		current_target = to_process.pop()
-		if "resolve" in depends(current_target):
-			return True
+		if resolve:
+			current_targets = depends(current_target)
+			if "resolve" in current_targets:
+				return True
+			for target in current_targets:
+				to_process.add(target)
+		else:
+			for target in depends(current_target):
+				to_process.add(target)
+				targets.add(target)
 
 	if resolve:
 		return None
