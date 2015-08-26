@@ -466,7 +466,23 @@ rc () { # [BH]
 
 # fc: count files in a directoy that match a given regex
 fc () { # [BH]
+	if [[ $1 == '--help' ]]; then
+		echo "Usage: fc [options] [<regex>]"
+		echo "Options:"
+		echo "  -r : Recursively search the parent directory"
+		echo "  -D : Only count directories"
+		echo "  -f : Only count files"
+		echo "  -d <directory>"
+		echo "    Specify the parent directory in which to search for files."
+		echo "    [Default: current directory]"
+		echo "Arguments:"
+		echo "  <regex>"
+		echo "    Case-insensitive posix-extended regex. If unspecified, match everything."
+		return 0
+	fi
+
 	# parse options
+	OPTIND=0
 	local non_recursive="-mindepth 1 -maxdepth 1" type root_dir
 	while getopts ":d:rDfh" opt; do
 		case $opt in
@@ -474,19 +490,12 @@ fc () { # [BH]
 			r) non_recursive="" ;;
 			D) type="-type d" ;;
 			f) type="-type f" ;;
-			h)
-				{ echo "Usage: fc [options] [<regex>]"
-				echo "    -d <directory> : Specify the parent directory in which to search for files"
-				echo "    -r             : Recursively search the parent directory"
-				echo "    -D             : Only count directories"
-				echo "    -f             : Only count files"
-				echo "    <regex>        : Case-insensitive posix-extended regex. If unspecified, match everything."; } | wrapindent 21
-				return 0 ;;
 			\?) echo "Invalid Option: -$OPTARG" >&2 && return 1 ;;
 			:) echo "Option -$OPTARG requires an additional argument" >&2 && return 1 ;;
 		esac
 	done
 	shift $(($OPTIND-1))
+	OPTIND=0
 
 	# if recursive then add the .* to the front to allow recursive search
 	if [[ -z "$non_recursive" ]]; then local regex=".*$1"
