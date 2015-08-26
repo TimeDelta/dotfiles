@@ -1466,6 +1466,38 @@ props() { # [BH]
 		| sed 's/^.*: //' \
 		| grep -v '^env\.'
 }
+# depends: print the dependencies for the specified ant target
+depends() { # [BH]
+	if [[ $1 == '--help' ]]; then
+		echo "Usage: depends [options] <target_name> ..."
+		echo "Options:"
+		echo "  -r : Recursively check for dependencies."
+		echo "  -R , --resolve"
+		echo "    Check if the target(s) depends on resolve. Implies -r."
+		return 0
+	elif [[ $1 == '-R' || $1 == '--resolve' ]]; then
+		shift
+		depends.py -r "$@"
+	elif [[ $1 == '-r' ]]; then
+		shift
+		depends.py "$@"
+	else
+		{
+			while [[ $# -gt 0 ]]; do
+				ant -p -debug \
+					| grep -v 'env\.' \
+					| stripws \
+					| egrep -A 1 -B 0 "^\s*$1(\s|$)" \
+					| sed -n 2p \
+					| grep "^depends on" \
+					| sed 's/^[^:]*: //' \
+					| tr ',' '\n' \
+					| stripws
+				shift
+			done
+		} | sort | uniq
+	fi
+}
 
 # btype: print the build type for the current cmake build directory
 btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; } # [BH]
