@@ -1125,57 +1125,94 @@ cdmr (){ cd "`command ls -d1tc $(translate_dir_hist "${@:-*}/") | head -1`"; } #
 # ff: find files matching a given regex (case-insensitive)
 ff () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
-		{ echo "Usage: ff <regex> [<directory>]"
-		echo "  <regex>     : Case-insensitive extended regular expression (see find -E for more information)."
-		echo "  <directory> : Directory in which to search. Default is current directory."; } | wrapindent 16
+		echo "Usage: ff [options] <regex> [<directory>]"
+		echo "Options:"
+		echo "  -s : Run the command with superuser permissions."
+		echo "Arguments:"
+		echo "  <regex>"
+		echo "    Case-insensitive extended regular expression (see find -E for more"
+		echo "    information)."
+		echo "  <directory>"
+		echo "    Directory in which to search. Default is current directory."
 		return 0
 	fi
+
+	local sudo=''
+	[[ $1 == '-s' ]] && sudo='sudo' && shift
+
 	[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
-	find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
+	$sudo find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
 }
 # fd: find directories matching a given regex (case-insensitive)
 fd () { # [BH]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
-		{ echo "Usage: fd <regex> [<directory>]"
-		echo "  <regex>     : Case-insensitive extended regular expression (see find -E for more information)."
-		echo "  <directory> : Directory in which to search. Default is current directory."; } | wrapindent 16
+		echo "Usage: fd [options] <regex> [<directory>]"
+		echo "Options:"
+		echo "  -s : Run the command with superuser permissions."
+		echo "Arguments:"
+		echo "  <regex>"
+		echo "    Case-insensitive extended regular expression."
+		echo "  <directory>"
+		echo "    Directory in which to search. Default is current directory."
 		return 0
 	fi
+
+	local sudo=''
+	[[ $1 == '-s' ]] && sudo='sudo' && shift
+
 	[[ -n $2 ]] && local root="`translate_dir_hist "$2"`"
-	find -L $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
+	$sudo find -L $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
 }
 # fft: find files in a directory that have been modified in the past given number of minutes
 fft () { # [BH]
 	if [[ $# -eq 0 || $1 -eq "-h" || $1 -eq "--help" || $1 -eq "help" ]]; then
-		{ echo "Usage: fft [options] <minutes> [<case_insensitive_regex>]"
+		echo "Usage: fft [options] <minutes> [<case_insensitive_regex>]"
 		echo "Options:"
+		echo "  -s : Run the command with superuser permissions."
 		echo "  -d <directory>"
 		echo "    Specify the directory in which to search. Default is current directory."
 		echo "Arguments:"
 		echo "  <minutes>"
 		echo "    Max # of minutes ago for a file to have been modified"
 		echo "  <case_insensitive_regex>"
-		echo "    Case-insensitive extended regular expression (see find -E for more information)."; } | wrapindent -w
+		echo "    Case-insensitive extended regular expression."
 		return 0
 	fi
-	if [[ $1 == "-d" ]]; then local root="`translate_dir_hist "$2"`"; shift 2; fi
+
+	local sudo=
+	local root=
+	while getopts ':sd:' opt; do
+		case $opt in
+			s) sudo='sudo' ;;
+			d) root="`translate_dir_hist "$OPTARG"`" ;;
+		esac
+	done
+
 	find -L $FIND_DASH_E "${root:-.}" -mmin "-$1" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/${2:-.*}"
 }
 
 # gf: grep through files returned by find
 gf () { # [BH]
 	if [[ $# -lt 2 ]]; then
-		{ echo "Usage: gf <egrep_regex> <case_insensitive_find_regex> [<directory>]"
+		echo "Usage: gf <egrep_regex> <case_insensitive_find_regex> [<directory>]"
+		echo "Options:"
+		echo "  -s : Run the command with superuser permissions."
+		echo "Arguments:"
 		echo "  <egrep_regex>"
 		echo "    egrep style regular expression"
 		echo "  <case_insensitive_find_regex>"
-		echo "    Case insensitive extended regular expression representing the files to search (see find -E)"
+		echo "    Case-insensitive extended regular expression representing the files to"
+		echo "    search."
 		echo "  <directory>"
-		echo "    Directory in which to search. Default is current directory."; } | wrapindent -w
+		echo "    Directory in which to search. Default is current directory."
 		return 0
 	fi
+
+	local sudo=''
+	[[ $1 == '-s' ]] && sudo='sudo' && shift
+
 	[[ -n $3 ]] && local root="`translate_dir_hist "$3"`"
-	find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$2" -print0 \
+	$sudo find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$2" -print0 \
 		| xargs -0 egrep -n $GREP_DASH_T --color=always "$1" \
 		| less -R
 }
