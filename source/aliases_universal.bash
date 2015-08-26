@@ -1472,10 +1472,10 @@ depends() { # [BH]
 		echo "Usage: depends [options] <target_name> ..."
 		echo "Options:"
 		echo "  -r : Recursively check for dependencies."
-		echo "  -R , --resolve"
+		echo "  --resolve"
 		echo "    Check if the target(s) depends on resolve. Implies -r."
 		return 0
-	elif [[ $1 == '-R' || $1 == '--resolve' ]]; then
+	elif [[ $1 == '--resolve' ]]; then
 		shift
 		depends.py -r "$@"
 	elif [[ $1 == '-r' ]]; then
