@@ -791,6 +791,7 @@ branches() { # [BH]
 	case $vcs in
 		svn) svn ls "^/branches" ;;
 		git) git branch --no-color | sed -e 's/^\*//' -e 's/^ *//g' ;;
+		bzr) bzr branches | sed 's/^[ *]*//' ;;
 	esac
 }
 
