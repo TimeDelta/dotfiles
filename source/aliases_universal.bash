@@ -1802,6 +1802,12 @@ _repo_branches_tab_complete_helper() { # [BH]
 	echo '			else'
 	echo '				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" -- $branch_name ) )'
 	echo '			fi ;;'
+	echo '		bzr)'
+	echo '			if [[ $COMP_CWORD -eq 1 && -z $current_word ]]; then'
+	echo '				COMPREPLY=( $( compgen -W "`bzr branches | sed "s/^[ *]*//"`" ) )'
+	echo '			else'
+	echo '				COMPREPLY=( $( compgen -W "`bzr branches | sed "s/^[ *]*//"`" -- $branch_name ) )'
+	echo '			fi ;;'
 	echo '	esac'
 	echo '}'
 }
