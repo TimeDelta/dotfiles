@@ -22,9 +22,11 @@ _prompt() { # [BH]
 		commit="`svnr`"
 	elif [[ -n `git log 2> /dev/null` ]]; then
 		branch="`git branch --no-color | egrep '^\*' | sed 's/^..//'`"
-	elif [[ -n `bzr info 2> /dev/null` &&
-			-n $(bzr ls --versioned -k directory .. 2> /dev/null | grep -Fx "../`basename "$(pwd)"`/") ]]; then
-		branch="`bzr branches | egrep '^\*' | sed 's/^[ *]*//'`"
+	elif [[ -n `bzr info 2> /dev/null` ]]; then
+		local parent_branches="`bzr ls --versioned -k directory .. 2> /dev/null`"
+		if [[ -z $parent_branches || -n $(echo "$parent_branches" | grep -Fx "../`basename "$(pwd)"`/") ]]; then
+			branch="`bzr branches | egrep '^\*' | sed 's/^[ *]*//'`"
+		fi
 	fi
 	if [[ -n $branch ]]; then
 		echo -n "[${FBLUE}`_trim_branch_name "${branch}"`${RES}"
