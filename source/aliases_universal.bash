@@ -857,24 +857,63 @@ alias whois="whois -h whois-servers.net"
 ##############
 # Navigation #
 ################################################################################
+export DIR_ALIAS_FILE="$HOME/.dirs"
 # sdirs: update the directory aliases for the current session according to the master file
-sdirs () { source ~/.dirs; }
+sdirs () { source "$DIR_ALIAS_FILE"; }
 # edirs: edit directory aliases file
-edirs () { subl ~/.dirs; }
+edirs () { subl "$DIR_ALIAS_FILE"; }
 # diralias: set an alias for a directory that can be used with cd from anywhere without a "$" (must use "$" if directory alias not used by itself)
 diralias () { # {BH}
-	sed "/export $1=/d" ~/.dirs > ~/.dirs1 # delete any existing alias with the same name
-	mv ~/.dirs1 ~/.dirs                    # have to use temp file b/c otherwise it will only keep the first line
-	echo "export $1"=\"`pwd`\" >> ~/.dirs  # append the new directory alias to the directory aliases file
-	source ~/.dirs                         # add the new directory alias to the current environment
+	# delete any existing alias with the same name
+	sed "/export $1=/d" "$DIR_ALIAS_FILE" > "$DIR_ALIAS_FILE"1
+	# have to use temp file b/c otherwise it will only keep the first line
+	mv "$DIR_ALIAS_FILE"1 "$DIR_ALIAS_FILE"
+	# append the new directory alias to the directory aliases file
+	echo "export $1"=\"`pwd`\" >> "$DIR_ALIAS_FILE"
+	# add the new directory alias to the current environment
+	source "$DIR_ALIAS_FILE"
 }
 # diraliased: check if a directory alias with the specified name exists
-diraliased (){ if [[ -z "`egrep "^export $1=" ~/.dirs`" ]]; then echo Not aliased; else echo Aliased; fi; } #[BH]
+diraliased (){ #[BH]
+	if [[ -z "`egrep "^export $1=" "$DIR_ALIAS_FILE"`" ]]; then
+		echo Not aliased
+	else
+		echo Aliased
+	fi
+}
 # Initialization for the above 'diralias' function:
-sdirs                # source the ~/.dirs file
+sdirs # source the directory aliases file
 # NOTE: the following line is no longer needed for cd built-in thanks to the updates to the cd
 #       wrapper but it's still needed for things like pushd, etc.
 shopt -s cdable_vars # set the bash option so that no '$' is required when using directory alias
+
+# shortpath: if possible, shorten the specified path using directory aliases
+shortpath() { # [BH]
+	local input_path="$1"
+	egrep "^\s*export" "$DIR_ALIAS_FILE" \
+		| sed 's/^ *export *//' \
+		| sed 's/=.*//' \
+		| {
+			# find the directory alias with the longest matching replacement
+			local var best_var to_replace best_to_replace
+			while read -s var; do
+				local dir_alias="`env | egrep "^${var}\b"`"
+				if [[ -n $dir_alias ]]; then
+					to_replace="`echo "$dir_alias" | sed -e "s/${var}=//" -e 's/"//g'`"
+					if [[ "$input_path" =~ ^"${to_replace%/}/".* ]]; then
+						if [[ ${#to_replace} -gt ${#best_to_replace} ]]; then
+							best_to_replace="$to_replace"
+							best_var="$var"
+						fi
+					fi
+				fi
+			done
+			if [[ -n $best_to_replace ]]; then
+				input_path="`echo "$input_path" | sed "s:$best_to_replace:\\$$best_var:"`"
+			fi
+			echo "$input_path"
+		}
+}
 
 # mkcd: make a directory and switch to it
 mkcd (){ mkdir -p "$@"; cd "$@"; } # [BH]
@@ -1718,18 +1757,63 @@ atp () { # [BH]
 		echo "Usage: atp [options] [<location>]"
 		echo "Options:"
 		echo "  -p : prepend to path instead of appending"
+		echo "  -P : make the addition permanent"
 		echo "Arguments:"
 		echo "  <location>"
 		echo "      Directory to add to the path. If location is already in PATH, this does \
 nothing and has an exit status of 0. [Default: current directory]"; } | wrapindent -w
 		return 0
 	fi
-	[[ $1 == "-p" ]] && { shift; local prepend=1; } || local prepend=0
+
+	# default options
+	local prepend=0
+	local permanent=0
+
+	OPTIND=0
+	local old_nocasematch=`cur_nocasematch`
+	shopt -u nocasematch
+	while getopts ':pP' opt; do
+		case $opt in
+			p) prepend=1 ;;
+			P) permanent=1 ;;
+		esac
+	done
+	shopt $old_nocasematch nocasematch
+
+	shift $(($OPTIND-1))
+	OPTIND=0
+
 	[[ $# -eq 0 ]] && local path_to_add="`pwd`" || local path_to_add="${@%/}"
-	inpath "$path_to_add" && return 0
-	[[ $prepend -eq 0 ]] && \
-		export PATH="$PATH:$path_to_add" || \
-		export PATH="$path_to_add:$PATH"
+	if [[ $permanent -eq 0 ]]; then
+		inpath "$path_to_add" && return 0
+		[[ $prepend -eq 0 ]] && \
+			export PATH="$PATH:$path_to_add" || \
+			export PATH="$path_to_add:$PATH"
+	else
+		local orig_path_to_add="$path_to_add"
+		[[ $prepend -eq 0 ]] && prepend='' || prepend='-p '
+
+		# check if there's a directory alias that can be used to shorten the added directory
+		path_to_add="`shortpath "$path_to_add"`"
+		if [[ $path_to_add =~ ^\$ ]]; then
+			path_to_add_re="\\$path_to_add"
+		fi
+
+		# delete any existing entry for the same directory in the path file
+		if [[ -n `egrep "\s*atp\s+(-p\s*)?\"(${path_to_add_re}|${orig_path_to_add})\"" "$PATH_FILE"` ]]; then
+			echo trying to delete something
+			# have to use temp file b/c otherwise it will only keep the first line
+			local tmp_file="$PATH_FILE.~tmp~"
+			egrep -v "\s*atp\s+(-p\s*)?\"(${path_to_add_re}|${orig_path_to_add})\"" "$PATH_FILE" > "$tmp_file"
+			mv "$tmp_file" "$PATH_FILE"
+		fi
+
+		# append the new path to the path file
+		echo "atp ${prepend}\"$path_to_add\"" >> "$PATH_FILE"
+
+		# source the path file
+		spath
+	fi
 }
 
 # rfp: remove a directory from PATH
