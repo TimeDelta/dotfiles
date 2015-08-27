@@ -6,6 +6,7 @@ is_osx || return 1
 
 # Homebrew recipes
 recipes=(
+  ack
   autoconf
   automake
   bash
@@ -13,31 +14,29 @@ recipes=(
   brew-cask
   cmake
   colordiff
-  gfortran
+  git-extras
   gnuplot
   gperftools
   graphviz
   htop-osx
   lame
+  lesspipe
   makedepend
-  openfst
+  nmap
   openssl
   pip-completion
   pkg-config
   qcachegrind
+  homebrew/fuse/sshfs
   sox
   swig
+  terminal-notifier
+  the_silver_searcher
+  tree
   watch
   wdiff
   wget
   xz
-  git-extras
-  lesspipe
-  nmap
-  terminal-notifier
-  the_silver_searcher
-  tree
-  homebrew/fuse/sshfs
 )
 
 brew_install_recipes
