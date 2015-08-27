@@ -864,14 +864,17 @@ sdirs () { source "$DIR_ALIAS_FILE"; }
 edirs () { subl "$DIR_ALIAS_FILE"; }
 # diralias: set an alias for a directory that can be used with cd from anywhere without a "$" (must use "$" if directory alias not used by itself)
 diralias () { # {BH}
+	local short_path="`shortpath "$(pwd)"`"
+
 	# delete any existing alias with the same name
-	sed "/export $1=/d" "$DIR_ALIAS_FILE" > "$DIR_ALIAS_FILE"1
 	# have to use temp file b/c otherwise it will only keep the first line
-	mv "$DIR_ALIAS_FILE"1 "$DIR_ALIAS_FILE"
-	# append the new directory alias to the directory aliases file
-	echo "export $1"=\"`pwd`\" >> "$DIR_ALIAS_FILE"
-	# add the new directory alias to the current environment
-	source "$DIR_ALIAS_FILE"
+	local tmp_file="$DIR_ALIAS_FILE.~tmp~"
+	egrep -v "\s*export\s*$1=" "$DIR_ALIAS_FILE" > "$tmp_file"
+	mv "$tmp_file" "$DIR_ALIAS_FILE"
+
+	# add the new directory alias
+	echo "export $1=\"$short_path\"" >> "$DIR_ALIAS_FILE"
+	sdirs
 }
 # diraliased: check if a directory alias with the specified name exists
 diraliased (){ #[BH]
