@@ -867,10 +867,7 @@ diralias () { # {BH}
 	local short_path="`shortpath "$(pwd)"`"
 
 	# delete any existing alias with the same name
-	# have to use temp file b/c otherwise it will only keep the first line
-	local tmp_file="$DIR_ALIAS_FILE.~tmp~"
-	egrep -v "\s*export\s*$1=" "$DIR_ALIAS_FILE" > "$tmp_file"
-	mv "$tmp_file" "$DIR_ALIAS_FILE"
+	sed -i "" "/export $1=/d" "$DIR_ALIAS_FILE"
 
 	# add the new directory alias
 	echo "export $1=\"$short_path\"" >> "$DIR_ALIAS_FILE"
