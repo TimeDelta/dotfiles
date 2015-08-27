@@ -94,7 +94,7 @@ efunc() { # [BH]
 		echo "Error: \"$@\" is not a custom alias / function" >&2
 		return 1
 	fi
-	subl "$file":`egrep -n "^((alias|function) +)?$@(\\(| |=)" "$file" | col 1`
+	subl "$file":`egrep -n "^((alias|function) +)?$@(\\(| \\(|=)" "$file" | col 1`
 }
 
 # parsefuncdefs: parse function and alias definitions from STDIN and print the name of each found alias / function
@@ -1000,7 +1000,7 @@ alias cp=cp_func # [BH]
 cpdirs (){ # [BH]
 	if [[ $1 == "--help" ]]; then
 		echo "Copy the directory structure (no files) from one directory to another."
-		echo "Usage: cp_dir_struc [-d <max_depth>] <from> <to>"
+		echo "Usage: cpdirs [-d <max_depth>] <from> <to>"
 		return 0
 	fi
 	if [[ $# -gt 2 ]]; then
@@ -1074,12 +1074,8 @@ cd_up () { # [BH]
 			p) op=echo ;;
 			r) relative="$OPTARG" ;;
 			-) dir_only=1 ;;
-			\?)
-				echo "Invalid Option: -$OPTARG" >&2
-				usage >&2; exit 1 ;;
-			:)
-				echo "Option -$OPTARG requires an additional argument" >&2
-				usage >&2; exit 1 ;;
+			\?) echo "Invalid Option: -$OPTARG" >&2; return 1 ;;
+			:) echo "Option -$OPTARG requires an additional argument" >&2; return 1 ;;
 		esac
 	done
 
@@ -1111,12 +1107,12 @@ stuff between the current directory and the resolved <back_dir> before switching
 			done
 		fi
 	else
-		local f=`pwd`; f="${f%/*}"                     # final directory (skip current directory name)
-		local b=`basename "$f" | tr 'A-Z' 'a-z'`       # bottom-most directory (lowercase)
-		local t=`echo $1 | tr 'A-Z' 'a-z'`; t="${t%/}" # target directory (lowercase without any trailing "/")
+		local f="`pwd`"; f="${f%/*}"                     # final directory (skip current directory name)
+		local b="`basename "$f" | tr 'A-Z' 'a-z'`"       # bottom-most directory (lowercase)
+		local t="`echo $1 | tr 'A-Z' 'a-z'`"; t="${t%/}" # target directory (lowercase without any trailing "/")
 		while [[ "$(echo $b)" != "$t" ]]; do
-			f="${f%/*}"                        # remove the last directory from the final path
-			b=`basename "$f" | tr 'A-Z' 'a-z'` # next bottom-most directory
+			f="${f%/*}"                          # remove the last directory from the final path
+			b="`basename "$f" | tr 'A-Z' 'a-z'`" # next bottom-most directory
 		done
 	fi
 
