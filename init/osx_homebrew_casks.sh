@@ -22,6 +22,7 @@ casks=(
   # bettertouchtool
   iterm2-beta
   moom
+  osxfuse
   # remote-desktop-connection
   # sonos
   # totalfinder
