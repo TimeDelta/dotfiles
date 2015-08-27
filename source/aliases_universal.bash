@@ -1966,13 +1966,13 @@ export null="/dev/null"
 old_nocasematch=`cur_nocasematch`
 shopt -s nocasematch
 if [[ $MY_OS == *Darwin* ]]; then
-	FIND_DASH_E="-E"
-	SED_EXT_RE="-E"
+	export FIND_DASH_E="-E"
+	export SED_EXT_RE="-E"
 else
-	FIND_REGEXTYPE="-regextype posix-extended"
-	GREP_DASH_T="-T"
-	APPARENT_SIZE="--apparent-size"
-	SED_EXT_RE="-r"
+	export FIND_REGEXTYPE="-regextype posix-extended"
+	export GREP_DASH_T="-T"
+	export APPARENT_SIZE="--apparent-size"
+	export SED_EXT_RE="-r"
 fi
 shopt $old_nocasematch nocasematch
 unset old_nocasematch
