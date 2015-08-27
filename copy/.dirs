@@ -1,0 +1,18 @@
+#!/bin/bash
+################################################################################
+# Directory Shortcuts:
+# This file contains shortcuts for commonly used folders.
+################################################################################
+
+##########################
+# Environment Deployment #
+################################################################################
+export dot="$HOME/.dotfiles"
+export dotinit="$dot/init"
+export dotsource="$dot/source"
+export dotlink="$dot/link"
+export dotcompile="$dot/compile"
+export dotcopy="$dot/copy"
+export dotbin="$dot/bin"
+export dotconf="$dot/conf"
+################################################################################
