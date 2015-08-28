@@ -10,6 +10,7 @@ recipes=(
   autoconf
   automake
   bash
+  bash-completion
   bazaar
   brew-cask
   cmake
