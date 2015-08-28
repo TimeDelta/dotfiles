@@ -48,11 +48,9 @@ shopt -q login_shell && {
   if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
   fi
-  is_osx && \
-    if [ -f $(brew --prefix)/etc/bash_completion ]; then
-      . $(brew --prefix)/etc/bash_completion
-    fi
+  if [[ `which brew` && -f $(brew --prefix)/etc/bash_completion ]]; then
+    . $(brew --prefix)/etc/bash_completion
+  fi
 }
-
 
 src
