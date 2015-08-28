@@ -204,10 +204,8 @@ function init_do() {
 # Copy files.
 function copy_header() { e_header "Copying files into home directory"; }
 function copy_test() {
-  if [[ -e "$2" && ! "$(cmp "$1" "$2" 2> /dev/null)" ]]; then
-    echo "same file"
-  elif [[ "$1" -ot "$2" ]]; then
-    echo "destination file newer"
+  if [[ -e "$2" ]]; then
+    echo "file already exists"
   fi
 }
 function copy_do() {
