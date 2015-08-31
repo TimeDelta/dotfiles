@@ -821,7 +821,7 @@ prevci() { # [BH]
 	local commits_ago=${1:-1}
 	local vcs=`vcs_type`
 	case $vcs in
-		git) git log --no-color -n 2 --format=oneline | line $(($commits_ago+1)) | col 1 ;;
+		git) git log --no-color -n $(($commits_ago+1)) --format=oneline | tail -1 | col 1 ;;
 		svn) echo $((`svn info "$@" | grep 'Revision' | awk '{print $2}'`-$commits_ago)) ;;
 	esac
 }
