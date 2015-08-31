@@ -711,7 +711,7 @@ alias svnmke='svn propset svn:executable true'
 #######
 # Git #
 ################################################################################
-# gitcf: print the files changed for a
+# gitcf: list the files changed for a specific commit
 gitcf() { # [BH]
 	if [[ $1 == '--help' ]]; then
 		echo "List the files changed for a commit in the current repository."
