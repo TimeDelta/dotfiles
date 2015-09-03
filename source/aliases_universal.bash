@@ -1724,15 +1724,18 @@ colorhist (){ # [BH]
 
 # fhist: search history
 fhist() { # [BH]
-	history | awk -v pat="$@" \
-		'{ \
-			r=$0; \
-			s=$1"  "$2" "$3; \
-			$1=""; $2=""; $3=""; \
-			sub(" *",""); \
-			sub("[^ ].*", "", r) \
-		} \
-		$0 ~ pat {print r,s" "$0}' | \
+	history | awk -v pat="$@" -v red="$FRED" -v res="$RES" \
+		'{
+			lead_ws=$0;
+			timestamp=$1"  "$2" "$3;
+			$1=""; $2=""; $3="";
+			sub(" *","");
+			sub("[^ ].*", "", lead_ws);
+			if ($0 ~ pat) {
+				gsub(pat, red"&"res);
+				print lead_ws,timestamp" "$0;
+			}
+		}' | \
 	colorhist | _
 }
 ################################################################################
