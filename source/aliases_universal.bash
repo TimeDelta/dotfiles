@@ -829,7 +829,7 @@ prevci() { # [BH]
 # vcs_type: helper function for generic version control commands
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
-	[[ -n `git log 2> /dev/null` ]] && echo git && return
+	[[ -n `git log -n 1 2> /dev/null` ]] && echo git && return
 	[[ -n `bzr info 2> /dev/null` ]] && echo bzr && return
 	echo "Not a version controlled repository" >&2 && return 1
 }
