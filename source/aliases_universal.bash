@@ -715,7 +715,10 @@ alias svnmke='svn propset svn:executable true'
 gitcf() { # [BH]
 	if [[ $1 == '--help' ]]; then
 		echo "List the files changed for a commit in the current repository."
-		echo "Usage: gitcf [<commit_id>]"
+		echo "Usage: gitcf [options] [<commit_id>]"
+		echo "Options:"
+		echo "  -s : List all files changed since (not including) the specified"
+		echo "       commit instead."
 		echo "Arguments:"
 		echo "  [<commit_id>]"
 		echo "    The id of the commit at which to look. If not provided, the"
@@ -723,11 +726,22 @@ gitcf() { # [BH]
 		return 0
 	fi
 
+	local include_all=0
+	if [[ $1 == '-s' ]]; then
+		include_all=1
+		shift
+	fi
+
 	local commit_id="$@"
 	if [[ -z $commit_id ]]; then
 		commit_id=`git log -n 1 --format=oneline --no-color | col 1`
 	fi
-	git diff-tree --no-commit-id --name-only -r "$commit_id"
+
+	if [[ $include_all -eq 0 ]]; then
+		git diff-tree --no-commit-id --name-only -r "$commit_id"
+	else
+		git diff --diff-filter=AMCR --name-only --relative "$commit_id"
+	fi
 }
 ################################################################################
 
