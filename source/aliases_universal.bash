@@ -1548,6 +1548,13 @@ props() { # [BH]
 		| sed 's/^.*: //' \
 		| grep -v '^env\.'
 }
+# targets: list the available targets for the current project
+targets() { # [BH]
+	ant -p -debug \
+		| egrep '\+Target' \
+		| sed $SED_EXT_RE 's/ *\+Target: *//' \
+		| grep -v '^$'
+}
 # depends: print the dependencies for the specified ant target
 depends() { # [BH]
 	if [[ $1 == '--help' ]]; then
