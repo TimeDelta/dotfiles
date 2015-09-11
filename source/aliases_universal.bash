@@ -895,6 +895,8 @@ diraliased (){ #[BH]
 		echo Aliased
 	fi
 }
+# undiralias: delete an existing directory alias
+undiralias() { sed $SED_IN_PLACE "/export $1=/d" "$DIR_ALIAS_FILE"; } # [BH]
 # Initialization for the above 'diralias' function:
 sdirs # source the directory aliases file
 # NOTE: the following line is no longer needed for cd built-in thanks to the updates to the cd
