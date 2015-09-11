@@ -881,7 +881,7 @@ diralias () { # {BH}
 	local short_path="`shortpath "$(pwd)"`"
 
 	# delete any existing alias with the same name
-	sed -i "" "/export $1=/d" "$DIR_ALIAS_FILE"
+	sed $SED_IN_PLACE "/export $1=/d" "$DIR_ALIAS_FILE"
 
 	# add the new directory alias
 	echo "export $1=\"$short_path\"" >> "$DIR_ALIAS_FILE"
@@ -1985,6 +1985,11 @@ export null="/dev/null"
 # same function in multiple alias files (so i don't need per-platform copies)
 old_nocasematch=`cur_nocasematch`
 shopt -s nocasematch
+if [[ $MY_OS == *CYGWIN* ]]; then
+	export SED_IN_PLACE='-i'
+else
+	export SED_IN_PLACE='-i ""'
+fi
 if [[ $MY_OS == *Darwin* ]]; then
 	export FIND_DASH_E="-E"
 	export SED_EXT_RE="-E"
