@@ -301,7 +301,11 @@ bangcp() { # [BH]
 # quote_args: surround each argument with quotes
 quote_args() { # [BH]
 	while [[ $# -gt 0 ]]; do
-		echo -n "\\\"$1\\\""
+		if [[ $1 == '&' ]]; then
+			echo -n "$1"
+		else
+			echo -n "\\\"$1\\\""
+		fi
 		shift
 		if [[ $# -gt 0 ]]; then
 			echo -n ' '
@@ -311,8 +315,8 @@ quote_args() { # [BH]
 
 # insession: run a command in another (named) session
 insession() { # [BH]
-	local session_name="$1"
-	shift
+	local session_name="$1"; shift
+	local command="$1"; shift
 	osascript -e "
 	tell application \"iTerm\"
 		set done to false
@@ -323,7 +327,7 @@ insession() { # [BH]
 				set currentTabSessions to (every session of currentTab)
 				repeat with currentSession in currentTabSessions
 					if name of currentSession is \"$session_name (bash)\" then
-						tell currentSession to write text \"`quote_args "$@"`\"
+						tell currentSession to write text \"$command `quote_args "$@"`\"
 						set done to true
 						exit repeat
 					end if
