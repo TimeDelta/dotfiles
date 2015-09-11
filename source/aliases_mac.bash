@@ -10,6 +10,7 @@ is_osx || return 1
 ##########################
 # This File and Sourcing #
 ################################################################################
+# make sure this file is in the PLATFORM_ALIAS_FILES environment variable
 [[ $PLATFORM_ALIAS_FILES == *$HOME/.aliases_mac.bash* ]] || export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_mac.bash"
 ################################################################################
 
@@ -295,6 +296,46 @@ bangcp() { # [BH]
 		stripws | \
 		tr -d '\n' | \
 		pbcopy
+}
+
+# quote_args: surround each argument with quotes
+quote_args() { # [BH]
+	while [[ $# -gt 0 ]]; do
+		echo -n "\\\"$1\\\""
+		shift
+		if [[ $# -gt 0 ]]; then
+			echo -n ' '
+		fi
+	done
+}
+
+# insession: run a command in another (named) session
+insession() { # [BH]
+	local session_name="$1"
+	shift
+	osascript -e "
+	tell application \"iTerm\"
+		set done to false
+		set allWindows to (every window)
+		repeat with currentWindow in allWindows
+			set allTabs to (every tab of currentWindow)
+			repeat with currentTab in allTabs
+				set currentTabSessions to (every session of currentTab)
+				repeat with currentSession in currentTabSessions
+					if name of currentSession is \"$session_name (bash)\" then
+						tell currentSession to write text \"`quote_args "$@"`\"
+						set done to true
+						exit repeat
+					end if
+				end repeat
+				if done then exit repeat
+			end repeat
+			if done then exit repeat
+		end repeat
+		if not done then
+			\"Session not found\"
+		end if
+	end tell"
 }
 ################################################################################
 
