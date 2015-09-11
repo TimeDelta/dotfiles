@@ -137,6 +137,13 @@ alias cmd=command # [BH]
 
 # decs: this function will print the declaration for every function and alias in the current session (useful for xargs args -f <(decs) function)
 decs () { compgen -aA "function" | { local name; while read -s name; do func "$name"; done; }; } # [BH]
+
+# updot: update local dotfiles repository with changes from remote server
+updot() { # [BH]
+	pushd "$dot" &> /dev/null
+	up
+	popd &> /dev/null
+}
 ################################################################################
 
 
