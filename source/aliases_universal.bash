@@ -750,6 +750,9 @@ gitcf() { # [BH]
 		git diff --diff-filter=AMCR --name-only --relative "$commit_id"
 	fi
 }
+
+# gitrootdir: get the root directory for the current git repository
+alias gitrootdir='git rev-parse --show-toplevel'
 ################################################################################
 
 
