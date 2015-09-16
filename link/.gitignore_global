@@ -35,6 +35,8 @@
 # Programming Projects #
 ########################
 *.sublime-*
+*.eclipse-*
+*.bkpt
 
 # Logs and databases #
 ######################
