@@ -753,6 +753,23 @@ gitcf() { # [BH]
 
 # gitrootdir: get the root directory for the current git repository
 alias gitrootdir='git rev-parse --show-toplevel'
+
+# gitignore: open the specified .gitignore file
+gitignore() { # [BH]
+	if [[ $1 == '--help' ]]; then
+		echo "Edit .gitignore file"
+		echo "Usage: gitignore [options]"
+		echo "Options:"
+		echo "  -g : Use the global .gitignore instead."
+		return 0
+	fi
+
+	if [[ $1 == '-g' ]]; then
+		subl ~/.gitignore
+	else
+		subl `gitrootdir`/.gitignore
+	fi
+}
 ################################################################################
 
 
