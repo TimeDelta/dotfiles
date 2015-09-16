@@ -1725,6 +1725,9 @@ subl() { # [BH]
 
 # osubl: open files passed from stdin in Sublime Text
 alias osubl="xargs -L 1 --- subl" # [BH]
+
+# openmr: open the most recent file in the current directory
+alias openmr='open "`lsmr | head -1`"'
 ################################################################################
 
 
