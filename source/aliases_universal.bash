@@ -765,7 +765,7 @@ gitignore() { # [BH]
 	fi
 
 	if [[ $1 == '-g' ]]; then
-		subl ~/.gitignore
+		subl ~/.gitignore_global
 	else
 		subl `gitrootdir`/.gitignore
 	fi
