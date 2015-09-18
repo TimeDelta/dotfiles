@@ -16,4 +16,4 @@ subl() { # [BH]
 # osubl: open files passed from stdin in Sublime Text
 alias osubl="xargs -L 1 --- subl" # [BH]
 
-alias edit='subl'
+edit() { subl "$@"; } # [BH]
