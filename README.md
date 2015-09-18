@@ -1,6 +1,6 @@
 # Dotfiles
 
-My OSX / Ubuntu dotfiles.
+My OSX / Ubuntu / Cygwin dotfiles.
 
 ## About this project
 
@@ -27,7 +27,7 @@ On subsequent runs, step 1 is skipped, step 2 just updates the already-existing 
 
 ### Other subdirectories
 
-* The `/backups` directory gets created when necessary. Any files in `~/` that would have been overwritten by files in `/copy` or `/link` get backed up there.
+* The `/backups` directory gets created when necessary. Any files in `~/` that would have been overwritten by files `/link` get backed up there.
 * The `/bin` directory contains executable shell scripts (including the [dotfiles][dotfiles] script) and symlinks to executable shell scripts. This directory is added to the path.
 * The `/caches` directory contains cached files, used by some scripts or functions.
 * The `/conf` directory just exists. If a config file doesn't **need** to go in `~/`, reference it from the `/conf` directory.
@@ -36,7 +36,7 @@ On subsequent runs, step 1 is skipped, step 2 just updates the already-existing 
 * The `/vendor` directory contains third-party libraries.
 
 ### The "copy" step
-Any file in the `/copy` subdirectory will be copied into `~/`. Any file that _needs_ to be modified with personal information (like [copy/.gitconfig](copy/.gitconfig) which contains an email address and private key) should be _copied_ into `~/`. Because the file you'll be editing is no longer in `~/.dotfiles`, it's less likely to be accidentally committed into your public dotfiles repo.
+Any file in the `/copy` subdirectory will be copied into `~/` unless a file with the same name already exists there. Any file that _needs_ to be modified with personal information (like [copy/.gitconfig](copy/.gitconfig) which contains an email address and private key) should be _copied_ into `~/`. Because the file you'll be editing is no longer in `~/.dotfiles`, it's less likely to be accidentally committed into your public dotfiles repo.
 
 ### The "link" step
 Any file in the `/link` subdirectory gets symlinked into `~/` with `ln -s`. Edit one or the other, and you change the file in both places. Don't link files containing sensitive data, or you might accidentally commit that data! If you're linking a directory that might contain sensitive data (like `~/.ssh`) add the sensitive files to your [.gitignore](.gitignore) file!
@@ -46,25 +46,20 @@ Scripts in the `/init` subdirectory will be executed. A whole bunch of things wi
 
 #### OS X
 
-* Minor XCode init via the [init/10_osx_xcode.sh](init/10_osx_xcode.sh) script
-* Homebrew via the [init/20_osx_homebrew.sh](init/20_osx_homebrew.sh) script
-* Homebrew recipes via the [init/30_osx_homebrew_recipes.sh](init/30_osx_homebrew_recipes.sh) script
-* Homebrew casks via the [init/30_osx_homebrew_casks.sh](init/30_osx_homebrew_casks.sh) script
-* [Fonts](/cowboy/dotfiles/tree/master/conf/osx/fonts) via the [init/50_osx_fonts.sh](init/50_osx_fonts.sh) script
+* Minor XCode init via the [init/osx_xcode.sh](init/osx_xcode.sh) script
+* Homebrew via the [init/osx_homebrew.sh](init/osx_homebrew.sh) script
+* Homebrew recipes via the [init/osx_homebrew_recipes.sh](init/osx_homebrew_recipes.sh) script
+* Homebrew casks via the [init/osx_homebrew_casks.sh](init/osx_homebrew_casks.sh) script
+* [Fonts](/timedelta/dotfiles/tree/master/conf/osx/fonts) via the [init/osx_fonts.sh](init/osx_fonts.sh) script
 
 #### Ubuntu
-* APT packages and git-extras via the [init/20_ubuntu_apt.sh](init/20_ubuntu_apt.sh) script
-
-#### Both
-* Node.js, npm and nave via the [init/50_node.sh](init/50_node.sh) script
-* Ruby, gems and rbenv via the [init/50_ruby.sh](init/50_ruby.sh) script
-* Vim plugins via the [init/50_vim.sh](init/50_vim.sh) script
+* APT packages and git-extras via the [init/ubuntu_apt.sh](init/ubuntu_apt.sh) script
 
 ## Hacking my dotfiles
 
 Because the [dotfiles][dotfiles] script is completely self-contained, you should be able to delete everything else from your dotfiles repo fork, and it will still work. The only thing it really cares about are the `/copy`, `/link` and `/init` subdirectories, which will be ignored if they are empty or don't exist.
 
-If you modify things and notice a bug or an improvement, [file an issue](https://github.com/cowboy/dotfiles/issues) or [a pull request](https://github.com/cowboy/dotfiles/pulls) and let me know.
+If you modify things and notice a bug or an improvement, [file an issue](https://github.com/timedelta/dotfiles/issues) or [a pull request](https://github.com/timedelta/dotfiles/pulls) and let me know.
 
 Also, before installing, be sure to [read my gently-worded note](#heed-this-critically-important-warning-before-you-install).
 
@@ -115,7 +110,7 @@ bash -c "$(curl -fsSL https://bit.ly/cowboy-dotfiles)" && source ~/.bashrc
 ```
 
 ## Aliases and Functions
-To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely simple, and should never need to be modified. Instead, add your aliases, functions, settings, etc into one of the files in the `source` subdirectory, or add a new file. They're all automatically sourced when a new shell is opened. Take a look, I have [a lot of aliases and functions](source). I even have a [fancy prompt](source/50_prompt.sh) that shows the current directory, time and current git/svn repo status.
+To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely simple, and should never need to be modified. Instead, add your aliases, functions, settings, etc into one of the files in the `source` subdirectory, or add a new file. They're all automatically sourced when a new shell is opened. Take a look, I have [a lot of aliases and functions](source). I even have a [fancy prompt](source/prompt.sh) that shows the current directory, time and current git/svn repo status.
 
 ## Scripts
 In addition to the aforementioned [dotfiles][dotfiles] script, there are a few other [bin scripts](bin). This includes [nave](https://github.com/isaacs/nave), which is a [git submodule](vendor).
@@ -125,7 +120,7 @@ In addition to the aforementioned [dotfiles][dotfiles] script, there are a few o
 * Look through the [bin](bin) subdirectory for a few more.
 
 ## Prompt
-I think [my bash prompt](source/50_prompt.sh) is awesome. It shows git and svn repo status, a timestamp, error exit codes, and even changes color depending on how you've logged in.
+I think [my bash prompt](source/prompt.sh) is awesome. It shows git and svn repo status, a timestamp, error exit codes, and even changes color depending on how you've logged in.
 
 Git repos display as **[branch:flags]** where flags are:
 
@@ -148,6 +143,7 @@ Check it out:
 (and 15+ years of accumulated crap)
 
 ## License
-Copyright (c) 2014 "Cowboy" Ben Alman  
+Copyright (c) 2014 "" Ben Alman
 Licensed under the MIT license.  
 <http://benalman.com/about/license/>
+Edited by Bryan Herman
