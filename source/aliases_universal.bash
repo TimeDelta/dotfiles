@@ -40,15 +40,15 @@ halias (){ # [BH]
 }
 
 # bashp: edit ~/.bash_profile
-bashp () { subl ~/.bash_profile; } # [BH]
+bashp () { edit ~/.bash_profile; } # [BH]
 # aliases: edit universal aliases
-aliases () { subl "$UNIV_ALIAS_FILE"; } # [BH]
+aliases () { edit "$UNIV_ALIAS_FILE"; } # [BH]
 # paliases: edit platform-specific aliases
-paliases (){ subl $PLATFORM_ALIAS_FILES; } # [BH]
+paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BH]
 # maliases: edit machine-specific aliases
-maliases (){ subl "$MACHINE_ALIAS_FILE"; } # [BH]
-# bashrc: open .bashrc file in sublime
-bashrc (){ subl "$HOME/.bashrc"; } # [BH]
+maliases (){ edit "$MACHINE_ALIAS_FILE"; } # [BH]
+# bashrc: open .bashrc file in editor
+bashrc (){ edit "$HOME/.bashrc"; } # [BH]
 
 # salias: source this file (make changes active after editing)
 salias () { source "$UNIV_ALIAS_FILE"; spalias; smalias; } # [BH]
@@ -87,14 +87,14 @@ funcfile() { # [BH]
 	return 1
 }
 
-# efunc: edit the specified custom alias / function in sublime text
+# efunc: edit the specified custom alias / function in editor
 efunc() { # [BH]
 	local file="`funcfile "$@"`"
 	if [[ -z $file ]]; then
 		echo "Error: \"$@\" is not a custom alias / function" >&2
 		return 1
 	fi
-	subl "$file":`egrep -n "^((alias|function) +)?$@(\\(| \\(|=)" "$file" | col 1`
+	edit "$file":`egrep -n "^((alias|function) +)?$@(\\(| \\(|=)" "$file" | col 1`
 }
 
 # parsefuncdefs: parse function and alias definitions from STDIN and print the name of each found alias / function
@@ -765,9 +765,9 @@ gitignore() { # [BH]
 	fi
 
 	if [[ $1 == '-g' ]]; then
-		subl ~/.gitignore_global
+		edit "$HOME/.gitignore_global"
 	else
-		subl `gitrootdir`/.gitignore
+		edit "`gitrootdir`/.gitignore"
 	fi
 }
 ################################################################################
@@ -902,7 +902,7 @@ export DIR_ALIAS_FILE="$HOME/.dirs"
 # sdirs: update the directory aliases for the current session according to the master file
 sdirs () { source "$DIR_ALIAS_FILE"; }
 # edirs: edit directory aliases file
-edirs () { subl "$DIR_ALIAS_FILE"; }
+edirs () { edit "$DIR_ALIAS_FILE"; }
 # diralias: set an alias for a directory that can be used with cd from anywhere without a "$" (must use "$" if directory alias not used by itself)
 diralias () { # {BH}
 	local short_path="`shortpath "$(pwd)"`"
@@ -1731,18 +1731,6 @@ rand (){ # [BH]
 # pts: print time stamp
 pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
 
-# subl: CLI for sublime text
-subl() { # [BH]
-	if [[ $SESSION_TYPE == remote/ssh ]]; then
-		rsub "$@"
-	else
-		command subl "$@"
-	fi
-}
-
-# osubl: open files passed from stdin in Sublime Text
-alias osubl="xargs -L 1 --- subl" # [BH]
-
 # openmr: open the most recent file in the current directory
 alias openmr='open "`lsmr | head -1`"'
 ################################################################################
@@ -1885,7 +1873,7 @@ This is also compatible with directory history. [Default: current directory]"; }
 }
 
 # epath: open path setup file
-epath (){ subl "$PATH_FILE"; } # [BH]
+epath (){ edit "$PATH_FILE"; } # [BH]
 # spath: source path setup file
 spath (){ source "$PATH_FILE"; } # [BH]
 
@@ -2003,7 +1991,7 @@ shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr 
 export VARS_FILE="$HOME/.vars"
 
 # evars: open the environment variable setup file
-evars (){ subl "$VARS_FILE"; }
+evars (){ edit "$VARS_FILE"; }
 # svars: source the environment variable setup file
 svars (){ source "$VARS_FILE"; }
 
