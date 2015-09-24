@@ -26,6 +26,7 @@
 # in case the name of this ever changes, it'll be easier to update
 export UNIV_ALIAS_FILE="$HOME/.aliases_universal.bash"
 export MACHINE_ALIAS_FILE="$HOME/.aliases_machine.bash"
+export SUBLIME_ALIAS_FILE="$HOME/.aliases_sublime.bash"
 
 # falias: boolean alias search
 falias () { # [BH]
@@ -47,15 +48,19 @@ aliases () { edit "$UNIV_ALIAS_FILE"; } # [BH]
 paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BH]
 # maliases: edit machine-specific aliases
 maliases (){ edit "$MACHINE_ALIAS_FILE"; } # [BH]
+# saliases: edit sublime text aliases
+saliases (){ edit "$SUBLIME_ALIAS_FILE"; } # [BH]
 # bashrc: open .bashrc file in editor
 bashrc (){ edit "$HOME/.bashrc"; } # [BH]
 
 # salias: source this file (make changes active after editing)
-salias () { source "$UNIV_ALIAS_FILE"; spalias; smalias; } # [BH]
+salias () { source "$UNIV_ALIAS_FILE"; spalias; smalias; ssalias; } # [BH]
 # spalias: source platform-specific aliases
 spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
 # smalias: source machine-specific aliases
 smalias (){ source "$MACHINE_ALIAS_FILE"; } # [BH]
+# ssalias: source sublime text aliases
+ssalias() { source "$SUBLIME_ALIAS_FILE"; } # [BH]
 # sbashp: source .bash_profile (to make changes active after editing)
 sbashp () { source ~/.bash_profile; } # [BH]
 # sbashrc: source .bashrc (to make changes active after editing)
@@ -68,7 +73,7 @@ funcplatform() { # [BH]
 		echo "machine"
 	elif [[ -n `cat $PLATFORM_ALIAS_FILES | parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "platform"
-	elif [[ -n `< "$UNIV_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+	elif [[ -n `cat "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" | parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "universal"
 	else
 		echo "not defined in custom function files"
@@ -78,7 +83,7 @@ funcplatform() { # [BH]
 # funcfile: print the name of the file in which the specified custom function is defined
 funcfile() { # [BH]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
-	for file in "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"; do
+	for file in "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE"; do
 		if [[ -n `< "$file" parsefuncdefs | grep -Fx "$@"` ]]; then
 			echo "$file"
 			return 0
@@ -123,7 +128,7 @@ code (){ # [BH]
 
 # lscustomfunc: list all available custom functions and aliases that are defined in the normal sourced files
 lscustomfunc () { # [BH]
-	cat "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | parsefuncdefs
+	cat "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" | parsefuncdefs
 }
 
 # lsfunc: list all defined functions and aliases in the current environment
