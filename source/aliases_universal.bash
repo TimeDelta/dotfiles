@@ -69,11 +69,13 @@ sbashrc () { source "$HOME/.bashrc"; } # [BH]
 # funcplatform: where is the specified custom function declared (universal / platform / machine)?
 funcplatform() { # [BH]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
-	if [[ -n `< "$MACHINE_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+	if [[ -n `< "$SUBLIME_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+		echo "sublime"
+	elif [[ `< "$MACHINE_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "machine"
 	elif [[ -n `cat $PLATFORM_ALIAS_FILES | parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "platform"
-	elif [[ -n `cat "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" | parsefuncdefs | grep -Fx "$@"` ]]; then
+	elif [[ -n `< "$UNIV_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "universal"
 	else
 		echo "not defined in custom function files"
