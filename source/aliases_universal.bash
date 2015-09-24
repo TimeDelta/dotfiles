@@ -1115,6 +1115,24 @@ cd_up () { # [BH]
 	# bug note: Create a symlink to a directory that's not in the current directory then do "cd <symlink>".
 	#           Next, do cd_up and you end up in the parent of the actual directory instead of the directory
 	#           in which the symlink exists.
+	if [[ $1 == "--help" ]]; then
+		echo "Usage:"
+		echo "  .. [options] [<integer> [<sub_path>]]"
+		echo "      Go back <integer> directories (1 if excluded) then cd to <sub_path>"
+		echo "  .. [options] [[--] <directory> [<sub_path>]]"
+		echo "      Go back until <directory> (case-insensitive) is reached then cd to"
+		echo "      <sub_path>. If -- is specified, the following argument will be treated as"
+		echo "      a directory (to be used if the directory name is an integer)."
+		echo "Options:"
+		echo "  -p : just print the path to stdout instead of switching to it"
+		echo "  -r <new_dir>"
+		echo "      After going back, append the end of the original path, replacing the"
+		echo "      original directory at that location in the path with <new_dir>."
+		echo "      For example, if ${BOLD}pwd${RES} produces '/home/me/current/dir',"
+		echo "      ${BOLD}.. -r your me${RES} would switch to '/home/your/current/dir'."
+		return 0
+	fi
+
 	local op=cd
 	local dir_only=0
 	local relative=
@@ -1135,21 +1153,6 @@ cd_up () { # [BH]
 	OPTIND=0
 
 	if [[ $# -eq 0 ]]; then $op "`fullpath ".."`"; return 0
-	elif [[ $1 == "--help" ]]; then
-		{ echo "Usage:"
-		echo "  .. [options] [<integer> [<sub_path>]]"
-		echo "      Go back <integer> directories (1 if excluded) then cd to <sub_path>"
-		echo "  .. [options] [[--] <directory> [<sub_path>]]"
-		echo "      Go back until <directory> (case-insensitive) is reached then cd to \
-<sub_path>. If -- is specified, the following argument will be treated as a directory \
-(to be used if the directory name is an integer)."
-		echo
-		echo "Options:"
-		echo "  -p : just print the path to stdout instead of switching to it"
-		echo "  -r <new_dir>"
-		echo "      Resolve directory according to usage but append <new_dir> + the \
-stuff between the current directory and the resolved <back_dir> before switching."; } | wrapindent -w
-		return 0
 	elif [[ $1 =~ ^[0-9]+$ && $dir_only -eq 0 ]]; then
 		local f=".."
 		local i
