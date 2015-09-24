@@ -40,30 +40,32 @@ halias (){ # [BH]
 	echo "$results" | egrep -i -C 0 "# $1:"
 }
 
-# bashp: edit ~/.bash_profile
-bashp () { edit ~/.bash_profile; } # [BH]
 # aliases: edit universal aliases
-aliases () { edit "$UNIV_ALIAS_FILE"; } # [BH]
+ualiases () { edit "$UNIV_ALIAS_FILE"; } # [BH]
 # paliases: edit platform-specific aliases
 paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BH]
 # maliases: edit machine-specific aliases
 maliases (){ edit "$MACHINE_ALIAS_FILE"; } # [BH]
 # saliases: edit sublime text aliases
 saliases (){ edit "$SUBLIME_ALIAS_FILE"; } # [BH]
-# bashrc: open .bashrc file in editor
+# bashp: edit ~/.bash_profile
+bashp () { edit ~/.bash_profile; } # [BH]
+# bashrc: edit .bashrc file
 bashrc (){ edit "$HOME/.bashrc"; } # [BH]
 
-# salias: source this file (make changes active after editing)
-salias () { source "$UNIV_ALIAS_FILE"; spalias; smalias; ssalias; } # [BH]
+# salias: source all custom function files
+salias() { sualias; spalias; smalias; ssalias; } # [BH]
+# sualias: source this file
+sualias () { source "$UNIV_ALIAS_FILE"; } # [BH]
 # spalias: source platform-specific aliases
 spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
 # smalias: source machine-specific aliases
 smalias (){ source "$MACHINE_ALIAS_FILE"; } # [BH]
 # ssalias: source sublime text aliases
 ssalias() { source "$SUBLIME_ALIAS_FILE"; } # [BH]
-# sbashp: source .bash_profile (to make changes active after editing)
+# sbashp: source .bash_profile
 sbashp () { source ~/.bash_profile; } # [BH]
-# sbashrc: source .bashrc (to make changes active after editing)
+# sbashrc: source .bashrc
 sbashrc () { source "$HOME/.bashrc"; } # [BH]
 
 # funcplatform: where is the specified custom function declared (universal / platform / machine)?
