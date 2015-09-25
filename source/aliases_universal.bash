@@ -873,6 +873,7 @@ prevci() { # [BH]
 	case $vcs in
 		git) git log --no-color -n $(($commits_ago+1)) --format=oneline | tail -1 | col 1 ;;
 		svn) echo $((`svn info "$@" | grep 'Revision' | awk '{print $2}'`-$commits_ago)) ;;
+		bzr) ;; # TODO
 	esac
 }
 
