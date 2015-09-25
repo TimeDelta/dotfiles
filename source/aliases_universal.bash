@@ -876,6 +876,16 @@ prevci() { # [BH]
 	esac
 }
 
+# rootdir: get the root directory of a repository
+rootdir() { # [BH]
+	vcs=`vcs_type`
+	case $vcs in
+		git) git rev-parse --show-toplevel ;;
+		svn) svn info | grep -im 1 'root path' | sed $SED_EXT_RE 's/^.*: //' ;;
+		bzr) ;; # TODO
+	esac
+}
+
 # vcs_type: helper function for generic version control commands
 vcs_type (){ # [BH]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
