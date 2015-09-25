@@ -779,6 +779,9 @@ gitignore() { # [BH]
 		edit "`gitrootdir`/.gitignore"
 	fi
 }
+
+# gitp: push changes in a local git repository to the remote repository
+alias gitp='git push'
 ################################################################################
 
 
