@@ -227,7 +227,18 @@ function link_do() {
 function do_stuff() {
   local base dest skip
   if [[ $1 == "init" ]]; then
-    local files=(`< "$DOTFILES/init/ordered_init_files" sed -e "s:^:$DOTFILES/init/:" | tr '\n' ' ' | sed s/,$//`)
+    local order_file="$DOTFILES/init/ordered_init_files"
+
+    local files=(
+      # ordered files
+      `< "$order_file" sed -e "s:^:$DOTFILES/init/:" | tr '\n' ' '`
+      # unordered files
+      `command ls -1 $DOTFILES/init/* | \
+          sed "s:^$DOTFILES/init/::" | \
+          grep -Fvxf "$order_file" | \
+          grep -v ordered_init_files | \
+          tr '\n' ' '`
+    )
   else
     local files=($DOTFILES/$1/*)
   fi
