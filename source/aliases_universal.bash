@@ -54,7 +54,7 @@ bashp () { edit ~/.bash_profile; } # [BH]
 bashrc (){ edit "$HOME/.bashrc"; } # [BH]
 
 # salias: source all custom function files
-salias() { sualias; spalias; smalias; ssalias; } # [BH]
+salias() { sualias; spalias; ssalias; smalias; } # [BH]
 # sualias: source this file
 sualias () { source "$UNIV_ALIAS_FILE"; } # [BH]
 # spalias: source platform-specific aliases
@@ -71,10 +71,10 @@ sbashrc () { source "$HOME/.bashrc"; } # [BH]
 # funcplatform: where is the specified custom function declared (universal / platform / machine)?
 funcplatform() { # [BH]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
-	if [[ -n `< "$SUBLIME_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
-		echo "sublime"
-	elif [[ `< "$MACHINE_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+	if [[ `< "$MACHINE_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "machine"
+	elif [[ -n `< "$SUBLIME_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+		echo "sublime"
 	elif [[ -n `cat $PLATFORM_ALIAS_FILES | parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "platform"
 	elif [[ -n `< "$UNIV_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
@@ -87,7 +87,7 @@ funcplatform() { # [BH]
 # funcfile: print the name of the file in which the specified custom function is defined
 funcfile() { # [BH]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
-	for file in "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE"; do
+	for file in "$MACHINE_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"; do
 		if [[ -n `< "$file" parsefuncdefs | grep -Fx "$@"` ]]; then
 			echo "$file"
 			return 0
