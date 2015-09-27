@@ -710,15 +710,6 @@ svnunv () { # [BH]
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
 svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
 
-# upall: update all work-related svn checkouts
-upall (){ # [BH]
-	local i
-	# NOTE: bash complains when condensing this to a one-liner b/c of "& ; done"
-	for i in `env | egrep '^(c[0-9]+|fresh)' | sed $SED_EXT_RE 's/^.*=//'`; do
-		cd $i && up "$@" &
-	done
-}
-
 # svnmke: set the executable permissions to true for a file in svn
 alias svnmke='svn propset svn:executable true'
 ################################################################################
@@ -1539,38 +1530,6 @@ calc () { # [BH]
 		done
 	else echo "$@" | bc -l | { [[ $truncate -eq 1 ]] && sed s/\\..*$// || xargs echo; }; fi
 }
-################################################################################
-
-
-###########
-# Testing #
-################################################################################
-# pgrams: print n-grams of specified arpa file. usage: pgrams <n> <arpa_file>
-pgrams () { # [BH]
-	if [[ $# -eq 0 || $1 == "--help" ]]; then
-		echo "Print n-grams from an ARPA file"
-		echo "Usage: pgrams <arpa_file> (<n> ...)"
-		return 0
-	fi
-	local arpa_file="$1"
-	shift
-	while [[ $# -gt 0 ]]; do
-		awk -v pattern="$1-grams" '(s == 1 && NF == 0) {exit} (s == 1) {print $0} $0 ~ pattern {s=1}' "$arpa_file"
-		shift
-	done
-}
-
-# ngramcount: get the total ngram count from an ARPA file
-ngramcount () { awk -F = -v s=0 -v c=0 '( c==0 && NF==2 ) {s=s+$2} /^\\1-/ {print s; exit}' "$@"; } # [BH]
-
-# clm: create language model
-alias clm=create_lm # [BH]
-
-# glm: guess language model
-alias glm=guess_lm # [BH]
-
-# missing_words: get info about words from a text file that aren't in a pronunciation dictionary
-alias mw=missing_words #[BH]
 ################################################################################
 
 
