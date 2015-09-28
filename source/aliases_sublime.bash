@@ -114,7 +114,7 @@ swi() { # [BH]
 # apwi: add a path to the sublime project for a work item
 apwi() { # [BH]
 	if [[ $1 == '--help' ]]; then
-		echo "Add a path to the sublime project for a repository work item."
+		echo "Add a path to the sublime project and workspace for a repository work item."
 		echo "Usage: apwi <path> [<work_item>]"
 		echo "Arguments:"
 		echo "  <work_item>"
@@ -131,12 +131,18 @@ apwi() { # [BH]
 	local wi="`brwi "$2"`"
 
 	local proj_file="`wiproj "$wi"`"
-	local workspace_file="`echo $proj_file | sed 's:project$:workspace:'`"
+	local workspace_file="`wiws "$wi"`"
+
+	if [[ ! -f "$proj_file" && ! -f "$workspace_file" ]]; then
+		echo "Error: Cannot find any sublime files associated with work item ($wi)" >&2
+		return 1
+	fi
 
 	local file
 	for file in "$proj_file" "$workspace_file"; do
-		# !!! don't change the indentation here, it will break things !!!
-		sed $SED_EXT_RE $SED_IN_PLACE '
+		if [[ -f "$file" ]]; then
+			# !!! don't change the indentation here, it will break things !!!
+			sed $SED_EXT_RE $SED_IN_PLACE '
 /^	.folders.:$/,/		\{$/{
 # when inside the patterns around the comma on previous line
 # print the indented opening brace
@@ -151,6 +157,7 @@ apwi() { # [BH]
 /\{$/i\
 \		},
 }' "$file"
+		fi
 	done
 }
 
