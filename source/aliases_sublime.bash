@@ -97,7 +97,15 @@ swi() { # [BH]
 	sublcp
 
 	# switch local branches
-	sw "$wi"
+	if [[ -z `branches | grep "^$wi$"` ]]; then
+		newbr "$wi"
+		if [[ $? -ne 0 ]]; then
+			echo "Error: Unable to create new branch for work item." >&2 /dev/null
+			return 1
+		fi
+	else
+		sw "$wi"
+	fi
 
 	# open the associated Sublime project
 	sublwi "$wi"
