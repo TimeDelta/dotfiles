@@ -12,19 +12,29 @@ function src() {
     source "$DOTFILES/source/$1"
   else
     local order_file="$DOTFILES/source/ordered_source_files"
+
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
+
     # ordered source files
-    for file in `< "$order_file" tr '\n' ' '`; do
+    for file in `[[ -f "$order_file" ]] && cat "$order_file"`; do
       source "$DOTFILES/source/$file"
     done
 
     # unordered source files
     for file in `command ls -1 $DOTFILES/source/* | \
-                sed "s:^$DOTFILES/source/::" | \
-                grep -Fvxf "$order_file" | \
-                grep -v ordered_source_files | \
-                tr '\n' ' '`; do
+                sed "s:^$DOTFILES/source/::" | {
+                  if [[ -f "$order_file" ]]; then
+                    grep -Fvxf "$order_file" | \
+                    grep -v "$(basename "$order_file")"
+                  else
+                    tr '\n' '\0' | xargs -0L 1 echo
+                  fi
+                }`; do
       source "$DOTFILES/source/$file"
     done
+
+    IFS="$OLD_IFS"
 
     source "$MACHINE_ALIAS_FILE"
   fi
