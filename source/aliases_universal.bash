@@ -829,6 +829,15 @@ log (){ # [BH]
 	esac
 }
 
+# newbr: make a new branch off trunk / master in the current repository
+newbr() { # [BH]
+	local vcs=`vcs_type`
+	case $vcs in
+		svn) ;; # TODO
+		git) sw abc && git checkout -b "$@" ;;
+		bzr) ;; # TODO
+	esac
+}
 # branches: show the available branches for the current repository
 branches() { # [BH]
 	local vcs=`vcs_type`
