@@ -229,16 +229,23 @@ function do_stuff() {
   if [[ $1 == "init" ]]; then
     local order_file="$DOTFILES/init/ordered_init_files"
 
+    local OLD_IFS="$IFS"
+    IFS=$'\n'
     local files=(
       # ordered files
-      `< "$order_file" sed -e "s:^:$DOTFILES/init/:" | tr '\n' ' '`
+      `[[ -f "$order_file" ]] && sed -e "s:^:$DOTFILES/init/:" "$order_file"`
       # unordered files
       `command ls -1 $DOTFILES/init/* | \
-          sed "s:^$DOTFILES/init/::" | \
-          grep -Fvxf "$order_file" | \
-          grep -v ordered_init_files | \
-          tr '\n' ' '`
+          sed "s:^$DOTFILES/init/::" | {
+            if [[ -f "$order_file" ]]; then
+              grep -Fvxf "$order_file" | \
+              grep -v "$(basename "$order_file")"
+            else
+              tr '\n' '\0' | xargs -0L 1 echo
+            fi
+          }`
     )
+    IFS="$OLD_IFS"
   else
     local files=($DOTFILES/$1/*)
   fi
