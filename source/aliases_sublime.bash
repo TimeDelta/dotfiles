@@ -19,10 +19,10 @@ alias osubl="xargs -L 1 --- subl" # [BH]
 # edit: edit the specified file
 edit() { subl "$@"; } # [BH]
 
-# sublwi: open the Sublime Text project associated with the current branch
+# sublwi: open the Sublime Text workspace associated with a work item for the current repository
 sublwi() { # [BH]
 	if [[ $1 == '--help' ]]; then
-		echo "Open the Sublime Text project associated with a work item for the current"
+		echo "Open the Sublime Text workspace associated with a work item for the current"
 		echo "repository. If none exists, create one."
 		echo "Usage: sublwi [<work_item>]"
 		echo "Arguments:"
@@ -41,19 +41,18 @@ sublwi() { # [BH]
 	mkdir -p "`rootdir`/.work_items"
 
 	local wi_name="$(brwi "${1:-`br`}")"
-	local project_file="`wiproj "$wi_name"`"
-	if [[ ! -e "$project-File" ]]; then
+	local workspace_file="`wiws "$wi_name"`"
+	if [[ ! -e "$workspace_file" ]]; then
 		# create a new sublime project for the work item based on the associated template
-		pushd "`rootdir`/.work_items" &> /dev/null
-		cp {new_work_item,"$wi_name"}.sublime-workspace
-		touch "$wi_name.sublime-project"
-		popd &> /dev/null
+		cp "`rootdir`/.work_items/new_work_item.sublime-workspace" "$workspace_file"
 	fi
-	subl --project "$project_file"
+	subl "$workspace_file"
 }
 
 # wiproj: get the path to the sublime project file for a repository work item
 wiproj() { echo "`rootdir`/.work_items/$(brwi "${1:-`br`}").sublime-project"; } # [BH]
+# wiws: get the path to the sublime workspace file for a repository work item
+wiws() { echo "`rootdir`/.work_items/$(brwi "${1:-`br`}").sublime-workspace"; } # [BH]
 
 # brwi: get the work item name for a branch
 brwi() { # [BH]
