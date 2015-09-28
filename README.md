@@ -4,11 +4,7 @@ My OSX / Ubuntu / Cygwin dotfiles.
 
 ## About this project
 
-I've been using bash on-and-off for a long time (since Slackware Linux was distributed on 1.44MB floppy disks). In all that time, every time I've set up a new Linux or OS X machine, I've copied over my `.bashrc` file and my `~/bin` folder to each machine manually. And I've never done a very good job of actually maintaining these files. It's been a total mess.
-
-I finally decided that I wanted to be able to execute a single command to "bootstrap" a new system to pull down all of my dotfiles and configs, as well as install all the tools I commonly use. In addition, I wanted to be able to re-execute that command at any time to synchronize anything that might have changed. Finally, I wanted to make it easy to re-integrate changes back in, so that other machines could be updated.
-
-That command is [dotfiles][dotfiles], and this is my "dotfiles" Git repo.
+This is my fork of Ben Alman's [dotfiles repository](https://github.com/cowboy/dotfiles). Please note that this README is not completely up to date with all of my changes to this repository since I forked it.
 
 [dotfiles]: bin/dotfiles
 
@@ -21,7 +17,7 @@ When [dotfiles][dotfiles] is run for the first time, it does a few things:
 1. Files in `/copy` are copied into `~/`. ([read more](#the-copy-step))
 1. Files in `/link` are symlinked into `~/`. ([read more](#the-link-step))
 1. You are prompted to choose scripts in `/init` to be executed. The installer attempts to only select relevant scripts, based on the detected OS and the script filename.
-1. Your chosen init scripts are executed (in alphanumeric order, hence the funky names). ([read more](#the-init-step))
+1. Your chosen init scripts are executed (according to the order specified in [init/ordered_init_files](init/ordered_init_files)). ([read more](#the-init-step))
 
 On subsequent runs, step 1 is skipped, step 2 just updates the already-existing repo, and step 5 remembers what you selected the last time. The other steps are the same.
 
@@ -42,7 +38,7 @@ Any file in the `/copy` subdirectory will be copied into `~/` unless a file with
 Any file in the `/link` subdirectory gets symlinked into `~/` with `ln -s`. Edit one or the other, and you change the file in both places. Don't link files containing sensitive data, or you might accidentally commit that data! If you're linking a directory that might contain sensitive data (like `~/.ssh`) add the sensitive files to your [.gitignore](.gitignore) file!
 
 ### The "init" step
-Scripts in the `/init` subdirectory will be executed. A whole bunch of things will be installed, but _only_ if they aren't already.
+Scripts in the `/init` subdirectory will be executed. First, chosen init scripts are executed in the order defined in [source/ordered_init_files](source/ordered_init_files). Then chosen init files that are unordered (not mentioned in that file) are executed. A whole bunch of things will be installed, but _only_ if they aren't already.
 
 #### OS X
 
@@ -53,6 +49,7 @@ Scripts in the `/init` subdirectory will be executed. A whole bunch of things wi
 * [Fonts](/timedelta/dotfiles/tree/master/conf/osx/fonts) via the [init/osx_fonts.sh](init/osx_fonts.sh) script
 
 #### Ubuntu
+
 * APT packages and git-extras via the [init/ubuntu_apt.sh](init/ubuntu_apt.sh) script
 
 ## Hacking my dotfiles
@@ -106,11 +103,11 @@ There's a lot of stuff that requires admin access via `sudo`, so be warned that 
 ### Actual installation (for me)
 
 ```sh
-bash -c "$(curl -fsSL https://bit.ly/cowboy-dotfiles)" && source ~/.bashrc
+bash -c "$(curl -fsSL http://bit.ly/timedelta-dotfiles)" && source ~/.bashrc
 ```
 
 ## Aliases and Functions
-To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely simple, and should never need to be modified. Instead, add your aliases, functions, settings, etc into one of the files in the `source` subdirectory, or add a new file. They're all automatically sourced when a new shell is opened. Take a look, I have [a lot of aliases and functions](source). I even have a [fancy prompt](source/prompt.sh) that shows the current directory, time and current git/svn repo status.
+To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely simple, and should never need to be modified. Instead, add your aliases, functions, settings, etc into one of the files in the `source` subdirectory, or add a new file. They're all automatically sourced when a new shell is opened. Take a look, I have [a lot of aliases and functions](source). I have split my aliases and functions into multiple categories, each of which is only sourced under certain circumstances. These categories are universal, platform-specific, and machine-specific. Universal ones are generic enough to always be sourced. Platform-specific ones are only sourced if certain platform constraints are met, such as OS or domain name, etc. Machine-specific ones are too specific to apply to more than one machine and, as such are not versioned in this repository. These. I even have a [fancy prompt](source/prompt.sh) that integrates with [iTerm2](https://iterm2.com) and shows the current directory along with the current git/svn/bzr branch.
 
 ## Scripts
 In addition to the aforementioned [dotfiles][dotfiles] script, there are a few other [bin scripts](bin). This includes [nave](https://github.com/isaacs/nave), which is a [git submodule](vendor).
@@ -138,12 +135,14 @@ Check it out:
 ![My awesome bash prompt](http://farm8.staticflickr.com/7142/6754488927_563dd73553_b.jpg)
 
 ## Inspiration
-<https://github.com/gf3/dotfiles>  
-<https://github.com/mathiasbynens/dotfiles>  
-(and 15+ years of accumulated crap)
+<https://github.com/cowboy/dotfiles>
 
 ## License
-Copyright (c) 2014 "" Ben Alman
+Original work:  
+Copyright (c) 2014 "" Ben Alman  
 Licensed under the MIT license.  
 <http://benalman.com/about/license/>
-Edited by Bryan Herman
+
+Edits:  
+Copyright (c) 2015 "" Bryan Herman  
+Licensed under the MIT license.  
