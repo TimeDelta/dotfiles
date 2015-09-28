@@ -85,7 +85,7 @@ swi() { # [BH]
 	fi
 
 	local wi="$1"
-	if [[ -z $wid ]]; then
+	if [[ -z $wi ]]; then
 		# pbpaste is an osx-only command
 		is_osx && wi="`pbpaste`"
 		if [[ ! $wi =~ ^[0-9]+$ ]]; then
