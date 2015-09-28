@@ -6,6 +6,6 @@ aliases_cygwin.bash
 aliases_linux.bash
 aliases_cluster.bash
 aliases_mac.bash
+aliases_sublime.bash
 prompt.sh
 iterm2_shell_integration.bash
-aliases_sublime.bash
