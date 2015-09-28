@@ -11,7 +11,8 @@ is_osx || return 1
 # This File and Sourcing #
 ################################################################################
 # make sure this file is in the PLATFORM_ALIAS_FILES environment variable
-[[ $PLATFORM_ALIAS_FILES == *$HOME/.aliases_mac.bash* ]] || export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_mac.bash"
+[[ $PLATFORM_ALIAS_FILES == *$DOTFILES/source/aliases_mac.bash* ]] || \
+	export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $DOTFILES/source/aliases_mac.bash"
 ################################################################################
 
 

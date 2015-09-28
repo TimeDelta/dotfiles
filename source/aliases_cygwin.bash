@@ -2,6 +2,9 @@ is_cygwin || return 1
 ##########################
 # This File and Sourcing #
 ################################################################################
+[[ $PLATFORM_ALIAS_FILES == *$DOTFILES/source/aliases_cygwin.bash* ]] || \
+	export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $DOTFILES/source/aliases_cygwin.bash"
+
 # paliases: edit platform-specific aliases
 paliases () { pushd ~ > /dev/null; subl .aliases_cygwin.bash; popd > /dev/null; } # [BH]
 # spalias: source platform-specific aliases

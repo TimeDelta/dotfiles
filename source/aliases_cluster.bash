@@ -10,7 +10,8 @@
 ##########################
 # This File and Sourcing #
 ################################################################################
-[[ $PLATFORM_ALIAS_FILES == *$HOME/.aliases_cluster.bash* ]] || export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_cluster.bash"
+[[ $PLATFORM_ALIAS_FILES == *$DOTFILES/source/aliases_cluster.bash* ]] || \
+	export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $DOTFILES/source/aliases_cluster.bash"
 ################################################################################
 
 
@@ -61,7 +62,7 @@ cdsnap (){ # [BH]
 		echo "      Format: \"YYYY-MM-DD\" [Default: most recent snapshot (`command ls -1 /shared/.zfs/snapshot/ | tail -1`)]"; } | wrapindent -w
 		return 0
 	fi
-	
+
 	# resolve arguments
 	local dir="`pwd`"
 	if [[ $1 == "-p" ]]; then
@@ -74,7 +75,7 @@ cdsnap (){ # [BH]
 	if [[ ! "$date" =~ [0-9\-]+ ]]; then # default to date of most recent snapshot
 		date=`command ls -1 /shared/.zfs/snapshot/ | tail -1`
 	fi
-	
+
 	if [[ -d "/shared/.zfs/snapshot/$date/$dir" ]]; then
 		cd "/shared/.zfs/snapshot/$date/$dir"
 	else echo "No snapshot exists for \"$dir\" on \"$date\""; fi
@@ -182,7 +183,7 @@ export GPROFILER_BIN=google-pprof
 subl (){ # [BH]
 	# allow waiting (e.g. for git / svn commit message editing)
 	if [[ $1 == "-w" ]]; then local wait="-w"; shift; fi
-	
+
 	if [[ $# -eq 0 ]]; then # to allow remote piping to sublime
 		local fid=`mktemp`
 		cat > "$fid"
@@ -200,7 +201,7 @@ subl (){ # [BH]
 # rebuild: rebuild from scratch
 alias rebuild="make clean; make -j16" # [BH]
 
-# csubmit: submit a job 
+# csubmit: submit a job
 alias csubmit="$c1/build/utilities/c_submit.py" # [BH]
 
 # onbh: run a command on personal machine
