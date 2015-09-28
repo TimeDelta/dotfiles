@@ -10,7 +10,8 @@ is_linux || return 1
 ##########################
 # This File and Sourcing #
 ################################################################################
-[[ $PLATFORM_ALIAS_FILES == *$HOME/.aliases_linux.bash* ]] || export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $HOME/.aliases_linux.bash"
+[[ $PLATFORM_ALIAS_FILES == *$DOTFILES/source/aliases_linux.bash* ]] || \
+	export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $DOTFILES/source/aliases_linux.bash"
 ################################################################################
 
 

@@ -24,9 +24,9 @@
 # This File and Sourcing #
 ################################################################################
 # in case the name of this ever changes, it'll be easier to update
-export UNIV_ALIAS_FILE="$HOME/.aliases_universal.bash"
+export UNIV_ALIAS_FILE="$DOTFILES/source/aliases_universal.bash"
 export MACHINE_ALIAS_FILE="$HOME/.aliases_machine.bash"
-export SUBLIME_ALIAS_FILE="$HOME/.aliases_sublime.bash"
+export SUBLIME_ALIAS_FILE="$DOTFILES/source/aliases_sublime.bash"
 
 # falias: boolean alias search
 falias () { # [BH]
