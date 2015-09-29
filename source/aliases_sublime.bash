@@ -75,7 +75,10 @@ swi() { # [BH]
 	if [[ $1 == '--help' ]]; then
 		echo "Quickly switch to a different work item for the current repository. If the"
 		echo "specified work item doesn't exist, create it."
-		echo "Usage: swi [<work_item>]"
+		echo "Usage: swi [options] [<work_item>]"
+		echo "Options:"
+		echo "  -p <parent_branch>"
+		echo "    Specify the parent branch (only applicable if branch doesn't already exist)."
 		echo "Arguments:"
 		echo "  <work_item>"
 		echo "    If not provided, will see if clipboard contents are a work item (OS X only)."
@@ -85,6 +88,13 @@ swi() { # [BH]
 	if [[ -z `vcs_type 2> /dev/null` ]]; then
 		echo "You're not currently in a known repository."
 		return 1
+	fi
+
+	local parent='' parent_option_hack=' '
+	if [[ $1 == '-p' ]]; then
+		parent_option_hack=''
+		parent="$2"
+		shift 2
 	fi
 
 	local wi="$1"
@@ -101,9 +111,10 @@ swi() { # [BH]
 
 	# switch local branches
 	if [[ -z `branches | grep "^$wi$"` ]]; then
-		newbr "$wi"
+		# use this arg quote hack in case repository supports branch names that have spaces in them
+		newbr ${parent_option_hack:--p "$parent"} "$wi"
 		if [[ $? -ne 0 ]]; then
-			echo "Error: Unable to create new branch for work item." >&2 /dev/null
+			echo "Error: Unable to create new branch for work item." >&2
 			return 1
 		fi
 	else
