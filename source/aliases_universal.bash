@@ -889,18 +889,20 @@ cf() { # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
 		git)
-			if [[ $include_all -eq 0 ]]; then
-				git diff-tree --no-commit-id --name-only -r "$commit_id"
-			else
-				git diff --diff-filter=AMCR --name-only --relative "$commit_id"
-			fi ;;
+			{
+				if [[ $include_all -eq 0 ]]; then
+					git diff-tree --no-commit-id --name-only -r "$commit_id"
+				else
+					git diff --diff-filter=AMCR --name-only --relative "$commit_id"
+				fi
+			} | sed "s:^:`gitrootdir`/:" ;;
 		svn)
 			if [[ $include_all -eq 0 ]]; then
-				svn diff --summarize -c "$commit_id" --no-diff-deleted | sed 's/^.//' | stripws
+				svn diff --summarize -c "$commit_id" --no-diff-deleted "`rootdir`" | sed 's/^.//' | stripws
 			else
 				{
-					svn diff --summarize -r "$commit_id":HEAD --no-diff-deleted
-					svn status -q
+					svn diff --summarize -r "$commit_id":HEAD --no-diff-deleted "`rootdir`"
+					svn status -q "`rootdir`"
 				} | sed 's/^.//' | stripws | sort | uniq
 			fi ;;
 		bzr) ;; # TODO
