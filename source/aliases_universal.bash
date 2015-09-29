@@ -2007,6 +2007,14 @@ sbtype_tab_completion (){ # [BH]
 }
 eval "`sbtype_tab_completion`"
 
+func_tab_completion() { # [BH]
+	local cur=${COMP_WORDS[$COMP_CWORD]}
+	local functions="`declare -f | egrep '^\S+ \(\)\s?$' | sed 's/ .*//'`"
+	local aliases="`alias -p | sed -e 's/^alias //' -e 's/=.*//'`"
+	COMPREPLY=($(compgen -W "$aliases $functions" -- $cur))
+}
+complete -F func_tab_completion func
+
 # SSH auto-completion based on entries in known_hosts
 if [[ -e ~/.ssh/known_hosts ]]; then
 	complete -o default -W "$(cat ~/.ssh/known_hosts | sed 's/[, ].*//' | sort | uniq | grep -v '[0-9]')" ssh scp sftp
