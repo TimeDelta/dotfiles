@@ -796,12 +796,30 @@ log (){ # [BH]
 	esac
 }
 
-# newbr: make a new branch off trunk / master in the current repository
+# newbr: make a new branch in the current repository
 newbr() { # [BH]
+	if [[ $1 == '--help' ]]; then
+		echo "Create a new branch in the current repository."
+		echo "Usage: newbr [options] <new_branch_name>"
+		echo "Options:"
+		echo "  -p <parent_branch>"
+		echo "    Specify the parent (upstream) branch to use for the new branch."
+		echo "    [Default: git - origin/master"
+		echo "              svn - trunk"
+		echo "              bzr - trunk]"
+		return 0
+	fi
+
+	local parent=''
+	if [[ $1 == '-p' ]]; then
+		parent="$2"
+		shift 2
+	fi
+
 	local vcs=`vcs_type`
 	case $vcs in
 		svn) ;; # TODO
-		git) sw abc && git checkout -b "$@" ;;
+		git) git checkout --track -b "$@" "${parent:-origin/master}" ;;
 		bzr) ;; # TODO
 	esac
 }
