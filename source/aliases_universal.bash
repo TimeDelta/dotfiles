@@ -718,39 +718,6 @@ alias svnmke='svn propset svn:executable true'
 #######
 # Git #
 ################################################################################
-# gitcf: list the files changed for a specific commit
-gitcf() { # [BH]
-	if [[ $1 == '--help' ]]; then
-		echo "List the files changed for a commit in the current repository."
-		echo "Usage: gitcf [options] [<commit_id>]"
-		echo "Options:"
-		echo "  -s : List all files changed since (not including) the specified"
-		echo "       commit instead."
-		echo "Arguments:"
-		echo "  [<commit_id>]"
-		echo "    The id of the commit at which to look. If not provided, the"
-		echo "    most recent commit id will be used."
-		return 0
-	fi
-
-	local include_all=0
-	if [[ $1 == '-s' ]]; then
-		include_all=1
-		shift
-	fi
-
-	local commit_id="$@"
-	if [[ -z $commit_id ]]; then
-		commit_id=`git log -n 1 --format=oneline --no-color | col 1`
-	fi
-
-	if [[ $include_all -eq 0 ]]; then
-		git diff-tree --no-commit-id --name-only -r "$commit_id"
-	else
-		git diff --diff-filter=AMCR --name-only --relative "$commit_id"
-	fi
-}
-
 # gitrootdir: get the root directory for the current git repository
 alias gitrootdir='git rev-parse --show-toplevel'
 
