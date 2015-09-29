@@ -883,7 +883,7 @@ cf() { # [BH]
 
 	local commit_id="$@"
 	if [[ -z $commit_id ]]; then
-		commit_id=`git log -n 1 --format=oneline --no-color | col 1`
+		commit_id=`prevci 0`
 	fi
 
 	local vcs=`vcs_type`
@@ -896,12 +896,12 @@ cf() { # [BH]
 			fi ;;
 		svn)
 			if [[ $include_all -eq 0 ]]; then
+				svn diff --summarize -c "$commit_id" --no-diff-deleted | sed 's/^.//' | stripws
+			else
 				{
 					svn diff --summarize -r "$commit_id":HEAD --no-diff-deleted
 					svn status -q
 				} | sed 's/^.//' | stripws | sort | uniq
-			else
-				svn diff --summarize -c "$commit_id" --no-diff-deleted | sed 's/^.//' | stripws
 			fi ;;
 		bzr) ;; # TODO
 	esac
@@ -922,7 +922,7 @@ prevci() { # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
 		git) git log --no-color -n $(($commits_ago+1)) --format=oneline | tail -1 | col 1 ;;
-		svn) echo $((`svn info "$@" | grep 'Revision' | awk '{print $2}'`-$commits_ago)) ;;
+		svn) echo $((`svn info | grep 'Revision' | awk '{print $2}'`-$commits_ago)) ;;
 		bzr) ;; # TODO
 	esac
 }
