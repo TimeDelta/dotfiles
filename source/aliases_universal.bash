@@ -875,6 +875,19 @@ cf() { # [BH]
 		bzr) ;; # TODO
 	esac
 }
+# cflint: run jslint on files changed since n commits ago
+cflint() { # [BH]
+	if [[ $1 == '--help' ]]; then
+		echo "Run jsling on files changed since [<commits_ago>]"
+		echo "Usage: cflint <commits_ago>"
+		echo "Arguments:"
+		echo "  <commits_ago>"
+		echo "    Number of commits back at which to look. 0 is the most recent commit."
+		echo "    [Default: 0]"
+		return 0
+	fi
+	cf -s `prevci ${1:-0}` | tr '\n' '\0' | xargs -0 jslint
+}
 
 # prevci: get the previous commit id for the current repository
 prevci() { # [BH]
