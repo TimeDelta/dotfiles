@@ -16,6 +16,9 @@ subl() { # [BH]
 # osubl: open files passed from stdin in Sublime Text
 alias osubl="xargs -L 1 --- subl" # [BH]
 
+# sublcf: open all files changed in the most recent commit
+sublcf() { cf "$@" | osubl; } # [BH]
+
 # edit: edit the specified file
 edit() { subl "$@"; } # [BH]
 
