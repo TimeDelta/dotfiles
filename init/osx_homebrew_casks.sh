@@ -21,6 +21,7 @@ casks=(
   # Applications
   # bettertouchtool
   iterm2-beta
+  lunchy
   moom
   osxfuse
   # remote-desktop-connection
