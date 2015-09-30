@@ -2018,10 +2018,7 @@ sbtype_tab_completion (){ # [BH]
 eval "`sbtype_tab_completion`"
 
 func_tab_completion() { # [BH]
-	local cur=${COMP_WORDS[$COMP_CWORD]}
-	local functions="`declare -f | egrep '^\S+ \(\)\s?$' | sed 's/ .*//'`"
-	local aliases="`alias -p | sed -e 's/^alias //' -e 's/=.*//'`"
-	COMPREPLY=($(compgen -W "$aliases $functions" -- $cur))
+	COMPREPLY=($(compgen -W "`compgen -aA function`" -- ${COMP_WORDS[$COMP_CWORD]}))
 }
 complete -F func_tab_completion func
 
