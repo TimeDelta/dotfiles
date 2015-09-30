@@ -14,7 +14,7 @@ help_info (){
 	echo "  (new|n) <description>"
 	echo "      Add a new task with the given description"
 	echo "  (list|ls)"
-	echo "      List all existing tasks [that match the given regex] "
+	echo "      List all existing tasks [that match the given regex]"
 	echo "  (delete|del|remove|rm) <num>"
 	echo "      Delete all information about tasks matching the regex (asks for confirmation)"
 	echo "  (help|--help|-help|-h|h)"
@@ -67,7 +67,15 @@ case $cmd in
 		if [[ -z "$task_name" ]]; then >&2 echo "ERROR: Must specify a name for the new task."; exit 65; fi
 		echo "$@" >> "$todo_file" ;;
 	list|ls)
-		< "$todo_file" perl -pe 's/^/$.)\t/' ;;
+		< "$todo_file" perl -pe 's/^/$.)\t/' | {
+			lineno=0
+			while read -s line; do
+				((lineno++))
+				[[ $((lineno % 2)) -eq 0 ]] && echo -e "`tput smso`" # invert colors
+				echo -n "$line"
+				[[ $((lineno % 2)) -eq 0 ]] && echo -e "`tput rmso`" # stop inverting colors
+			done
+		} ;;
 	delete|del|remove|rm)
 		sed -n ${1}p "$todo_file"
 		echo "Are you sure you want to delete this task? (y/n)"
