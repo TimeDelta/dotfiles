@@ -1774,6 +1774,9 @@ pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
 
 # openmr: open the most recent file in the current directory
 alias openmr='open "`lsmr | head -1`"'
+
+# cleartrap: clear any traps set for ERR, SIGHUP, SIGINT, SIGTERM
+alias cleartrap='trap - ERR SIGHUP SIGINT SIGTERM'
 ################################################################################
 
 
