@@ -1,0 +1,42 @@
+################################################################################
+# This file is used to populate the HISTIGNORE environment variable. Each line
+# is a separate regex. If a command matches one of the regexes then it will be
+# ignored. To ignore a command, a regex must match the entire command from start
+# to end.
+# A '&' character matches the previous history line and can be escaped using a
+# backslash character.
+#
+# This file is sourced using the shignore command in the universal aliases file.
+# Empty lines and ones starting with a '#' will be treated like a comment and
+# ignored.
+################################################################################
+exit
+logout
+
+sudo &
+
+[fb]g
+
+rs
+
+ls?([lah])
+ls -[la]
+
+# repository functions
+svn[bcr]
+up
+st
+ci?( ?(-m )"*")
+br
+
+# file sourcing
+@(p|m|s|u)aliases
+s?(p|m|s|u)alias
+src
+sdirs
+spath
+svars
+shignore
+
+@(cd|..|?(h)top|history?(|*))?( *)
+pa_@(cluster|mac)
