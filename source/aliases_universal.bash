@@ -1789,7 +1789,16 @@ export HISTSIZE=9999999999
 
 # ignore commands that start with a ' ' and duplicate commands
 export HISTCONTROL=ignoreboth
-export HISTIGNORE='sudo &:[fb]g:rs:exit:logout:ls?([la]):ls -[la]:svn[bcr]:up:st:ci?( ?(-m )"*"):cluster[0-9]:@(p|m|s|u)aliases:s?(p|m|s|u)alias:src:sdirs:spath:svars:@(cd|..|?(h)top|history?(|*))?( *):pa_@(cluster|mac)'
+export HISTIGNORE_FILE="$HOME/.histignore"
+# ehignore: edit histignore file
+ehignore() { edit "$HISTIGNORE_FILE"; } # [BH]
+# shignore: source histignore file
+shignore() { # [BH]
+	export HISTIGNORE="`egrep -v '^\s*#' "$HISTIGNORE_FILE" \
+		| grep -v '^$' \
+		| tr '\n' ':'`"
+}
+shignore
 
 # store the time that each command was entered
 export HISTTIMEFORMAT='%F %T '
