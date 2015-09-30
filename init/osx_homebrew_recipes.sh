@@ -25,7 +25,7 @@ recipes=(
   makedepend
   nmap
   openssl
-  pip-completion
+  homebrew/completions/pip-completion
   pkg-config
   qcachegrind
   homebrew/fuse/sshfs
