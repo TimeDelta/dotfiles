@@ -1777,6 +1777,11 @@ alias openmr='open "`lsmr | head -1`"'
 
 # cleartrap: clear any traps set for ERR, SIGHUP, SIGINT, SIGTERM
 alias cleartrap='trap - ERR SIGHUP SIGINT SIGTERM'
+
+# rmr: recursively delete stuff
+alias rmr='rm -r'
+# rmrf: recursively force delete stuff
+alias rmrf='rm -rf'
 ################################################################################
 
 
