@@ -1796,7 +1796,8 @@ ehignore() { edit "$HISTIGNORE_FILE"; } # [BH]
 shignore() { # [BH]
 	export HISTIGNORE="`egrep -v '^\s*#' "$HISTIGNORE_FILE" \
 		| grep -v '^$' \
-		| tr '\n' ':'`"
+		| tr '\n' ':' \
+		| sed 's/:*$//'`"
 }
 shignore
 
