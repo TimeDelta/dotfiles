@@ -55,6 +55,9 @@ fi
 
 # never need tab completion if it's not a login shell
 shopt -q login_shell && {
+  if [ -f /usr/local/etc/bash_completion ]; then
+    . /usr/local/etc/bash_completion
+  fi
   if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
   fi
