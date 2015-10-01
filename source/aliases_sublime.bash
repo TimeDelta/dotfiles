@@ -30,8 +30,7 @@ sublwi() { # [BH]
 		echo "Usage: sublwi [<work_item>]"
 		echo "Arguments:"
 		echo "  <work_item>"
-		echo "    If not provided, will look for work item associated with current repository"
-		echo "    branch."
+		echo "    If not provided, will derive from the name of the current branch."
 		return 0
 	fi
 
