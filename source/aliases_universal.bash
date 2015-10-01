@@ -1954,76 +1954,56 @@ alias indirs=". eachdir"
 # Tab Completion #
 ################################################################################
 shopt -q login_shell && {
-_svn_remote_files_tab_complete_helper (){ # [BH]
-	echo "local IFS=$' \n'"
-	echo 'local cws="${COMP_WORDS[@]: +1}"'
-	echo 'local path="$cws"'
-	echo 'local extra="${path##*/}"'
-	echo 'path="${path%$extra}"'
-	echo 'if [[ ! "$path" =~ /$ ]]; then path=""; fi'
+shopt -s progcomp
+
+_svn_remote_files_tab_complete() { # [BH]
+	local IFS=$' \n'
+	local cws="${COMP_WORDS[@]: +1}"
+	local path="$cws"
+	local extra="${path##*/}"
+	path="${path%$extra}"
+	if [[ ! "$path" =~ /$ ]]; then path=""; fi
 	if [[ "$1" == "dir-only" ]]; then
-		echo 'COMPREPLY=( $( compgen -P "$path" -W "\`svn ls "^/branches/$path" | egrep "/$"\`" -- $extra ) )'
+		COMPREPLY=( $( compgen -P "$path" -W "`svn ls "^/branches/$path" | egrep "/$"`" -- $extra ) )
 	else
-		echo 'COMPREPLY=( $( compgen -P "$path" -W "\`svn ls "^/branches/$path"\`" -- $extra ) )'
+		COMPREPLY=( $( compgen -P "$path" -W "`svn ls "^/branches/$path"`" -- $extra ) )
 	fi
-	echo 'return 0'
 }
+complete -F _svn_remote_files_tab_complete -o nospace -o filenames svnl
 
-_repo_branches_tab_complete_helper() { # [BH]
-	echo '_repo_branches_tab_complete() {'
-	echo '	COMPREPLY=()'
-	echo '	local current_word=${COMP_WORDS[$COMP_CWORD]}'
-	echo '	local branch_name="${COMP_WORDS[@]: +1}"'
-	echo '	local vcs=`vcs_type`'
-	echo '	case $vcs in'
-	echo '		svn)'
-					_svn_remote_files_tab_complete_helper dir-only
-	echo '			;;'
-	echo '		git)'
-	echo '			if [[ $COMP_CWORD -eq 1 && -z $current_word ]]; then'
-	echo '				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" ) )'
-	echo '			else'
-	echo '				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" -- $branch_name ) )'
-	echo '			fi ;;'
-	echo '		bzr)'
-	echo '			if [[ $COMP_CWORD -eq 1 && -z $current_word ]]; then'
-	echo '				COMPREPLY=( $( compgen -W "`bzr branches | sed "s/^[ *]*//"`" ) )'
-	echo '			else'
-	echo '				COMPREPLY=( $( compgen -W "`bzr branches | sed "s/^[ *]*//"`" -- $branch_name ) )'
-	echo '			fi ;;'
-	echo '	esac'
-	echo '}'
+_repo_branches_tab_complete() { # [BH]
+	COMPREPLY=()
+	local current_word=${COMP_WORDS[$COMP_CWORD]}
+	local branch_name="${COMP_WORDS[@]: +1}"
+	local vcs=`vcs_type`
+	case $vcs in
+		svn)
+			_svn_remote_files_tab_complete dir-only ;;
+		git)
+			if [[ $COMP_CWORD -eq 1 && -z $current_word ]]; then
+				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" ) )
+			else
+				COMPREPLY=( $( compgen -W "`git branch --no-color | sed "s/^\*//"`" -- $branch_name ) )
+			fi ;;
+		bzr)
+			if [[ $COMP_CWORD -eq 1 && -z $current_word ]]; then
+				COMPREPLY=( $( compgen -W "`bzr branches | sed "s/^[ *]*//"`" ) )
+			else
+				COMPREPLY=( $( compgen -W "`bzr branches | sed "s/^[ *]*//"`" -- $branch_name ) )
+			fi ;;
+	esac
 }
+complete -F _repo_branches_tab_complete -o nospace -o filenames sw
 
-# sw_tab_completion: display tab completion code for the sw function
-sw_tab_completion (){ # [BH]
-	echo "shopt -s progcomp"
-	_repo_branches_tab_complete_helper
-	echo "complete -F _repo_branches_tab_complete -o nospace -o filenames sw"
-}
-eval "`sw_tab_completion`"
 
-svnl_tab_completion (){ # [BH]
-	echo "shopt -s progcomp"
-	echo "_svnl_tab_complete (){"
-	_svn_remote_files_tab_complete_helper
-	echo "}"
-	echo "complete -F _svnl_tab_complete -o nospace -o filenames svnl"
+_sbtype_tab_completion (){ # [BH]
+	COMPREPLY=()
+	local cur=${COMP_WORDS[$COMP_CWORD]}
+	if [[ $COMP_CWORD -eq 1 ]]; then
+		COMPREPLY=( $( compgen -W "Release RelWithDebInfo Debug" -- $cur ) )
+	fi
 }
-eval "`svnl_tab_completion`"
-
-sbtype_tab_completion (){ # [BH]
-	echo 'shopt -s progcomp'
-	echo '_sbtype_tab_completion (){'
-	echo '	COMPREPLY=()'
-	echo '	local cur=${COMP_WORDS[$COMP_CWORD]}'
-	echo '	if [[ $COMP_CWORD -eq 1 ]]; then'
-	echo '		COMPREPLY=( $( compgen -W "Release RelWithDebInfo Debug" -- $cur ) )'
-	echo '	fi'
-	echo '}'
-	echo 'complete -F _sbtype_tab_completion sbtype'
-}
-eval "`sbtype_tab_completion`"
+complete -F _sbtype_tab_completion sbtype
 
 func_tab_completion() { # [BH]
 	COMPREPLY=($(compgen -W "`compgen -aA function`" -- ${COMP_WORDS[$COMP_CWORD]}))
