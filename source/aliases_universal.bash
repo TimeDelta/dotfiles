@@ -1170,9 +1170,6 @@ compatible with cd directory history [Default: current directory]"; } | wrapinde
 
 # cd_up: either go up n (default is 1) directories or go back until the specified folder is reached (case-insensitive)
 cd_up () { # [BH]
-	# bug note: create a directory and switch to it, then delete that directory from another terminal
-	#           and do cd_up in the original terminal ("Error: Usage: realpath path does not exist.")
-	#           bug is known to happen on Macs.
 	# bug note: Create a symlink to a directory that's not in the current directory then do "cd <symlink>".
 	#           Next, do cd_up and you end up in the parent of the actual directory instead of the directory
 	#           in which the symlink exists.
@@ -1213,9 +1210,9 @@ cd_up () { # [BH]
 	shift $(($OPTIND-1))
 	OPTIND=0
 
-	if [[ $# -eq 0 ]]; then $op "`fullpath ".."`"; return 0
+	if [[ $# -eq 0 ]]; then $op "`fullpath "$(pwd)/.."`"; return 0
 	elif [[ $1 =~ ^[0-9]+$ && $dir_only -eq 0 ]]; then
-		local f=".."
+		local f="`pwd`/.."
 		local i
 		if [[ $1 -gt 1 ]]; then
 			for i in `seq 1 $(echo $1 - 1 | bc -q)`; do
@@ -1233,6 +1230,7 @@ cd_up () { # [BH]
 	fi
 
 	# handle <relative_dir>
+	f="`fullpath "$f"`"
 	if [[ -n $relative ]]; then
 		local relative_dir="`pwd | sed "s:$f::"`"
 		relative_dir="${relative_dir#/}"
