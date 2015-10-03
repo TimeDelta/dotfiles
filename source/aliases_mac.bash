@@ -212,28 +212,6 @@ total_ram () { # [BH]
 ################################################################################
 
 
-###########
-# Testing #
-################################################################################
-# accuracy: get the accuracy of a test
-alias accuracy="/usr/bin/python $scripts/testing.py -ab" # [BH]
-# buildid: get the build id associated with the most recent test matching (exact) a build name
-alias buildid="/usr/bin/python $scripts/testing.py -ib" # [BH]
-# bid: get the build id associated with the most recent test matching (exact) a build name
-alias bid="buildid" # [BH]
-
-# sclite: get detailed results for a test, given a build name (uses most recent match)
-sclite (){ $utilities/sclite_score_buildid.sh `/usr/bin/python $scripts/testing.py -ib "$@"`; } # [BH]
-# sclitebid: get detailed results for a test, given a build id
-alias sclitebid="$utilities/sclite_score_buildid.sh" # [BH]
-
-# fsteq: test whether two fst files are equivalent
-fsteq () { fstequivalent --random --npath=1000 $@; echo $?; } # [BH]
-# vfst: view the graphical representation of an FST file
-vfst () { view_fst.sh "$@"; } # [BH]
-################################################################################
-
-
 #############
 # Profiling #
 ################################################################################
