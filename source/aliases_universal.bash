@@ -30,8 +30,8 @@ export SUBLIME_ALIAS_FILE="$DOTFILES/source/aliases_sublime.bash"
 
 # falias: boolean alias search
 falias () { # [BH]
-	local results=`cat $MACHINE_ALIAS_FILE $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"` word
-	for word in "$@"; do results=`echo "$results" | egrep -i -a0 --color=always $word`; done
+	local results="`cat $MACHINE_ALIAS_FILE $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | egrep -i -C 0 "^# \S+: "`" word
+	for word in "$@"; do results="`echo "$results" | egrep -i -a0 --color=always $word`"; done
 	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)"
 }
 # halias: display information about specific aliases (egrep regex)
