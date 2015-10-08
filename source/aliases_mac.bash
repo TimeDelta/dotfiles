@@ -335,7 +335,8 @@ alfred() { # [BH]
 		echo "Press [Enter] to continue"
 		read -s junk
 
-		command mv "$workflow" ~/Library/Mobile\ Documents/com~apple~CloudDocs/
+		mkdir -p ~/Library/Mobile\ Documents/com~apple~CloudDocs/alfred/
+		command mv "$workflow" ~/Library/Mobile\ Documents/com~apple~CloudDocs/alfred/
 	done
 	IFS="$OLD_IFS"
 }
