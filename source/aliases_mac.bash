@@ -323,6 +323,22 @@ insession() { # [BH]
 	end tell"
 }
 alias inses='insession'
+
+# alfred: install newly downloaded Alfred workflows and then move them to iCloud
+alfred() { # [BH]
+	local junk
+	local OLD_IFS="$IFS"
+	IFS=$'\n'
+	for workflow in `find ~/Downloads -iname '*.alfredworkflow'`; do
+		open "$workflow"
+		echo "Installing `basename "${workflow%.*}"`"
+		echo "Press [Enter] to continue"
+		read -s junk
+
+		command mv "$workflow" ~/Library/Mobile\ Documents/com~apple~CloudDocs/
+	done
+	IFS="$OLD_IFS"
+}
 ################################################################################
 
 
