@@ -262,6 +262,8 @@ alias mj="make -j2" # [BH]
 
 # fix_audio: fix locked volume issue
 alias fix_audio="sudo killall coreaudiod"
+# fix_icloud: fix icloud not syncing locally
+alias fix_icloud='rm -rf "$HOME/Library/Application Support/CloudDocs"; killall cloudd bird'
 
 # bangcp: copy a previously entered command to the clipboard
 bangcp() { # [BH]
