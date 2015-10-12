@@ -1490,7 +1490,7 @@ bytes2human () { # [BH]
 		else echo "`calc $1 / 1099511627776`TB"
 		fi
 	}
-	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset b2h; exit 1' ERR SIGHUP SIGINT SIGTERM
+	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset b2h; return 1' ERR SIGHUP SIGINT SIGTERM
 	if [[ $# -ne 1 ]]; then
 		local bytes
 		while read -s bytes; do
@@ -1511,7 +1511,7 @@ human2bytes () { # [BH]
 		elif [[ $magnitude == "TB" ]]; then calc $number\*1099511627776
 		fi
 	}
-	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset h2b; exit 1' ERR SIGHUP SIGINT SIGTERM
+	trap 'trap - ERR SIGHUP SIGINT SIGTERM; unset h2b; return 1' ERR SIGHUP SIGINT SIGTERM
 	if [[ $# -ne 1 ]]; then
 		local human
 		while read -s human; do
