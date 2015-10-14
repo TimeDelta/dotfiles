@@ -978,7 +978,7 @@ diralias () { # {BH}
 	local short_path="`shortpath "$(pwd)"`"
 
 	# delete any existing alias with the same name
-	sed $SED_IN_PLACE "/export $1=/d" "$DIR_ALIAS_FILE"
+	sed -i "" "/export $1=/d" "$DIR_ALIAS_FILE"
 
 	# add the new directory alias
 	echo "export $1=\"$short_path\"" >> "$DIR_ALIAS_FILE"
@@ -993,7 +993,7 @@ diraliased (){ #[BH]
 	fi
 }
 # undiralias: delete an existing directory alias
-undiralias() { sed $SED_IN_PLACE "/export $1=/d" "$DIR_ALIAS_FILE"; } # [BH]
+undiralias() { sed -i "" "/export $1=/d" "$DIR_ALIAS_FILE"; } # [BH]
 # Initialization for the above 'diralias' function:
 sdirs # source the directory aliases file
 # NOTE: the following line is no longer needed for cd built-in thanks to the updates to the cd

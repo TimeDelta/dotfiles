@@ -155,7 +155,7 @@ apwi() { # [BH]
 	for file in "$proj_file" "$workspace_file"; do
 		if [[ -f "$file" ]]; then
 			# !!! don't change the indentation here, it will break things !!!
-			sed $SED_EXT_RE $SED_IN_PLACE '
+			sed $SED_EXT_RE -i "" '
 /^	.folders.:$/,/		\{$/{
 # when inside the patterns around the comma on previous line
 # print the indented opening brace
