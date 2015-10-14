@@ -151,6 +151,10 @@ apwi() { # [BH]
 		return 1
 	fi
 
+	# if the project / workspace file is open in Sublime, this won't work
+	# TODO find way of determining if the specified file is actually in use by Sublime instead
+	sublcp
+
 	local file
 	for file in "$proj_file" "$workspace_file"; do
 		if [[ -f "$file" ]]; then
