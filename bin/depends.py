@@ -49,7 +49,7 @@ def main():
 	for target in sys.argv[1:]:
 		if resolve:
 			if all_depends(target, resolve):
-				print 'resolve'
+				print('resolve')
 				exit(0)
 		else:
 			for item in all_depends(target, resolve):
@@ -59,7 +59,7 @@ def main():
 		exit(0)
 	else:
 		for target in targets:
-			print target
+			print(target)
 
 
 if __name__ == '__main__':
