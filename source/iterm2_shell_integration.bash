@@ -1,5 +1,5 @@
 #!/bin/bash
-is_osx || ( is_linux && $SESSION_TYPE == "remote/ssh" ) || return
+is_osx || ( is_linux && [[ $SESSION_TYPE == "remote/ssh" ]] ) || return
 # This is based on "preexec.bash" but is customized for iTerm2.
 
 # Note: this module requires 2 bash features which you must not otherwise be
