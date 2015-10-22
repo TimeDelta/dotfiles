@@ -1,13 +1,7 @@
-# only source this file if Sublime Text exists
-spath # have to make sure the PATH is set according to $PATH_FILE first
-if [[ -z `which subl 2> /dev/null` ]]; then
-	return 1
-fi
-
 # subl: CLI for sublime text
 subl() { # [BH]
 	if [[ $SESSION_TYPE == remote/ssh ]]; then
-		rsub "$@"
+		rmate "$@"
 	else
 		command subl "$@"
 	fi
