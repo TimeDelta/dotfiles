@@ -1,6 +1,6 @@
 # only source this file if Sublime Text exists
 spath # have to make sure the PATH is set according to $PATH_FILE first
-if [[ -z `which subl` ]]; then
+if [[ -z `which subl 2> /dev/null` ]]; then
 	return 1
 fi
 
