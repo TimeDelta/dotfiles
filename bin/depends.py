@@ -5,9 +5,9 @@ from pprint import pprint
 
 def depends(target_name):
 	try:
-		output = check_output(r'ant -p -debug | grep -v "env\." | egrep -A 1 -B 0 "^\s*' \
+		output = check_output([r'ant -p -debug | grep -v "env\." | egrep -A 1 -B 0 "^\s*' \
 			+ target_name \
-			+ r'(\s|$)" | sed -n 2p | grep "^\s*depends on"', shell=True)
+			+ r'(\s|$)" | sed -n 2p | grep "^\s*depends on"'], shell=True, universal_newlines=True)
 	except:
 		return set()
 	output = re.sub(r'^[^:]*:\s*', '', output).strip()
