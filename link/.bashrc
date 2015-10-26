@@ -61,8 +61,15 @@ shopt -q login_shell && {
   if [ -f /etc/bash_completion ]; then
     . /etc/bash_completion
   fi
-  if [[ `which brew 2> /dev/null` && -f $(brew --prefix)/etc/bash_completion ]]; then
-    . $(brew --prefix)/etc/bash_completion
+  if [[ `which brew 2> /dev/null` ]]; then
+    if [[ -e $(brew --prefix)/etc/bash_completion ]]; then
+      . $(brew --prefix)/etc/bash_completion
+    fi
+    if [[ -e $(brew --prefix)/etc/bash_completion.d ]]; then
+      for file in `ls -1 $(brew --prefix)/etc/bash_completion.d`; do
+        . "$file"
+      done
+    fi
   fi
 }
 
