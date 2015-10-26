@@ -959,6 +959,9 @@ tarscp () { # {BH}
 	ssh $1 tar cf - -C $2 . | tar xvf -
 }
 
+# sshconfig: edit the config file for ssh sessions
+sshconfig() { edit ~/.ssh/config; } # [BH]
+
 alias wanip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias whois="whois -h whois-servers.net"
 ################################################################################
