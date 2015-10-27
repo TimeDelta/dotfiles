@@ -140,7 +140,7 @@ if ( [ x"$TERM" != xscreen ] ); then
 
       # Finally, install the actual traps.
       local addition="[[ \$TERM == \"screen\" ]] || preexec_invoke_cmd"
-      local modify="`echo "$PROMPT_COMMAND" | grep -v '\[\[ \$TERM == "screen" \]\] \|\| preexec_invoke_cmd'`"
+      local modify="`echo "$PROMPT_COMMAND" | grep -Fv 'preexec_invoke_cmd'`"
       if ( [ x"$PROMPT_COMMAND" = x ]); then
         PROMPT_COMMAND="$addition";
       elif [[ -n $modify ]]; then
