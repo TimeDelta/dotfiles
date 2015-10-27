@@ -67,7 +67,9 @@ shopt -q login_shell && {
     fi
     if [[ -e $(brew --prefix)/etc/bash_completion.d ]]; then
       for file in `ls -1 $(brew --prefix)/etc/bash_completion.d`; do
-        . "$file"
+        if [[ -f "$file" ]]; then
+          . "$file"
+        fi
       done
     fi
   fi
