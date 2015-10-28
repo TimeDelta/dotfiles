@@ -1,0 +1,15 @@
+#!/bin/bash
+# NOTE: for some reason, this doesn't work properly when put inside an "on run" handler
+osascript <<EOT
+	tell application "Safari"
+		make new document at front with properties {URL:"$1"}
+		activate
+		delay 1
+		repeat until ((do JavaScript "document.readyState" in front document) is "complete")
+			delay 0.5
+		end repeat
+		set src to source of front document
+		close front document
+		src
+	end tell
+EOT
