@@ -740,6 +740,14 @@ gitignore() { # [BH]
 
 # gitp: push changes in a local git repository to the remote repository
 alias gitp='git push'
+
+# gitconfig: edit the git config fiile for the current repository
+gitconfig() { # [BH]
+	edit "`rootdir`/.git/config"
+}
+
+# giturl: print the remote origin url for the current git repository to stdout
+alias giturl="git config --get remote.origin.url"
 ################################################################################
 
 
