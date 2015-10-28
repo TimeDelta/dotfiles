@@ -5,10 +5,14 @@ osascript <<EOT
 		make new document at front with properties {URL:"$1"}
 		activate
 		delay 1
-		repeat until ((do JavaScript "document.readyState" in front document) is "complete")
+		repeat until (do JavaScript "document.readyState" in front document) is "complete"
 			delay 0.5
 		end repeat
 		set src to source of front document
+		repeat while src is ""
+			set src to source of front document
+			delay .25
+		end repeat
 		close front document
 		src
 	end tell
