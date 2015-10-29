@@ -529,6 +529,10 @@ fch () { ls -la $@ 2> /dev/null | wc -l | sed s/\ //g; } # [BH]
 ################################################################################
 # extract: extract files from an archive
 extract () {
+	if [[ $1 == "--supported" ]]; then
+		echo -e '.tar.bz2\n.tar.gz\n.bz2\n.rar\n.gz\n.tar\n.tbz2\n.tgz\n.zip\n.Z\n.7z'
+		return 0
+	fi
 	if [ -f $1 ] ; then
 		case $1 in
 			*.tar.bz2)   tar xjf $1     ;;
@@ -551,8 +555,20 @@ extract () {
 # xtr: shortened form of extract function
 alias xtr=extract
 
+# xtrmr: extract the most recently touched archive
+xtrmr() { # [BH]
+	extract "$(command ls -1tc | egrep "`extract --supported | tr '\n' '|' | sed 's/|$//'`$" | head -1)"
+}
+
 # zipf: to create a ZIP archive of a file or folder
 zipf () { zip -r "${@%/}".zip "${@%/}" ; } # [BH]
+
+# unzmr: unzip the most recent zip archive to the specified location
+unzmr() { # [BH]
+	local dir=""
+	[[ -n $1 ]] && dir="-d '$@'"
+	unzip $dir "`command ls -1tc | egrep '\.zip$' | head -1`"
+}
 ################################################################################
 
 
