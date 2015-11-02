@@ -565,9 +565,9 @@ zipf () { zip -r "${@%/}".zip "${@%/}" ; } # [BH]
 
 # unzmr: unzip the most recent zip archive to the specified location
 unzmr() { # [BH]
-	local dir=""
-	[[ -n $1 ]] && dir="-d '$@'"
-	unzip $dir "`command ls -1tc | egrep '\.zip$' | head -1`"
+	local dir=' '
+	[[ -n $1 ]] && dir=''
+	unzip ${dir:--d "$@"} "`command ls -1tc | egrep '\.zip$' | head -1`"
 }
 ################################################################################
 
