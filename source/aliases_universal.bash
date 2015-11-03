@@ -953,10 +953,20 @@ prevci() { # [BH]
 
 # rootdir: get the root directory of a repository
 rootdir() { # [BH]
-	vcs=`vcs_type`
+	local vcs=`vcs_type`
 	case $vcs in
 		git) git rev-parse --show-toplevel ;;
 		svn) svn info | grep -im 1 'root path' | sed $SED_EXT_RE 's/^.*: //' ;;
+		bzr) ;; # TODO
+	esac
+}
+
+# conflicts: list all files in conflicting state
+conflicts() { # [BH]
+	local vcs=`vcs_type`
+	case $vcs in
+		git) git status --porcelain | grep '^UU' | sed 's/^UU.//' ;;
+		svn) svnc "`rootdir`" ;;
 		bzr) ;; # TODO
 	esac
 }
