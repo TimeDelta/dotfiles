@@ -39,16 +39,12 @@ sudo apt-get -qq dist-upgrade
 
 # Install APT packages.
 packages=(
-  ansible
   build-essential
   git-core
+  git-extras
   htop
-  id3tool
-  libssl-dev
-  mercurial
   nmap
-  silversearcher-ag
-  sl
+  screen
   telnet
   tree
 )
