@@ -1,7 +1,24 @@
 # subl: CLI for sublime text
 subl() { # [BH]
 	if [[ $SESSION_TYPE == remote/ssh ]]; then
-		rmate "$@"
+		# rmate doesn't support opening multiple files at once, so we need to
+		# strip off options in order to figure out how many files were specified
+		local options=""
+		while [[ $1 =~ ^- ]]; do
+			options="$options $1"
+			shift
+		done
+
+		if [[ $# -eq 0 ]]; then # allow remote piping to sublime
+			rmate $options
+		else # workaround for opening multiple files at once using rmate
+			local file
+			for file in "$@"; do
+				# NOTE: if you specify wait with more than one file, it will open one file,
+				#       wait for it to close then open the next, etc.
+				rmate $options "$file"
+			done
+		fi
 	else
 		command subl "$@"
 	fi
