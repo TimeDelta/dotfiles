@@ -238,9 +238,21 @@ lsmr (){ ls -1tc "$@"; } # [BH]
 
 # sizeof: display the size of a file
 sizeof () { # [BH]
-	local file
-	if [[ $# -eq 0 ]]; then while read -s file; do du -ch $APPARENT_SIZE "$file" | awk 'END {print $1}'; done
-	else du -ch $APPARENT_SIZE "$@" | awk 'END {print $1}'; fi
+	local include_file_name=' '
+	if [[ $1 == "-f" ]]; then
+		include_file_name=''
+		shift
+	fi
+
+	if [[ $# -eq 0 ]]; then
+		local file
+		while read -s file; do
+			du -ch $APPARENT_SIZE "$file"\
+				| awk -v fname="${include_file_name:-$file}" 'END {if (fname != "") fname="\t"fname; print $1""fname}'
+		done
+	else
+		du -ch $APPARENT_SIZE "$@" | awk 'END {print $1}'
+	fi
 }
 
 # sbs: display two files side-by-side
