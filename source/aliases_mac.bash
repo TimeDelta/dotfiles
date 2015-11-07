@@ -19,7 +19,7 @@ is_osx || return 1
 ########
 # PATH #
 ################################################################################
-atp "$DOTFILES/osx_bin:$PATH" # add osx-only binaries directory to PATH
+atp "$DOTFILES/osx_bin" # add osx-only binaries directory to PATH
 ################################################################################
 
 
