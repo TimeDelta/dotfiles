@@ -1674,14 +1674,14 @@ pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs pip instal
 ################################################################################
 # props: display the ant properties for the current project
 props() { # [BH]
-	ant -debug -p \
+	ant -debug -p -find "${1:-build.xml}" \
 		| grep -i '^setting.*property' \
 		| sed 's/^.*: //' \
 		| grep -v '^env\.'
 }
 # targets: list the available targets for the current project
 targets() { # [BH]
-	ant -p -debug \
+	ant -p -debug -find "${1:-build.xml}" \
 		| egrep '\+Target' \
 		| sed $SED_EXT_RE 's/ *\+Target: *//' \
 		| grep -v '^$'
@@ -1704,7 +1704,7 @@ depends() { # [BH]
 	else
 		{
 			while [[ $# -gt 0 ]]; do
-				ant -p -debug \
+				ant -p -debug -find "${1:-build.xml}" \
 					| grep -v 'env\.' \
 					| stripws \
 					| egrep -A 1 -B 0 "^\s*$1(\s|$)" \
