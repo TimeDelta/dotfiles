@@ -28,6 +28,7 @@ up
 st
 ci?( ?(-m )"*")
 br
+dif
 
 # file sourcing
 @(p|m|s|u)aliases
