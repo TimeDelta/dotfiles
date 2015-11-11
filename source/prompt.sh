@@ -30,7 +30,7 @@ _prompt() { # [BH]
 		fi
 		echo -n "${BOLD}]"
 	fi
-	echo "${BOLD}${FGREEN}\h${RES}${BOLD}:${FYELLOW}\w${RES}\n${BOLD}\$ ${RES}"
+	echo "${BOLD}${FGREEN}\h${RES}${BOLD}:${FYELLOW}\w${RES}\n\$ "
 	unset _trim_branch_name
 }
 
