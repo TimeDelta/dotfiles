@@ -24,13 +24,13 @@ _prompt() { # [BH]
 		branch="`git branch --no-color | egrep '^\*' | sed 's/^..//'`"
 	fi
 	if [[ -n $branch ]]; then
-		echo -n "[${FBLUE}`_trim_branch_name "${branch}"`${RES}"
+		echo -n "${BOLD}[${FBLUE}`_trim_branch_name "${branch}"`${RES}"
 		if [[ -n $commit ]]; then
-			echo -n ":${FCYAN}${commit}${RES}"
+			echo -n "${BOLD}:${FCYAN}${commit}${RES}"
 		fi
-		echo -n "]"
+		echo -n "${BOLD}]"
 	fi
-	echo "${FGREEN}\h${RES}:${FYELLOW}${BOLD}\w${RES}\n\$ "
+	echo "${BOLD}${FGREEN}\h${RES}${BOLD}:${FYELLOW}\w${RES}\n${BOLD}\$ ${RES}"
 	unset _trim_branch_name
 }
 
