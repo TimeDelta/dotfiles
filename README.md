@@ -117,7 +117,7 @@ In addition to the aforementioned [dotfiles][dotfiles] script, there are a few o
 * Look through the [bin](bin) subdirectory for a few more.
 
 ## Prompt
-Defined in [source/prompt.sh](source/prompt.sh).
+Defined in [source/prompt.sh](source/prompt.sh). It shows the current directory in yellow, shortened hostname in green, and code repository information in blue / cyan.
 
 Git / Bazaar Repository:
 
