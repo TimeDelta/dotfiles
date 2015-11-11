@@ -117,22 +117,17 @@ In addition to the aforementioned [dotfiles][dotfiles] script, there are a few o
 * Look through the [bin](bin) subdirectory for a few more.
 
 ## Prompt
-I think [my bash prompt](source/prompt.sh) is awesome. It shows git and svn repo status, a timestamp, error exit codes, and even changes color depending on how you've logged in.
+Defined in [source/prompt.sh](source/prompt.sh).
 
-Git repos display as **[branch:flags]** where flags are:
+Git / Bazaar Repository:
 
-**?** untracked files  
-**!** changed (but unstaged) files  
-**+** staged files
+![git repository](http://s15.postimg.org/enuo12for/Screen_Shot_2015_11_10_at_8_55_41_PM.png)
 
-SVN repos display as **[rev1:rev2]** where rev1 and rev2 are:
+Svn Repository:
 
-**rev1** last changed revision  
-**rev2** revision
+![svn repository](http://s11.postimg.org/7h1byvj37/Screen_Shot_2015_11_10_at_9_04_42_PM.png)
 
-Check it out:
-
-![My awesome bash prompt](http://farm8.staticflickr.com/7142/6754488927_563dd73553_b.jpg)
+The number here is the currently checked out revision number.
 
 ## Inspiration
 <https://github.com/cowboy/dotfiles>
