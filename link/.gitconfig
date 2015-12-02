@@ -2,7 +2,7 @@
   autocrlf = input
   whitespace = fix,space-before-tab,tab-in-indent,trailing-space
   excludesfile = ~/.gitignore_global
-	pager =
+  pager =
 [apply]
   whitespace = fix
 [alias]
@@ -14,7 +14,7 @@
   rb = rbranch
   rv = review
   st = status
-	ls = ls-files
+  ls = ls-files
   lg = log --date=local --pretty=\"format:%C(auto)%h %Cgreen%ad %Cred%an%Creset %n%s\"
 [color]
   ui = always
@@ -50,8 +50,8 @@
 [url "git://gist.github.com/"]
   insteadOf = "gist:"
 [push]
-	default = matching
+  default = matching
 [filter "lfs"]
-	clean = git-lfs clean %f
-	smudge = git-lfs smudge %f
-	required = true
+  clean = git-lfs clean %f
+  smudge = git-lfs smudge %f
+  required = true
