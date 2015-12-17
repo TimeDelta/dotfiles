@@ -25,18 +25,20 @@
 ################################################################################
 # in case the name of this ever changes, it'll be easier to update
 export UNIV_ALIAS_FILE="$DOTFILES/source/aliases_universal.bash"
-export MACHINE_ALIAS_FILE="$HOME/.aliases_machine.bash"
+if [[ -z $MACHINE_ALIAS_FILES ]]; then
+	export MACHINE_ALIAS_FILES="$HOME/.aliases_machine.bash"
+fi
 export SUBLIME_ALIAS_FILE="$DOTFILES/source/aliases_sublime.bash"
 
 # falias: boolean alias search
 falias () { # [BH]
-	local results="`cat $MACHINE_ALIAS_FILE $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | egrep -i -C 0 "^# \S+: "`" word
+	local results="`cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | egrep -i -C 0 "^# \S+: "`" word
 	for word in "$@"; do results="`echo "$results" | egrep -i -a0 --color=always $word`"; done
 	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)"
 }
 # halias: display information about specific aliases (egrep regex)
 halias (){ # [BH]
-	local results=`cat $MACHINE_ALIAS_FILE $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
+	local results=`cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
 	echo "$results" | egrep -i -C 0 "# $1:"
 }
 
@@ -45,7 +47,7 @@ ualiases () { edit "$UNIV_ALIAS_FILE"; } # [BH]
 # paliases: edit platform-specific aliases
 paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BH]
 # maliases: edit machine-specific aliases
-maliases (){ edit "$MACHINE_ALIAS_FILE"; } # [BH]
+maliases (){ edit $MACHINE_ALIAS_FILES; } # [BH]
 # saliases: edit sublime text aliases
 saliases (){ edit "$SUBLIME_ALIAS_FILE"; } # [BH]
 # bashp: edit ~/.bash_profile
@@ -60,7 +62,7 @@ sualias () { source "$UNIV_ALIAS_FILE"; } # [BH]
 # spalias: source platform-specific aliases
 spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
 # smalias: source machine-specific aliases
-smalias (){ source "$MACHINE_ALIAS_FILE"; } # [BH]
+smalias (){ local file; for file in $MACHINE_ALIAS_FILES; do source "$file"; done; } # [BH]
 # ssalias: source sublime text aliases
 ssalias() { source "$SUBLIME_ALIAS_FILE"; } # [BH]
 # sbashp: source .bash_profile
@@ -71,7 +73,7 @@ sbashrc () { source "$HOME/.bashrc"; } # [BH]
 # funcplatform: where is the specified custom function declared (universal / platform / machine)?
 funcplatform() { # [BH]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
-	if [[ `< "$MACHINE_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
+	if [[ `cat $MACHINE_ALIAS_FILES | parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "machine"
 	elif [[ -n `< "$SUBLIME_ALIAS_FILE" parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "sublime"
@@ -87,7 +89,7 @@ funcplatform() { # [BH]
 # funcfile: print the name of the file in which the specified custom function is defined
 funcfile() { # [BH]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
-	for file in "$MACHINE_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"; do
+	for file in $MACHINE_ALIAS_FILES "$SUBLIME_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"; do
 		if [[ -n `< "$file" parsefuncdefs | grep -Fx "$@"` ]]; then
 			echo "$file"
 			return 0
@@ -132,7 +134,7 @@ code (){ # [BH]
 
 # lscustomfunc: list all available custom functions and aliases that are defined in the normal sourced files
 lscustomfunc () { # [BH]
-	cat "$MACHINE_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" | parsefuncdefs
+	cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" | parsefuncdefs
 }
 
 # lsfunc: list all defined functions and aliases in the current environment
@@ -776,6 +778,11 @@ gitconfig() { # [BH]
 
 # giturl: print the remote origin url for the current git repository to stdout
 alias giturl="git config --get remote.origin.url"
+
+# parentbr: show the parent branch for the current git branch
+parentbr() {
+	git rev-parse --abbrev-ref --symbolic-full-name @{u}
+}
 ################################################################################
 
 
@@ -2124,3 +2131,5 @@ shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
 source $PATH_FILE
 source $VARS_FILE
 ################################################################################
+
+smalias

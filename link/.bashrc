@@ -36,7 +36,7 @@ function src() {
 
     IFS="$OLD_IFS"
 
-    source "$MACHINE_ALIAS_FILE"
+    smalias
   fi
 }
 
