@@ -130,6 +130,7 @@ paste () { pbpaste; }
 copy () { pbcopy; }
 # copynl: copy without newline characters
 copynl() { tr -d '\n' | pbcopy; }
+alias cpnl=copynl
 # sclip: sort the clipboard
 sclip () { paste | sort | copy; }
 # rclip: reverse the contents of the clipboard
