@@ -1322,6 +1322,9 @@ the integer suffix of the checkout folder name"; } | wrapindent -w
 
 # cdmr: switch to the most recently modified folder that matches the optional regex
 cdmr (){ cd "`command ls -d1tc $(translate_dir_hist "${@:-*}/") | head -1`"; } # [BH]
+
+# cdw: switch to the directory in which an executable in PATH resides
+cdw() { cd "`dirname $(which "$@")`"; } # [BH]
 ################################################################################
 
 
