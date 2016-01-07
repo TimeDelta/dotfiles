@@ -984,7 +984,7 @@ rootdir() { # [BH]
 conflicts() { # [BH]
 	local vcs=`vcs_type`
 	case $vcs in
-		git) git status --porcelain | grep '^UU' | sed 's/^UU.//' ;;
+		git) git status --porcelain | egrep '^[^ ]{2}' | sed 's/^...//' ;;
 		svn) svnc "`rootdir`" ;;
 		bzr) ;; # TODO
 	esac
