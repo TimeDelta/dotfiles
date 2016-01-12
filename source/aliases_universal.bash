@@ -783,6 +783,8 @@ alias giturl="git config --get remote.origin.url"
 parentbr() {
 	git rev-parse --abbrev-ref --symbolic-full-name @{u}
 }
+# pbr: show the parent branch for the current git branch
+alias pbr=parentbr
 ################################################################################
 
 
