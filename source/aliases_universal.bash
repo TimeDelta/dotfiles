@@ -2136,5 +2136,3 @@ shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
 source $PATH_FILE
 source $VARS_FILE
 ################################################################################
-
-smalias
