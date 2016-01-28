@@ -921,9 +921,9 @@ cf() { # [BH]
 		git)
 			{
 				if [[ $include_all -eq 0 ]]; then
-					git diff-tree --no-commit-id --name-only -r "$commit_id"
+					git diff-tree --no-commit-id --name-only -r "$commit_id" "$@"
 				else
-					git diff --diff-filter=AMCR --name-only --relative "$commit_id"
+					git diff --diff-filter=AMCR --name-only --relative "$commit_id" "$@"
 				fi
 			} | sed "s:^:`gitrootdir`/:" ;;
 		svn)
