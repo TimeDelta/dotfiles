@@ -2009,6 +2009,57 @@ alias indirs=". eachdir"
 ################################################################################
 
 
+###############
+# Environment #
+################################################################################
+# VARS_FILE contains environment variables whose values may differ on each machine
+export VARS_FILE="$HOME/.vars"
+
+# evars: open the environment variable setup file
+evars (){ edit "$VARS_FILE"; }
+# svars: source the environment variable setup file
+svars (){ source "$VARS_FILE"; }
+
+shopt -u nocasematch
+
+export svn="^/branches"
+export MY_OS=`uname`
+export null="/dev/null"
+
+# this block is just for compatibility reasons so that i don't need to have the
+# same function in multiple alias files (so i don't need per-platform copies)
+old_nocasematch=`cur_nocasematch`
+shopt -s nocasematch
+if [[ $MY_OS == *Darwin* ]]; then
+	export SED_IN_PLACE=''
+else
+	export SED_IN_PLACE=' '
+fi
+if [[ $MY_OS == *Darwin* ]]; then
+	export FIND_DASH_E="-E"
+	export SED_EXT_RE="-E"
+else
+	export FIND_REGEXTYPE="-regextype posix-extended"
+	export GREP_DASH_T="-T"
+	export APPARENT_SIZE="--apparent-size"
+	export SED_EXT_RE="-r"
+fi
+shopt $old_nocasematch nocasematch
+unset old_nocasematch
+
+# Check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+shopt -s globstar >& /dev/null # enables recursive globbing with ** (bash 4.0+ only)
+shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
+
+# source environment variables and set up PATH
+source $PATH_FILE
+source $VARS_FILE
+################################################################################
+
+
 ##################
 # Tab Completion #
 ################################################################################
@@ -2080,59 +2131,12 @@ cic
 # csc: make tab completion case sensitive
 csc () { bind "set completion-ignore-case off"; }
 
+if [[ -n `which ant` ]]; then
+	complete -C "$(dirname "`which ant`")/complete-ant-cmd.pl" ant
+fi
+
 # prevent tab completion from escaping variables that contain a path
 # (like replacing "$HOME/" w/ "\$HOME/") and instead expand the path
 shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr too
 }
-################################################################################
-
-
-###############
-# Environment #
-################################################################################
-# VARS_FILE contains environment variables whose values may differ on each machine
-export VARS_FILE="$HOME/.vars"
-
-# evars: open the environment variable setup file
-evars (){ edit "$VARS_FILE"; }
-# svars: source the environment variable setup file
-svars (){ source "$VARS_FILE"; }
-
-shopt -u nocasematch
-
-export svn="^/branches"
-export MY_OS=`uname`
-export null="/dev/null"
-
-# this block is just for compatibility reasons so that i don't need to have the
-# same function in multiple alias files (so i don't need per-platform copies)
-old_nocasematch=`cur_nocasematch`
-shopt -s nocasematch
-if [[ $MY_OS == *Darwin* ]]; then
-	export SED_IN_PLACE=''
-else
-	export SED_IN_PLACE=' '
-fi
-if [[ $MY_OS == *Darwin* ]]; then
-	export FIND_DASH_E="-E"
-	export SED_EXT_RE="-E"
-else
-	export FIND_REGEXTYPE="-regextype posix-extended"
-	export GREP_DASH_T="-T"
-	export APPARENT_SIZE="--apparent-size"
-	export SED_EXT_RE="-r"
-fi
-shopt $old_nocasematch nocasematch
-unset old_nocasematch
-
-# Check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
-
-shopt -s globstar >& /dev/null # enables recursive globbing with ** (bash 4.0+ only)
-shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
-
-# source environment variables and set up PATH
-source $PATH_FILE
-source $VARS_FILE
 ################################################################################
