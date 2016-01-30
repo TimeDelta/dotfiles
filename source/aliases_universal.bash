@@ -1042,6 +1042,16 @@ diralias () { # {BH}
 	echo "export $1=\"$short_path\"" >> "$DIR_ALIAS_FILE"
 	sdirs
 }
+# diraliases: list all directory aliases for the specified directory [default: current directory]
+diraliases() { # [BH]
+	local input_path="$1"
+	if [[ -z $input_path ]]; then
+		input_path="`pwd`"
+	fi
+	env | egrep -f <(egrep "^\s*export" "$DIR_ALIAS_FILE" | sed 's/^ *export *//' | sed 's/=.*/=/') \
+		| egrep "=$input_path$" \
+		| sed 's/=.*$//'
+}
 # diraliased: check if a directory alias with the specified name exists
 diraliased (){ #[BH]
 	if [[ -z "`egrep "^export $1=" "$DIR_ALIAS_FILE"`" ]]; then
