@@ -797,12 +797,25 @@ up (){ # [BH]
 	case $vcs in
 		bzr|svn) $vcs update "$@" ;;
 		git) git pull "$@" ;;
+		*) return 1 ;;
 	esac
 }
 # ci: generic command to commit changes from a vcs working copy
-ci (){ `vcs_type` commit "$@"; } # [BH]
+ci (){ # [BH]
+	local vcs=`vcs_type`
+	if [[ -z $vcs ]]; then
+		return 1
+	fi
+	$vcs commit "$@"
+}
 # st: generic command to check the status of a vcs working copy
-st (){ `vcs_type` status "$@"; } # [BH]
+st (){ # [BH]
+	local vcs=`vcs_type`
+	if [[ -z $vcs ]]; then
+		return 1
+	fi
+	$vcs status "$@"
+}
 # sw: generic command to switch branches in a version control repository
 sw (){ # [BH]
 	local vcs=`vcs_type`
@@ -881,6 +894,9 @@ branches() { # [BH]
 # dif: run diff for the current version control repository
 dif() { # [BH]
 	local vcs=`vcs_type`
+	if [[ -z $vcs ]]; then
+		return 1
+	fi
 	$vcs diff "$@" | {
 		case $vcs in
 			bzr|svn) colordiff ;;
