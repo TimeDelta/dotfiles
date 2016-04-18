@@ -927,9 +927,11 @@ cf() { # [BH]
 		shift
 	fi
 
-	local commit_id="$@"
+	local commit_id="$1"
 	if [[ -z $commit_id ]]; then
 		commit_id=`prevci 0`
+	else
+		shift
 	fi
 
 	local vcs=`vcs_type`
