@@ -217,6 +217,23 @@ show_formatting (){ # [BH]
 
 # fjson: pretty print JSON
 fjson (){ python -m json.tool; }
+
+# escsedsub: print a fully escaped sed substitution command
+escsedsub() { # [BH]
+	if [[ $# -eq 0 ]]; then
+		echo "Usage: escsedsub <regex> <replacement> [<sed_sub_options>]"
+	fi
+	local regex="$1"
+	local replacement="$2"
+	local options="$3"
+
+	echo -n "s/"
+	echo "$regex" | sed -e 's/[]\/$*.^|[]/\\&/g' | tr -d '\n'
+	echo -n "/"
+	echo "$replacement" | sed -e 's/[\/&]/\\&/g' | tr -d '\n'
+	echo -n "/"
+	echo "$options"
+}
 ################################################################################
 
 
