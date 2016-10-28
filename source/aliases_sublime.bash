@@ -24,6 +24,11 @@ subl() { # [BH]
 	fi
 }
 
+# sublw: search the path for something and open it in sublime text
+sublw() { # [BH]
+	subl "`which "$@"`"
+}
+
 # osubl: open files passed from stdin in Sublime Text
 alias osubl="xargs -L 1 --- subl" # [BH]
 
