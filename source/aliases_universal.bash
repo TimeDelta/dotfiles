@@ -218,6 +218,24 @@ show_formatting (){ # [BH]
 # fjson: pretty print JSON
 fjson (){ python -m json.tool; }
 
+# makejson: turn the arguments into a JSON object
+makejson() {
+	local json="{"
+	local index=0
+	for arg in "$@"; do
+		if [[ $(($index%2)) -eq 0 && $index -ne 0 ]]; then
+			json+=","
+		fi
+		if [[ $(($index%2)) -eq 1 ]]; then
+			json+=":"
+		fi
+		json+="\"$arg\""
+		((++index))
+	done
+	json+="}"
+	echo "$json"
+}
+
 # escsedsub: print a fully escaped sed substitution command
 escsedsub() { # [BH]
 	if [[ $# -eq 0 ]]; then
@@ -1283,9 +1301,9 @@ cd_up () { # [BH]
 		echo "Usage:"
 		echo "  .. [options] [<integer> [<sub_path>]]"
 		echo "      Go back <integer> directories (1 if excluded) then cd to <sub_path>"
-		echo "  .. [options] [[--] <directory> [<sub_path>]]"
+		echo "  .. [options] [[---] <directory> [<sub_path>]]"
 		echo "      Go back until <directory> (case-insensitive) is reached then cd to"
-		echo "      <sub_path>. If -- is specified, the following argument will be treated as"
+		echo "      <sub_path>. If --- is specified, the following argument will be treated as"
 		echo "      a directory (to be used if the directory name is an integer)."
 		echo "Options:"
 		echo "  -p : just print the path to stdout instead of switching to it"
@@ -1329,7 +1347,7 @@ cd_up () { # [BH]
 		local f="`pwd`"; f="${f%/*}"                     # final directory (skip current directory name)
 		local b="`basename "$f" | tr 'A-Z' 'a-z'`"       # bottom-most directory (lowercase)
 		local t="`echo $1 | tr 'A-Z' 'a-z'`"; t="${t%/}" # target directory (lowercase without any trailing "/")
-		while [[ "$(echo $b)" != "$t" ]]; do
+		while [[ "$(echo $b)" != "$t" && -n "$(echo $b)" ]]; do
 			f="${f%/*}"                          # remove the last directory from the final path
 			b="`basename "$f" | tr 'A-Z' 'a-z'`" # next bottom-most directory
 		done
@@ -1347,6 +1365,11 @@ cd_up () { # [BH]
 	if [[ $# -gt 1 ]]; then f="$f/${@: +2}"; fi
 
 	f="$f/$relative"
+
+	if [[ ! -e "$f" ]]; then
+		echo "Target directory does not exist" >&2
+		return 1
+	fi
 
 	# fullpath must be implemented per platform in the corresponding platform aliases file
 	$op "`fullpath "$f"`"
