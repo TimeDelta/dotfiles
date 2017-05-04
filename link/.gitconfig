@@ -17,6 +17,7 @@
   ls = ls-files
   lg = log --date=local --pretty=\"format:%C(auto)%h %Cgreen%ad %Cred%an%Creset %n%s\"
   submit = push origin HEAD:refs/for/master
+	cp = cherry-pick
 [color]
   ui = always
 [color "branch"]
