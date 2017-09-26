@@ -58,6 +58,7 @@
   smudge = git-lfs smudge %f
   required = true
 [user]
-	name = Bryan Herman
+	name = Bryan Nova
+	email = bryanherman7@gmail.com
 [credential]
 	helper = osxkeychain
