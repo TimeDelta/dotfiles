@@ -23,6 +23,7 @@ recipes=(
   lame
   lesspipe
   makedepend
+  maven
   nmap
   openssl
   homebrew/completions/pip-completion

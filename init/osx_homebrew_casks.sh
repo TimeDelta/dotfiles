@@ -18,30 +18,13 @@ brew cask info this-is-somewhat-annoying 2>/dev/null
 
 # Homebrew casks
 casks=(
-  # Applications
-  # bettertouchtool
+  caffeine
   iterm2-beta
   lunchy
   moom
   osxfuse
-  # remote-desktop-connection
-  # sonos
-  # totalfinder
-  # transmission-remote-gui
-  # vagrant
   virtualbox
   vlc
-  # Quick Look plugins
-  # betterzipql
-  # qlcolorcode
-  # qlmarkdown
-  # qlprettypatch
-  # qlstephen
-  # quicklook-csv
-  # quicklook-json
-  # quicknfo
-  # suspicious-package
-  # webpquicklook
 )
 
 # Install Homebrew casks.
