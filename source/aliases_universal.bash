@@ -928,6 +928,7 @@ branches() { # [BH]
 		bzr) bzr branches | sed 's/^[ *]*//' ;;
 	esac
 }
+alias brs=branches
 
 # dif: run diff for the current version control repository
 dif() { # [BH]
@@ -955,7 +956,9 @@ cf() { # [BH]
 		echo "Arguments:"
 		echo "  [<commit_id>]"
 		echo "    The id of the commit at which to look. If not provided, the"
-		echo "    most recent commit id will be used."
+		echo "    most recent commit id will be used. You can also use the"
+		echo "    notation -<commits_ago>, where <commits_ago> is a number ≥ 1"
+		echo "    denoting the nth most recent commit."
 		return 0
 	fi
 
@@ -968,6 +971,8 @@ cf() { # [BH]
 	local commit_id="$1"
 	if [[ -z $commit_id ]]; then
 		commit_id=`prevci 0`
+	elif [[ $commit_id =~ -[0-9]+ ]]; then
+		commit_id="`prevci $((${commit_id#-}-1))`"
 	else
 		shift
 	fi
