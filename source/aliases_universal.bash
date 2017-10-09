@@ -34,12 +34,12 @@ export SUBLIME_ALIAS_FILE="$DOTFILES/source/aliases_sublime.bash"
 falias () { # [BH]
 	local results="`cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | egrep -i -C 0 "^# \S+: "`" word
 	for word in "$@"; do results="`echo "$results" | egrep -i -a0 --color=always $word`"; done
-	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)"
+	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)" | sed 's/^# *//'
 }
 # halias: display information about specific aliases (egrep regex)
 halias (){ # [BH]
 	local results=`cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
-	echo "$results" | egrep -i -C 0 "# $1:"
+	echo "$results" | egrep -i -C 0 "# $1:" | sed 's/^# *//'
 }
 
 # aliases: edit universal aliases
@@ -1123,10 +1123,10 @@ diraliased (){ #[BH]
 }
 # undiralias: delete an existing directory alias
 undiralias() { sed -i ${SED_IN_PLACE:-""} "/export $1=/d" "$DIR_ALIAS_FILE"; } # [BH]
-# Initialization for the above 'diralias' function:
+ # Initialization for the above 'diralias' function:
 sdirs # source the directory aliases file
-# NOTE: the following line is no longer needed for cd built-in thanks to the updates to the cd
-#       wrapper but it's still needed for things like pushd, etc.
+ # NOTE: the following line is no longer needed for cd built-in thanks to the updates to the cd
+ #       wrapper but it's still needed for things like pushd, etc.
 shopt -s cdable_vars # set the bash option so that no '$' is required when using directory alias
 
 # shortpath: if possible, shorten the specified path using directory aliases
@@ -2180,7 +2180,6 @@ _repo_branches_tab_complete() { # [BH]
 	esac
 }
 complete -F _repo_branches_tab_complete -o nospace -o filenames sw
-
 
 _sbtype_tab_completion (){ # [BH]
 	COMPREPLY=()
