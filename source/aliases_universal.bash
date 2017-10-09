@@ -2196,9 +2196,9 @@ func_tab_completion() { # [BH]
 }
 complete -F func_tab_completion func
 
-# SSH auto-completion based on entries in known_hosts
-if [[ -e ~/.ssh/known_hosts ]]; then
-	complete -o default -W "$(cat ~/.ssh/known_hosts | sed 's/[, ].*//' | sort | uniq | grep -v '[0-9]')" ssh scp sftp
+# SSH auto-completion based on entries in SSH config file
+if [[ -e ~/.ssh/config ]]; then
+	complete -o default -W "$(egrep '^Host ' ~/.ssh/config | sed 's/^Host *//' | sort | uniq)" ssh scp sftp
 fi
 
 # make tab completion case insensitive
