@@ -823,6 +823,22 @@ parentbr() {
 }
 # pbr: show the parent branch for the current git branch
 alias pbr=parentbr
+
+# linesperperson: aggregate the lines of each file based on who touched it last
+linesperperson() { # {BH}
+	git ls-files \
+		| {
+			while read f; do
+				git blame --line-porcelain "$f" \
+					| grep '^author '
+			done
+		} \
+		| sed -e 's/Bryan Herman/Bryan Nova/' \
+		| sort -f \
+		| uniq -ic \
+		| sort -nr \
+		| grep -v 'Binary file'
+}
 ################################################################################
 
 
