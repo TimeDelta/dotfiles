@@ -1,8 +1,8 @@
 is_linux || return 1
 ################################################################################
 # Notes:
-# Aliases and functions followed by a "# [BH]" are written entirely by me
-# Aliases and functions followed by a "# {BH}" are adapted by me from somebody else's code
+# Aliases and functions followed by a "# [BN]" are written entirely by me
+# Aliases and functions followed by a "# {BN}" are adapted by me from somebody else's code
 # Aliases and functions without a comment after them are completely taken from elsewhere
 ################################################################################
 
@@ -18,32 +18,32 @@ is_linux || return 1
 #############
 # File Info #
 ################################################################################
-alias ls="command ls -GFh --color=always" # [BH]
-lskey () { echo -e "${BOLD}${FBLUE}directory${RES}/     ${BOLD}${FGREEN}executable${RES}*     ${BOLD}${FCYAN}symbolic link${RES}@     socket=     whiteout%     FIFO|"; } # [BH]
+alias ls="command ls -GFh --color=always" # [BN]
+lskey () { echo -e "${BOLD}${FBLUE}directory${RES}/     ${BOLD}${FGREEN}executable${RES}*     ${BOLD}${FCYAN}symbolic link${RES}@     socket=     whiteout%     FIFO|"; } # [BN]
 
 # bsizeof: display the size of a file in bytes
-bsizeof () { # [BH]
+bsizeof () { # [BN]
 	if [[ $# -eq 0 ]]; then while read -s file; do stat -c %s $file; done
 	else stat -c %s $@; fi
 }
 
 # fullpath: get the absolute path
-fullpath (){ readlink -f "$@"; } # [BH]
+fullpath (){ readlink -f "$@"; } # [BN]
 ################################################################################
 
 
 ######################
 # Process Management #
 ################################################################################
-memhogs () { ps ww -o pid,stat=STATE,%mem,vsize=VSIZE,rss,time,command | head; } # {BH}
-cpuhogs () { ps wwr -o pid,stat=STATE,%cpu,time,command | head; } # {BH}
+memhogs () { ps ww -o pid,stat=STATE,%mem,vsize=VSIZE,rss,time,command | head; } # {BN}
+cpuhogs () { ps wwr -o pid,stat=STATE,%cpu,time,command | head; } # {BN}
 ################################################################################
 
 
 ######################
 # System Information #
 ################################################################################
-total_ram () { grep MemTotal /proc/meminfo | sed s/[^0-9BKk]//g | human2bytes | bytes2human; } # [BH]
+total_ram () { grep MemTotal /proc/meminfo | sed s/[^0-9BKk]//g | human2bytes | bytes2human; } # [BN]
 ################################################################################
 
 
@@ -51,7 +51,7 @@ total_ram () { grep MemTotal /proc/meminfo | sed s/[^0-9BKk]//g | human2bytes | 
 # Misc. #
 ################################################################################
 # email_file: email a file to somebody
-email_file () { # {BH}
+email_file () { # {BN}
 	if [[ $# -lt 2 || $1 == "-h" || $1 == "--help" || $1 == "-help" ]]; then
 		{ echo "Usage: email_file <file> [options] <email_address>"
 		echo "  -s subject"
