@@ -2,9 +2,9 @@
 # Notes #
 ################################################################################
 # Credit:
-# Main author is Bryan Herman
-# Aliases and functions followed by a "# [BH]" are written entirely by me
-# Aliases and functions followed by a "# {BH}" are adapted by me from somebody else's code
+# Main author is Bryan Nova
+# Aliases and functions followed by a "# [BN]" are written entirely by me
+# Aliases and functions followed by a "# {BN}" are adapted by me from somebody else's code
 # Aliases and functions without a comment after it are completely taken from elsewhere
 # ------------------------------------------------------------------------------
 # Regexes to look for common mistakes:
@@ -31,47 +31,47 @@ fi
 export SUBLIME_ALIAS_FILE="$DOTFILES/source/aliases_sublime.bash"
 
 # falias: boolean alias search
-falias () { # [BH]
+falias () { # [BN]
 	local results="`cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" | egrep -i -C 0 "^# \S+: "`" word
 	for word in "$@"; do results="`echo "$results" | egrep -i -a0 --color=always $word`"; done
 	echo "$results" | egrep "(^[^\s=]+\s*\(\))|(^alias )|(^# \S+:)" | sed 's/^# *//'
 }
 # halias: display information about specific aliases (egrep regex)
-halias (){ # [BH]
+halias (){ # [BN]
 	local results=`cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"`
 	echo "$results" | egrep -i -C 0 "# $1:" | sed 's/^# *//'
 }
 
 # aliases: edit universal aliases
-ualiases () { edit "$UNIV_ALIAS_FILE"; } # [BH]
+ualiases () { edit "$UNIV_ALIAS_FILE"; } # [BN]
 # paliases: edit platform-specific aliases
-paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BH]
+paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BN]
 # maliases: edit machine-specific aliases
-maliases (){ edit $MACHINE_ALIAS_FILES; } # [BH]
+maliases (){ edit $MACHINE_ALIAS_FILES; } # [BN]
 # saliases: edit sublime text aliases
-saliases (){ edit "$SUBLIME_ALIAS_FILE"; } # [BH]
+saliases (){ edit "$SUBLIME_ALIAS_FILE"; } # [BN]
 # bashp: edit ~/.bash_profile
-bashp () { edit ~/.bash_profile; } # [BH]
+bashp () { edit ~/.bash_profile; } # [BN]
 # bashrc: edit .bashrc file
-bashrc (){ edit "$HOME/.bashrc"; } # [BH]
+bashrc (){ edit "$HOME/.bashrc"; } # [BN]
 
 # salias: source all custom function files
-salias() { sualias; spalias; ssalias; smalias; } # [BH]
+salias() { sualias; spalias; ssalias; smalias; } # [BN]
 # sualias: source this file
-sualias () { source "$UNIV_ALIAS_FILE"; } # [BH]
+sualias () { source "$UNIV_ALIAS_FILE"; } # [BN]
 # spalias: source platform-specific aliases
-spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BH]
+spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; done; } # [BN]
 # smalias: source machine-specific aliases
-smalias (){ local file; for file in $MACHINE_ALIAS_FILES; do source "$file"; done; } # [BH]
+smalias (){ local file; for file in $MACHINE_ALIAS_FILES; do source "$file"; done; } # [BN]
 # ssalias: source sublime text aliases
-ssalias() { source "$SUBLIME_ALIAS_FILE"; } # [BH]
+ssalias() { source "$SUBLIME_ALIAS_FILE"; } # [BN]
 # sbashp: source .bash_profile
-sbashp () { source ~/.bash_profile; } # [BH]
+sbashp () { source ~/.bash_profile; } # [BN]
 # sbashrc: source .bashrc
-sbashrc () { source "$HOME/.bashrc"; } # [BH]
+sbashrc () { source "$HOME/.bashrc"; } # [BN]
 
 # funcplatform: where is the specified custom function declared (universal / platform / machine)?
-funcplatform() { # [BH]
+funcplatform() { # [BN]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
 	if [[ `cat $MACHINE_ALIAS_FILES | parsefuncdefs | grep -Fx "$@"` ]]; then
 		echo "machine"
@@ -87,7 +87,7 @@ funcplatform() { # [BH]
 }
 
 # funcfile: print the name of the file in which the specified custom function is defined
-funcfile() { # [BH]
+funcfile() { # [BN]
 	# NOTE: if an alias / function is defined in more than one place, machine trumps platform, which trumps universal
 	for file in $MACHINE_ALIAS_FILES "$SUBLIME_ALIAS_FILE" $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE"; do
 		if [[ -n `< "$file" parsefuncdefs | grep -Fx "$@"` ]]; then
@@ -99,7 +99,7 @@ funcfile() { # [BH]
 }
 
 # efunc: edit the specified custom alias / function in editor
-efunc() { # [BH]
+efunc() { # [BN]
 	local file="`funcfile "$@"`"
 	if [[ -z $file ]]; then
 		echo "Error: \"$@\" is not a custom alias / function" >&2
@@ -109,21 +109,21 @@ efunc() { # [BH]
 }
 
 # parsefuncdefs: parse function and alias definitions from STDIN and print the name of each found alias / function
-parsefuncdefs() { # [BH]
+parsefuncdefs() { # [BN]
 	awk '/^[^ \t]+[ \t]*\(\)/ {print $1} /^alias[ \t]+/ {print $2}' \
 		| sed 's/=.*$//' \
 		| sed 's/(.*//'
 }
 
 # func: display the definition of an alias or function
-func (){ # [BH]
+func (){ # [BN]
 	local CODE="`declare -f $@`"
 	if [[ -z "$CODE" ]]; then alias -p | grep "alias $@="
 	else echo "$CODE"; fi
 }
 
 # code: print out just the code of an alias or function
-code (){ # [BH]
+code (){ # [BN]
 	local CODE="`declare -f $@`"
 	if [[ -z "$CODE" ]]; then
  		alias -p | grep "alias $@=" | awk '{match($0,"="); print substr($0,RSTART+1)}' | sed -e s:^[\'\"]:: -e s:[\'\"]$::
@@ -133,24 +133,24 @@ code (){ # [BH]
 }
 
 # lscustomfunc: list all available custom functions and aliases that are defined in the normal sourced files
-lscustomfunc () { # [BH]
+lscustomfunc () { # [BN]
 	cat $MACHINE_ALIAS_FILES $PLATFORM_ALIAS_FILES "$UNIV_ALIAS_FILE" "$SUBLIME_ALIAS_FILE" | parsefuncdefs
 }
 
 # lsfunc: list all defined functions and aliases in the current environment
-alias lsfunc="compgen -aA function" # [BH]
+alias lsfunc="compgen -aA function" # [BN]
 
 # lsallfunc: list all of the available built-ins, commands, functions, and aliases
-alias lsallfunc="compgen -abcA function" # [BH]
+alias lsallfunc="compgen -abcA function" # [BN]
 
 # cmd: short for command
-alias cmd=command # [BH]
+alias cmd=command # [BN]
 
 # decs: this function will print the declaration for every function and alias in the current session (useful for xargs args -f <(decs) function)
-decs () { compgen -aA "function" | { local name; while read -s name; do func "$name"; done; }; } # [BH]
+decs () { compgen -aA "function" | { local name; while read -s name; do func "$name"; done; }; } # [BN]
 
 # updot: update local dotfiles repository with changes from remote server
-updot() { # [BH]
+updot() { # [BN]
 	pushd "$dot" &> /dev/null
 	up
 	popd &> /dev/null
@@ -192,7 +192,7 @@ export BLINK=`tput blink`
 export RES=`tput sgr 0` # reset all attributes
 
 # show_formatting: display text formatting options
-show_formatting (){ # [BH]
+show_formatting (){ # [BN]
 	echo -e "${FBLACK}\${FBLACK}${RES}"
 	echo -e "${FRED}\${FRED}${RES}"
 	echo -e "${FGREEN}\${FGREEN}${RES}"
@@ -237,7 +237,7 @@ makejson() {
 }
 
 # escsedsub: print a fully escaped sed substitution command
-escsedsub() { # [BH]
+escsedsub() { # [BN]
 	if [[ $# -eq 0 ]]; then
 		echo "Usage: escsedsub <regex> <replacement> [<sed_sub_options>]"
 	fi
@@ -259,22 +259,22 @@ escsedsub() { # [BH]
 # File Info #
 ################################################################################
 # lsl: list the contents of a directory in long format
-alias lsl="ls -GFhl" # [BH]
+alias lsl="ls -GFhl" # [BN]
 # lsa: list all the contents of a directory
-alias lsa="ls -GFha" # [BH]
+alias lsa="ls -GFha" # [BN]
 # lsla: list all the contents of a directory in long format
-alias lsla="ls -GFhla" # [BH]
+alias lsla="ls -GFhla" # [BN]
 # lst: list a directory hierarchy in tree format
 lst () { ls -GFhR $@ | grep ":$" | sed -e 's/:$//' -e 's/[^-][^\/]*\//--/g' -e 's/^/   /' -e 's/-/|/'; }
 # lsh: list only hidden files and directories (default: current directory, non-recursively)
-lsh () { ls -GFhd ${@:-.}/.*; } # [BH]
+lsh () { ls -GFhd ${@:-.}/.*; } # [BN]
 # lsh: list only hidden files and directories (default: current directory, non-recursively)
-lslh () { ls -lGFhd ${@:-.}/.*; } # [BH]
+lslh () { ls -lGFhd ${@:-.}/.*; } # [BN]
 # lsmr: list files in order of last modified date (most recently modified at top)
-lsmr (){ ls -1tc "$@"; } # [BH]
+lsmr (){ ls -1tc "$@"; } # [BN]
 
 # sizeof: display the size of a file
-sizeof () { # [BH]
+sizeof () { # [BN]
 	local include_file_name=' '
 	if [[ $1 == "-f" ]]; then
 		include_file_name=''
@@ -293,16 +293,16 @@ sizeof () { # [BH]
 }
 
 # sbs: display two files side-by-side
-alias sbs="diff -y" # [BH]
+alias sbs="diff -y" # [BN]
 
 # exists: check if a file exists
-exists () { if [[ -e "$@" ]]; then echo "$@" exists; else echo "$@" does not exist; fi; } # [BH]
+exists () { if [[ -e "$@" ]]; then echo "$@" exists; else echo "$@" does not exist; fi; } # [BN]
 
 # sizes: print sizes for everything in a directory (default is current directory)
-sizes (){ du -chd 0 ${1:-.}/*; } # [BH]
+sizes (){ du -chd 0 ${1:-.}/*; } # [BN]
 
 # ofd: list all open files in a directory
-ofd (){ lsof +D "`translate_dir_hist "${1:-.}"`"; } # {BH}
+ofd (){ lsof +D "`translate_dir_hist "${1:-.}"`"; } # {BN}
 ################################################################################
 
 
@@ -310,12 +310,12 @@ ofd (){ lsof +D "`translate_dir_hist "${1:-.}"`"; } # {BH}
 # File Manipulation #
 ################################################################################
 # rmf: remove files (python regex capable)
-alias rmf="python $terminal_tools/rmfiles.py" # [BH]
+alias rmf="python $terminal_tools/rmfiles.py" # [BN]
 
 # ulines: print every line in the specified file, including only one of each line (no duplicates)
-alias ulines="awk '!seen[$0]++'" # [BH]
+alias ulines="awk '!seen[$0]++'" # [BN]
 # ulize: remove duplicated lines in a file, leaving only one copy of each repeated line.
-ulize () { local fid=`mktemp XXXXXXXXXX`; awk '!seen[$0]++' "$@" > "$fid"; mv "$fid" "$@"; } # [BH]
+ulize () { local fid=`mktemp XXXXXXXXXX`; awk '!seen[$0]++' "$@" > "$fid"; mv "$fid" "$@"; } # [BN]
 ################################################################################
 
 
@@ -323,7 +323,7 @@ ulize () { local fid=`mktemp XXXXXXXXXX`; awk '!seen[$0]++' "$@" > "$fid"; mv "$
 # Text Manipulation #
 ################################################################################
 # col: get columns in specified order
-col() { # {BH}
+col() { # {BN}
 	if [[ $1 == "-F" ]]; then
 		awk -F "$2" '{print $('$(echo "${@: +3}" | sed -e s/-/NF-/g -e 's/ /),$(/g')')}'
 	else
@@ -335,18 +335,18 @@ col() { # {BH}
 alias numberlines="perl -pe 's/^/$. /'"
 
 # line: print line number $1 from STDIN
-line () { sed -n $1p; } # [BH]
+line () { sed -n $1p; } # [BN]
 
 # stripws: strip whitespace from the beginning and end of the input. takes input from STDIN
-stripws () { sed $SED_EXT_RE "s/^( |`echo -e '\t'`)*//;s/( |`echo -e '\t'`)*$//"; } # [BH]
+stripws () { sed $SED_EXT_RE "s/^( |`echo -e '\t'`)*//;s/( |`echo -e '\t'`)*$//"; } # [BN]
 
 # toupper: convert stdin to upper case
-toupper () { tr 'a-z' 'A-Z'; } # [BH]
+toupper () { tr 'a-z' 'A-Z'; } # [BN]
 # tolower: convert stdin to lower case
-tolower () { tr 'A-Z' 'a-z'; } # [BH]
+tolower () { tr 'A-Z' 'a-z'; } # [BN]
 
 # uw: print a list of unique words
-uw () { # [BH]
+uw () { # [BN]
 	local ignore
 	if [[ $# -gt 0 ]]; then
 		if [[ $1 == "-i" ]]; then shift; ignore="tr 'A-Z' 'a-z' |"
@@ -363,7 +363,7 @@ uw () { # [BH]
 }
 
 # ul: print a list of unique lines
-ul () { # [BH]
+ul () { # [BN]
 	local ignore
 	if [[ $# -gt 0 ]]; then
 		if [[ $1 == "-i" ]]; then shift; ignore="tr 'A-Z' 'a-z' |"
@@ -379,7 +379,7 @@ ul () { # [BH]
 }
 
 # pad: pad a string with characters if it's below a certain length
-pad (){ # [BH]
+pad (){ # [BN]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Usage: pad [-a] <string> <minimum_length> [<padding_character>]"
 		echo "  -a : append instead of prepend"
@@ -405,7 +405,7 @@ pad (){ # [BH]
 }
 
 # wrapindent: each time a line is wrapped, indent the beginning of it
-wrapindent (){ # [BH]
+wrapindent (){ # [BN]
 	if [[ $1 == "--help" ]]; then
 		{ echo "For indenting the beginning of wrapped lines."
 		echo "Usage: wrapindent [-w] [<indent_size>]"
@@ -450,7 +450,7 @@ indentation level. This option does nothing if <indent_size> is given." # note: 
 }
 
 # colify: print stuff similar to how ls does (Usage: cmd | colify [<#columns>])
-colify (){ # [BH]
+colify (){ # [BN]
 	local cols="${1:-$DEFAULT_COLS}"
 	cols="${cols:-0}"
 	if [[ $cols -gt 0 ]]; then
@@ -466,7 +466,7 @@ colify (){ # [BH]
 # Counting #
 ################################################################################
 # uwc: count unique words in a file
-uwc () { # [BH]
+uwc () { # [BN]
 	if [[ $# -eq 0 ]]; then uw | wc -l
 	elif [[ $1 == "-i" ]]; then uw -i "${@: +2}" | wc -l
 	elif [[ $1 == "-h" || $1 == "--help" ]]; then
@@ -477,7 +477,7 @@ uwc () { # [BH]
 	else uw "$@" | wc -l; fi
 }
 # ulc: count unique lines in a file
-ulc () { # [BH]
+ulc () { # [BN]
 	if [[ $# -eq 0 ]]; then ul | wc -l
 	elif [[ $1 == "-i" ]]; then ul -i "${@: +2}" | wc -l
 	elif [[ $1 == "-h" || $1 == "--help" ]]; then
@@ -488,7 +488,7 @@ ulc () { # [BH]
 	else ul "$@" | wc -l; fi
 }
 # lc: count total number of lines
-lc () { # [BH]
+lc () { # [BN]
 	if [[ $# -eq 0 ]]; then
 		local lines=0 line
 		while read -s line; do lines=`calc $lines+1`; done
@@ -507,10 +507,10 @@ lc () { # [BH]
 	else wc -l "$@" | sed s/\ //g; fi
 }
 # lcfe: recursively count lines of files with the specified extensions under the current directory
-lcfe () { find . \( `echo -name \"\*.$@ | sed -e s/,/\"\ -or\ -name\ \"\*./g -e s/$/\"/` \) -print0 | xargs -0 wc -l; } # {BH}
+lcfe () { find . \( `echo -name \"\*.$@ | sed -e s/,/\"\ -or\ -name\ \"\*./g -e s/$/\"/` \) -print0 | xargs -0 wc -l; } # {BN}
 
 # rc: count the number of occurences of a regex in a string or set of files
-rc () { # [BH]
+rc () { # [BN]
 	if [[ $# -gt 2 || $1 == "-h" || $1 == "--help" ]]; then
 		{ echo "Usage:"
 		echo "  rc <regex> <string>"
@@ -530,7 +530,7 @@ rc () { # [BH]
 }
 
 # fc: count files in a directoy that match a given regex
-fc () { # [BH]
+fc () { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Usage: fc [options] [<regex>]"
 		echo "Options:"
@@ -569,7 +569,7 @@ fc () { # [BH]
 	find -L $FIND_DASH_E "${root_dir:-.}" $non_recursive $type $FIND_REGEXTYPE -iregex "\./$regex" | wc -l | awk '{print $1}'
 }
 # fch: number of files (including hidden) in a directory that match given regex
-fch () { ls -la $@ 2> /dev/null | wc -l | sed s/\ //g; } # [BH]
+fch () { ls -la $@ 2> /dev/null | wc -l | sed s/\ //g; } # [BN]
 ################################################################################
 
 
@@ -608,15 +608,15 @@ extract () {
 alias xtr=extract
 
 # xtrmr: extract the most recently touched archive
-xtrmr() { # [BH]
+xtrmr() { # [BN]
 	extract "$(command ls -1tc | egrep "`extract --supported | tr '\n' '|' | sed 's/|$//'`$" | head -1)"
 }
 
 # zipf: to create a ZIP archive of a file or folder
-zipf () { zip -r "${@%/}".zip "${@%/}" ; } # [BH]
+zipf () { zip -r "${@%/}".zip "${@%/}" ; } # [BN]
 
 # unzmr: unzip the most recent zip archive to the specified location
-unzmr() { # [BH]
+unzmr() { # [BN]
 	local dir=' '
 	[[ -n $1 ]] && dir=''
 	unzip ${dir:--d "$@"} "`command ls -1tc | egrep '\.zip$' | head -1`"
@@ -627,11 +627,11 @@ unzmr() { # [BH]
 ##############
 # Subversion #
 ################################################################################
-alias svnl="svn ls" # [BH]
-alias svnm="svn merge" # [BH]
+alias svnl="svn ls" # [BN]
+alias svnm="svn merge" # [BN]
 
 # svnrepsize: get the size of a subversion repository branch at the optionally specified revision
-svnrepsize () { # {BH}
+svnrepsize () { # {BN}
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Usage: svnrepsize <repository_location> [<revision>]"
 		echo "  Default revision is \"HEAD\""
@@ -666,7 +666,7 @@ diffhist (){
 }
 
 # svnundo: undo the changes made in a specific svn revision
-svnundo (){ # [BH]
+svnundo (){ # [BN]
 	if [[ $# -ne 3 ]]; then
 		echo "Usage: svnundo <file_or_directory> <revision> <commit_message>"
 		return 0
@@ -677,7 +677,7 @@ svnundo (){ # [BH]
 }
 
 # svndatelog: display the log info for all changes in a given date (YYYY-MM-DD[THH:MM:SS]) range or since a given date
-svndatelog () { # [BH]
+svndatelog () { # [BN]
 	if [[ $# -eq 0 || $1 == "--help" || $1 == "-help" || $1 == "-h" ]]; then
 		echo "Usage: $0 <from_date> [<to_date>]"
 		echo "  Dates must be in the format: YYYY-MM-DD, with an optional"
@@ -690,7 +690,7 @@ svndatelog () { # [BH]
 }
 
 # svn_files_changed: display a list of files changed between a date range
-svn_files_changed () { # [BH]
+svn_files_changed () { # [BN]
 	if [[ $1 == "-h" || $1 == "--help" || $1 == "help" || $1 == "-help" ]]; then
 		echo "Usage: svn_files_changed [-f] <from_date> [<to_date>]"
 		echo "  -f : only display the files changed"
@@ -716,13 +716,13 @@ svn_files_changed () { # [BH]
 }
 
 # svnr: print svn revision info for the specified directory (default is current directory)
-svnr () { svn info $@ | grep 'Revision' | awk '{print $2}' ; } # [BH]
+svnr () { svn info $@ | grep 'Revision' | awk '{print $2}' ; } # [BN]
 # svnt: show all svn tags for the current subversion repository
 svnt () { svn ls -v "^/tags"; }
 # svnc: show all svn conflicts for the specified directory (default is current directory)
 svnc () { svn st $@ | grep -E '^.{0,6}C'; }
 # svnb: check to see what branch is checked out in the specified subversion working copy (default path is current directory)
-svnb () { # [BH]
+svnb () { # [BN]
 	svn info $@ \
 		| grep -C 0 '^URL' \
 		| awk '{print $2}' \
@@ -733,7 +733,7 @@ svnb () { # [BH]
 }
 
 # svnuc: display svn log commits for only a specific user
-svnuc () { # {BH}
+svnuc () { # {BN}
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Usage: svnuc <username> [<normal_svn_log_option> ...]"
 		return 0;
@@ -742,10 +742,10 @@ svnuc () { # {BH}
 }
 
 # svnlogsoc: display the svn log with the stop on copy option
-alias svnlogsoc="svn log --stop-on-copy" # [BH]
+alias svnlogsoc="svn log --stop-on-copy" # [BN]
 
 # svnunv: list all unversioned files and folders in the specified directory (default is current directory)
-svnunv () { # [BH]
+svnunv () { # [BN]
 	local max_depth=-1
 	local grep_pattern
 	if [[ $1 == "--help" ]]; then
@@ -776,7 +776,7 @@ svnunv () { # [BH]
 	fi
 }
 # svnrmunv: remove unversioned files and folders in the specified directory (default is current directory)
-svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BH]
+svnrmunv () { svn st $@ | grep "?" | sed 's/^........//' | xargs -I % rm -r % ; } # [BN]
 
 # svnmke: set the executable permissions to true for a file in svn
 alias svnmke='svn propset svn:executable true'
@@ -790,7 +790,7 @@ alias svnmke='svn propset svn:executable true'
 alias gitrootdir='git rev-parse --show-toplevel'
 
 # gitignore: open the specified .gitignore file
-gitignore() { # [BH]
+gitignore() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Edit .gitignore file"
 		echo "Usage: gitignore [options]"
@@ -810,7 +810,7 @@ gitignore() { # [BH]
 alias gitp='git push'
 
 # gitconfig: edit the git config fiile for the current repository
-gitconfig() { # [BH]
+gitconfig() { # [BN]
 	edit "`rootdir`/.git/config"
 }
 
@@ -825,7 +825,7 @@ parentbr() {
 alias pbr=parentbr
 
 # linesperperson: aggregate the lines of each file based on who touched it last
-linesperperson() { # {BH}
+linesperperson() { # {BN}
 	git ls-files \
 		| {
 			while read f; do
@@ -846,7 +846,7 @@ linesperperson() { # {BH}
 # Version Control - Generic #
 ################################################################################
 # up: generic command to update a vcs working copy from the server
-up (){ # [BH]
+up (){ # [BN]
 	local vcs=`vcs_type`
 	case $vcs in
 		bzr|svn) $vcs update "$@" ;;
@@ -855,7 +855,7 @@ up (){ # [BH]
 	esac
 }
 # ci: generic command to commit changes from a vcs working copy
-ci (){ # [BH]
+ci (){ # [BN]
 	local vcs=`vcs_type`
 	if [[ -z $vcs ]]; then
 		return 1
@@ -863,7 +863,7 @@ ci (){ # [BH]
 	$vcs commit "$@"
 }
 # st: generic command to check the status of a vcs working copy
-st (){ # [BH]
+st (){ # [BN]
 	local vcs=`vcs_type`
 	if [[ -z $vcs ]]; then
 		return 1
@@ -871,7 +871,7 @@ st (){ # [BH]
 	$vcs status "$@"
 }
 # sw: generic command to switch branches in a version control repository
-sw (){ # [BH]
+sw (){ # [BN]
 	local vcs=`vcs_type`
 	case $vcs in
 		bzr) bzr switch "$@" ;;
@@ -885,7 +885,7 @@ sw (){ # [BH]
 	esac
 }
 # br: get active branch
-br (){ # [BH]
+br (){ # [BN]
 	local vcs=`vcs_type`
 	case $vcs in
 		bzr) bzr branches | egrep '^\*' | sed 's/^[ *]*//' ;;
@@ -895,7 +895,7 @@ br (){ # [BH]
 }
 
 # log: show the commit log
-log (){ # [BH]
+log (){ # [BN]
 	local vcs=`vcs_type`
 	case $vcs in
 		bzr|svn) $vcs log "$@" ;;
@@ -909,7 +909,7 @@ log (){ # [BH]
 }
 
 # newbr: make a new branch in the current repository
-newbr() { # [BH]
+newbr() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Create a new branch in the current repository."
 		echo "Usage: newbr [options] <new_branch_name>"
@@ -936,7 +936,7 @@ newbr() { # [BH]
 	esac
 }
 # branches: show the available branches for the current repository
-branches() { # [BH]
+branches() { # [BN]
 	local vcs=`vcs_type`
 	case $vcs in
 		svn) svn ls "^/branches" ;;
@@ -947,7 +947,7 @@ branches() { # [BH]
 alias brs=branches
 
 # dif: run diff for the current version control repository
-dif() { # [BH]
+dif() { # [BN]
 	local vcs=`vcs_type`
 	if [[ -z $vcs ]]; then
 		return 1
@@ -962,7 +962,7 @@ dif() { # [BH]
 }
 
 # cf: list the files changed in a specific commit
-cf() { # [BH]
+cf() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "List the files changed for a commit in the current repository."
 		echo "Usage: cf [options] [<commit_id>]"
@@ -1016,7 +1016,7 @@ cf() { # [BH]
 	esac
 }
 # cflint: run jslint on files changed since n commits ago
-cflint() { # [BH]
+cflint() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Run jsling on files changed since [<commits_ago>]"
 		echo "Usage: cflint <commits_ago>"
@@ -1030,7 +1030,7 @@ cflint() { # [BH]
 }
 
 # prevci: get the previous commit id for the current repository
-prevci() { # [BH]
+prevci() { # [BN]
 	if [[ $1 == "--help" ]]; then
 		echo "Get a previous commit id for the current repository"
 		echo "Usage: prevci [<commits_ago>]"
@@ -1050,7 +1050,7 @@ prevci() { # [BH]
 }
 
 # rootdir: get the root directory of a repository
-rootdir() { # [BH]
+rootdir() { # [BN]
 	local vcs=`vcs_type`
 	case $vcs in
 		git) git rev-parse --show-toplevel ;;
@@ -1060,7 +1060,7 @@ rootdir() { # [BH]
 }
 
 # conflicts: list all files in conflicting state
-conflicts() { # [BH]
+conflicts() { # [BN]
 	local vcs=`vcs_type`
 	case $vcs in
 		git) git status --porcelain | egrep '^[^ ]{2}' | sed 's/^...//' ;;
@@ -1070,7 +1070,7 @@ conflicts() { # [BH]
 }
 
 # vcs_type: helper function for generic version control commands
-vcs_type (){ # [BH]
+vcs_type (){ # [BN]
 	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
 	[[ -n `git log -n 1 2> /dev/null` ]] && echo git && return
 	[[ -n `bzr info 2> /dev/null` ]] && echo bzr && return
@@ -1083,7 +1083,7 @@ vcs_type (){ # [BH]
 # Networking #
 ################################################################################
 # tarscp: securely copy an entire remote directory recursively using compression
-tarscp () { # {BH}
+tarscp () { # {BN}
 	if [[ $# -ne 2 ]]; then
 		echo "Usage: tarscp [username@]sourcehost <source_path>"
 		return 0
@@ -1092,7 +1092,7 @@ tarscp () { # {BH}
 }
 
 # sshconfig: edit the config file for ssh sessions
-sshconfig() { edit ~/.ssh/config; } # [BH]
+sshconfig() { edit ~/.ssh/config; } # [BN]
 
 alias wanip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias whois="whois -h whois-servers.net"
@@ -1109,7 +1109,7 @@ sdirs () { source "$DIR_ALIAS_FILE"; }
 # edirs: edit directory aliases file
 edirs () { edit "$DIR_ALIAS_FILE"; }
 # diralias: set an alias for a directory that can be used with cd from anywhere without a "$" (must use "$" if directory alias not used by itself)
-diralias () { # {BH}
+diralias () { # {BN}
 	local short_path="`shortpath "$(pwd)"`"
 
 	# delete any existing alias with the same name
@@ -1120,7 +1120,7 @@ diralias () { # {BH}
 	sdirs
 }
 # diraliases: list all directory aliases for the specified directory [default: current directory]
-diraliases() { # [BH]
+diraliases() { # [BN]
 	local input_path="$1"
 	if [[ -z $input_path ]]; then
 		input_path="`pwd`"
@@ -1130,7 +1130,7 @@ diraliases() { # [BH]
 		| sed 's/=.*$//'
 }
 # diraliased: check if a directory alias with the specified name exists
-diraliased (){ #[BH]
+diraliased (){ #[BN]
 	if [[ -z "`egrep "^export $1=" "$DIR_ALIAS_FILE"`" ]]; then
 		echo Not aliased
 	else
@@ -1138,7 +1138,7 @@ diraliased (){ #[BH]
 	fi
 }
 # undiralias: delete an existing directory alias
-undiralias() { sed -i ${SED_IN_PLACE:-""} "/export $1=/d" "$DIR_ALIAS_FILE"; } # [BH]
+undiralias() { sed -i ${SED_IN_PLACE:-""} "/export $1=/d" "$DIR_ALIAS_FILE"; } # [BN]
  # Initialization for the above 'diralias' function:
 sdirs # source the directory aliases file
  # NOTE: the following line is no longer needed for cd built-in thanks to the updates to the cd
@@ -1146,7 +1146,7 @@ sdirs # source the directory aliases file
 shopt -s cdable_vars # set the bash option so that no '$' is required when using directory alias
 
 # shortpath: if possible, shorten the specified path using directory aliases
-shortpath() { # [BH]
+shortpath() { # [BN]
 	local input_path="$1"
 	egrep "^\s*export" "$DIR_ALIAS_FILE" \
 		| sed 's/^ *export *//' \
@@ -1174,10 +1174,10 @@ shortpath() { # [BH]
 }
 
 # mkcd: make a directory and switch to it
-mkcd (){ mkdir -p "$@"; cd "$@"; } # [BH]
+mkcd (){ mkdir -p "$@"; cd "$@"; } # [BN]
 
 # cd: wrapper for cd command that tracks the 10 most recent directories for quick & easy switching
-cd (){ # {BH}
+cd (){ # {BN}
 	local adir
 	local -i cnt
 
@@ -1226,7 +1226,7 @@ cd (){ # {BH}
 }
 
 # translate_dir_hist: helper function to replace a directory history index with its corresponding path
-translate_dir_hist (){ #[BH]
+translate_dir_hist (){ #[BN]
 	if [[ ${1:0:1} == '-' ]]; then
 		local index=`echo "$1" | egrep -om 1 "^-[0-9]+" | sed 's/^-//'`
 		echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
@@ -1234,28 +1234,28 @@ translate_dir_hist (){ #[BH]
 		echo "$1"
 	fi
 }
-alias tdh=translate_dir_hist # [BH]
+alias tdh=translate_dir_hist # [BN]
 
 # mv_func: wrapper around mv that utilizes directory history from cd wrapper
-mv_func (){ # [BH]
+mv_func (){ # [BN]
 	local mv_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
 	cmd mv `echo "$@" | sed -e "s:$mv_from_to::"` \
 	   "`translate_dir_hist "${@:(-2):1}"`" \
 	   "`translate_dir_hist "${@:(-1):1}"`"
 }
-alias mv=mv_func # [BH]
+alias mv=mv_func # [BN]
 
 # cp_func: wrapper around cp that utilizes directory history from cd wrapper
-cp_func (){ # [BH]
+cp_func (){ # [BN]
 	local cp_from_to="${@:(-2)}" # NOTE: for some reason, using ${@:(-2)} directly causes an error
 	cmd cp `echo "$@" | sed -e "s:$cp_from_to::"` \
 	   "`translate_dir_hist "${@:(-2):1}"`" \
 	   "`translate_dir_hist "${@:(-1):1}"`"
 }
-alias cp=cp_func # [BH]
+alias cp=cp_func # [BN]
 
 # cpdirs: copy directory structure (without files) from one directory to another
-cpdirs (){ # [BH]
+cpdirs (){ # [BN]
 	if [[ $1 == "--help" ]]; then
 		echo "Copy the directory structure (no files) from one directory to another."
 		echo "Usage: cpdirs [-d <max_depth>] <from> <to>"
@@ -1271,7 +1271,7 @@ cpdirs (){ # [BH]
 }
 
 # cds: switch to the first directory relative to the current one that matches the specified regex (breadth-first search)
-cds () { # [BH]
+cds () { # [BN]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		{ echo "Usage: cds [-d] <dir_name_regex> [<root_path>]"
 		echo "  -d"
@@ -1314,7 +1314,7 @@ compatible with cd directory history [Default: current directory]"; } | wrapinde
 }
 
 # cd_up: either go up n (default is 1) directories or go back until the specified folder is reached (case-insensitive)
-cd_up () { # [BH]
+cd_up () { # [BN]
 	# bug note: Create a symlink to a directory that's not in the current directory then do "cd <symlink>".
 	#           Next, do cd_up and you end up in the parent of the actual directory instead of the directory
 	#           in which the symlink exists.
@@ -1395,10 +1395,10 @@ cd_up () { # [BH]
 	# fullpath must be implemented per platform in the corresponding platform aliases file
 	$op "`fullpath "$f"`"
 }
-alias ..="cd_up" # [BH]
+alias ..="cd_up" # [BN]
 
 # cdc: change to the current svn directory in a different checkout
-cdc (){ # [BH]
+cdc (){ # [BN]
 	if [[ $1 == "--help" ]]; then
 		{ echo "Switch to the same directory relative to a different svn checkout."
 		echo "Usage: cdc [-p] <checkout_abbreviation>"
@@ -1415,10 +1415,10 @@ the integer suffix of the checkout folder name"; } | wrapindent -w
 }
 
 # cdmr: switch to the most recently modified folder that matches the optional regex
-cdmr (){ cd "`command ls -d1tc $(translate_dir_hist "${@:-*}/") | head -1`"; } # [BH]
+cdmr (){ cd "`command ls -d1tc $(translate_dir_hist "${@:-*}/") | head -1`"; } # [BN]
 
 # cdw: switch to the directory in which an executable in PATH resides
-cdw() { cd "`dirname $(which "$@")`"; } # [BH]
+cdw() { cd "`dirname $(which "$@")`"; } # [BN]
 ################################################################################
 
 
@@ -1426,7 +1426,7 @@ cdw() { cd "`dirname $(which "$@")`"; } # [BH]
 # Searching #
 ################################################################################
 # ff: find files matching a given regex (case-insensitive)
-ff () { # [BH]
+ff () { # [BN]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Usage: ff [options] <regex> [<directory>]"
 		echo "Options:"
@@ -1447,7 +1447,7 @@ ff () { # [BH]
 	$sudo find -L $FIND_DASH_E "${root:-.}" -type f $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
 }
 # fd: find directories matching a given regex (case-insensitive)
-fd () { # [BH]
+fd () { # [BN]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Usage: fd [options] <regex> [<directory>]"
 		echo "Options:"
@@ -1467,7 +1467,7 @@ fd () { # [BH]
 	$sudo find -L $FIND_DASH_E "${root:-.}" -type d $FIND_REGEXTYPE -iregex "${root:-\.}/$1"
 }
 # fft: find files in a directory that have been modified in the past given number of minutes
-fft () { # [BH]
+fft () { # [BN]
 	if [[ $# -eq 0 || $1 -eq "-h" || $1 -eq "--help" || $1 -eq "help" ]]; then
 		echo "Usage: fft [options] <minutes> [<case_insensitive_regex>]"
 		echo "Options:"
@@ -1495,7 +1495,7 @@ fft () { # [BH]
 }
 
 # gf: grep through files returned by find
-gf () { # [BH]
+gf () { # [BN]
 	if [[ $# -lt 2 ]]; then
 		echo "Usage: gf <egrep_regex> <case_insensitive_find_regex> [<directory>]"
 		echo "Options:"
@@ -1520,13 +1520,13 @@ gf () { # [BH]
 		| less -R
 }
 # gfa: wrapper for gf that assumes searching all files
-gfa () { gf "$1" ".*" "${2:-.}"; } # [BH]
+gfa () { gf "$1" ".*" "${2:-.}"; } # [BN]
 
 # fcmake: recursively search all CMakeLists.txt files in specified directory for the given regex
-fcmake () { gf "$1" ".*CMakeLists.txt" "${2:-.}"; } # [BH]
+fcmake () { gf "$1" ".*CMakeLists.txt" "${2:-.}"; } # [BN]
 
 # fjava: recursively search all java files in specified directory for the given regex
-fjava() { gf "$1" ".*java" "${2:-.}"; } # [BH]
+fjava() { gf "$1" ".*java" "${2:-.}"; } # [BN]
 ################################################################################
 
 
@@ -1534,33 +1534,33 @@ fjava() { gf "$1" ".*java" "${2:-.}"; } # [BH]
 # Process Management #
 ################################################################################
 # psa: standard ps replacement
-alias psa="ps ww -o pid,stat=STATE,%cpu,%mem,vsize=VSIZE,rss,time,command" # [BH]
+alias psa="ps ww -o pid,stat=STATE,%cpu,%mem,vsize=VSIZE,rss,time,command" # [BN]
 
 # topme: show top only for the processes that I own
-topme () { top -U `whoami` $@; } # [BH]
+topme () { top -U `whoami` $@; } # [BN]
 # memtop: show top sorted by memory usage
-memtop () { top -o mem -O vsize $@; } # [BH]
+memtop () { top -o mem -O vsize $@; } # [BN]
 #memtopme: show top sorted by memory usage only for the processes that I own
-memtopme () { top -U `whoami` -o mem -O vsize $@; } # [BH]
+memtopme () { top -U `whoami` -o mem -O vsize $@; } # [BN]
 
 # pid: translate a process name to its process id (can handle regular expressions like: /^some.*regex$/ )
-pid () { apid "$@" | head -1; } # [BH]
+pid () { apid "$@" | head -1; } # [BN]
 # apid: get all possible process ids associated with a process name that matches a regular expression
 apid () { lsof -tc "$@"; }
 # procf: search active processes
-procf () { psa -A | egrep -i0 "$@"; } # [BH]
+procf () { psa -A | egrep -i0 "$@"; } # [BN]
 
 # remaxp: set an already running process to max priority
-remaxp () { sudo renice -20 `pid "$@"`; } # [BH]
+remaxp () { sudo renice -20 `pid "$@"`; } # [BN]
 # reminp: set an already running process to min priority
-reminp () { sudo renice +20 `pid "$@"`; } # [BH]
+reminp () { sudo renice +20 `pid "$@"`; } # [BN]
 # maxp: run a command with the max priority
-maxp () { sudo nice -n -20 "$@"; } # [BH]
+maxp () { sudo nice -n -20 "$@"; } # [BN]
 # minp: run a command with the min priority
-minp () { sudo nice -n +20 "$@"; } # [BH]
+minp () { sudo nice -n +20 "$@"; } # [BN]
 
 # pause: pause a running process by name (pipeable)
-pause () { # [BH]
+pause () { # [BN]
 	if [[ $# -eq 0 ]]; then
 		local process
 		while read -s process; do
@@ -1569,9 +1569,9 @@ pause () { # [BH]
 	else killall -STOP "$@"; fi
 }
 # pauseall: pause all processes with a name matching the given regex
-pauseall () { ps -Ao command | egrep "$@" | pause; } # [BH]
+pauseall () { ps -Ao command | egrep "$@" | pause; } # [BN]
 # resume: resume a paused process by name (pipeable)
-resume () { # [BH]
+resume () { # [BN]
 	if [[ $# -eq 0 ]]; then
 		local process
 		while read -s process; do
@@ -1580,7 +1580,7 @@ resume () { # [BH]
 	else killall -STOP "$@"; fi
 }
 # pauseall: resume all processes with a name matching the given regex
-resumeall () { ps -Ao command | egrep "$@" | resume; } # [BH]
+resumeall () { ps -Ao command | egrep "$@" | resume; } # [BN]
 ################################################################################
 
 
@@ -1588,13 +1588,13 @@ resumeall () { ps -Ao command | egrep "$@" | resume; } # [BH]
 # Permissions #
 ################################################################################
 # mke: make a file executable for all permission levels
-alias mke="chmod a+x" # [BH]
+alias mke="chmod a+x" # [BN]
 # mkne: make a file not executable for all permission levels
-alias mkne="chmod a-x" # [BH]
+alias mkne="chmod a-x" # [BN]
 # mkw: make a file writable for all permission levels
-alias mkw="chmod a+w" # [BH]
+alias mkw="chmod a+w" # [BN]
 # mkr: make a file readable for all permission levels
-alias mkr="chmod a+r" # [BH]
+alias mkr="chmod a+r" # [BN]
 ################################################################################
 
 
@@ -1602,24 +1602,24 @@ alias mkr="chmod a+r" # [BH]
 # System Information #
 ################################################################################
 # cpu_usage: display the percent of the cpu that is currently in use
-cpu_usage () { ps -Ao %cpu | grep -v %CPU | egrep -o [0-9\.]+ | awk '{s += $1} END {print s"%"}'; } # [BH]
+cpu_usage () { ps -Ao %cpu | grep -v %CPU | egrep -o [0-9\.]+ | awk '{s += $1} END {print s"%"}'; } # [BN]
 # mem_usage: display information about memory usage
-mem_usage () { # [BH]
+mem_usage () { # [BN]
 	local percent=`ps -Ao %mem | grep -v %MEM | egrep -o [0-9\.]+ | awk '{s += $1} END {print s}'`
 	local total=`total_ram`
 	local physical=$(calc -t "$percent*`echo $total | human2bytes`/100" | bytes2human)
 	echo "$percent% of $total = $physical"
 }
 # vsize: get the current total vsize
-vsize () { ps -Ao vsize | grep -v VSZ | egrep -o [0-9]+ | awk '{s += $1} END {print s}' | bytes2human; } # [BH]
+vsize () { ps -Ao vsize | grep -v VSZ | egrep -o [0-9]+ | awk '{s += $1} END {print s}' | bytes2human; } # [BN]
 # rss: get the current resident set size
-rss () { ps -Ao rss | grep -v RSS | egrep -o [0-9]+ | awk '{s += $1} END {print s}' | bytes2human; } # [BH]
+rss () { ps -Ao rss | grep -v RSS | egrep -o [0-9]+ | awk '{s += $1} END {print s}' | bytes2human; } # [BN]
 # num_active_processes: display the number of active processes
-num_active_processes () { ps -Ao state | grep -v STAT | awk '/^S/ {s += 1 } END {print s}'; } # [BH]
+num_active_processes () { ps -Ao state | grep -v STAT | awk '/^S/ {s += 1 } END {print s}'; } # [BN]
 # num_idle_processes: display the number of idle processes
-num_idle_processes () { ps -Ao state | grep -v STAT | awk -v s=0 '/^I/ {s += 1 } END {print s}'; } # [BH]
+num_idle_processes () { ps -Ao state | grep -v STAT | awk -v s=0 '/^I/ {s += 1 } END {print s}'; } # [BN]
 # usage: display information about system usage
-usage () { # [BH]
+usage () { # [BN]
 	echo "CPU:   `cpu_usage`"
 	echo "MEM:   `mem_usage`"
 	echo "VSIZE: `vsize`"
@@ -1634,8 +1634,8 @@ usage () { # [BH]
 # Conversions #
 ################################################################################
 # bytes2human: translate bytes to a human readable size
-bytes2human () { # [BH]
-	b2h (){ # [BH]
+bytes2human () { # [BN]
+	b2h (){ # [BN]
 		if [[ `calc $1'<'1024` -eq 1 ]]; then echo "$1B"
 		elif [[ `calc $1'<'1048576` -eq 1 ]]; then echo "`calc $1 / 1024`KB"
 		elif [[ `calc $1'<'1073741824` -eq 1 ]]; then echo "`calc $1 / 1048576`MB"
@@ -1654,8 +1654,8 @@ bytes2human () { # [BH]
 	trap - ERR SIGHUP SIGINT SIGTERM # clear the error trap
 }
 # human2bytes: translate human readable sizes into bytes
-human2bytes () { # [BH]
-	h2b (){ # [BH]
+human2bytes () { # [BN]
+	h2b (){ # [BN]
 		local magnitude=`echo $@ | sed s/[^a-zA-Z]//g | toupper`
 		local number=`echo $@ | sed s/[^0-9\.]//g`
 		if [[ $magnitude == "KB" ]]; then calc $number\*1024
@@ -1679,7 +1679,7 @@ human2bytes () { # [BH]
 hex2dec () { perl -ne 'print hex(), "\n"'; }
 
 # to_sec: convert minutes, hours or days into seconds
-to_sec (){ # [BH]
+to_sec (){ # [BN]
 	case $1 in
 		s)	echo "$2" ;;
 		m)	calc "$2 * 60" ;;
@@ -1721,7 +1721,7 @@ sec2human (){
 # Calculations #
 ################################################################################
 # calc: pipeable bc wrapper for algebraic expression evaluation that automatically handles floating point operations
-calc () { # [BH]
+calc () { # [BN]
 	if [[ $# -eq 1 && $1 == "--help" ]]; then
 		echo "Usage: calc [-t] <algebraic_expression>"
 		echo "       <command> | calc [-t]"
@@ -1744,10 +1744,10 @@ calc () { # [BH]
 # Profiling #
 ################################################################################
 # callgrind: run valgrind's callgrind tool on a process with default options
-alias callgrind="valgrind --tool=callgrind -v --simulate-cache=yes" # [BH]
+alias callgrind="valgrind --tool=callgrind -v --simulate-cache=yes" # [BN]
 
 # gprof: use Google's CPU profiler
-gprof (){ # [BH]
+gprof (){ # [BN]
 	local frequency
 	case $1 in
 		--help)
@@ -1777,21 +1777,21 @@ pipup (){ pip freeze --local | grep -v '^\-e' | cut -d = -f 1 | xargs pip instal
 # Automated Build Systems #
 ################################################################################
 # props: display the ant properties for the current project
-props() { # [BH]
+props() { # [BN]
 	ant -debug -p -find "${1:-build.xml}" \
 		| grep -i '^setting.*property' \
 		| sed 's/^.*: //' \
 		| grep -v '^env\.'
 }
 # targets: list the available targets for the current project
-targets() { # [BH]
+targets() { # [BN]
 	ant -p -debug -find "${1:-build.xml}" \
 		| egrep '\+Target' \
 		| sed $SED_EXT_RE 's/ *\+Target: *//' \
 		| grep -v '^$'
 }
 # depends: print the dependencies for the specified ant target
-depends() { # [BH]
+depends() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Usage: depends [options] <target_name> ..."
 		echo "Options:"
@@ -1824,9 +1824,9 @@ depends() { # [BH]
 }
 
 # btype: print the build type for the current cmake build directory
-btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; } # [BH]
+btype (){ cmake -L "$@" 2> /dev/null | grep BUILD_TYPE | sed 's/.*=//'; } # [BN]
 # sbtype: set the cmake build type for the specified directory
-sbtype (){ # [BH]
+sbtype (){ # [BN]
 	if [[ $1 == "--help" ]]; then echo "Usage: sbtype <build_type> [<build_directory>]"; fi
 	if [[ $# -eq 2 ]]; then pushd "$2" > /dev/null; fi
 	cmake -DCMAKE_BUILD_TYPE="$1" ..
@@ -1839,13 +1839,13 @@ sbtype (){ # [BH]
 # Misc. #
 ################################################################################
 # notify: play a notification sound (beep)
-notify () { tput bel; } # [BH]
+notify () { tput bel; } # [BN]
 
 # _: "less -R"
-_ () { less -R; } # [BH]
+_ () { less -R; } # [BN]
 
 # help: universal command help - so you don't have to remember how to get the help information about a command, script, function, etc
-help () { # [BH]
+help () { # [BN]
 	if [[ $# -eq 0 ]]; then
 		errcho Must specify a command for which to display the help information
 		return 1
@@ -1857,16 +1857,16 @@ help () { # [BH]
 				if [[ $? -ne 0 ]]; then $@ -h 2> /dev/null
 					if [[ $? -ne 0 ]]; then $@; fi; fi; fi; fi; fi
 }
-alias ?="help" # [BH]
+alias ?="help" # [BN]
 
 # readkey: read a single key press
-readkey () { local keypress; read -sn 1 keypress; echo "$keypress"; } # [BH]
+readkey () { local keypress; read -sn 1 keypress; echo "$keypress"; } # [BN]
 
 # rs: resume detached screen session
-alias rs="screen -r" # [BH]
+alias rs="screen -r" # [BN]
 
 # cur_nocasematch: get the current flag setting for the nocasematch shell option
-cur_nocasematch () { shopt nocasematch | col 2 | awk '/on/ {print "-u"} /off/ {print "-s"}'; } # [BH]
+cur_nocasematch () { shopt nocasematch | col 2 | awk '/on/ {print "-u"} /off/ {print "-s"}'; } # [BN]
 
 # sms: send an sms message
 sms () {
@@ -1878,10 +1878,10 @@ sms () {
 }
 
 # sms_me: send myself an sms message
-sms_me () { sms 3306979807 "$@"; } # [BH]
+sms_me () { sms 3306979807 "$@"; } # [BN]
 
 # opd: do something when a background process finishes
-opd () { # [BH]
+opd () { # [BN]
 	if [[ $# -eq 0 || $1 == "--help" ]]; then
 		echo "Wait for an existing background process to finish, then execute a command."
 		echo "Usage: opd <job_id> commands"
@@ -1891,7 +1891,7 @@ opd () { # [BH]
 }
 
 # xargs: wrapper around xargs that lets functions and aliases be used
-xargs () { # [BH]
+xargs () { # [BN]
 	if [[ $1 == "--help" ]]; then
 		echo "Usage: ... | xargs [<xargs_option> ...] --- <command> [<args> ...]"
 		return 0
@@ -1905,10 +1905,10 @@ xargs () { # [BH]
 }
 
 # errcho: echo to STDERR
-errcho () { >&2 echo "$@"; } # [BH]
+errcho () { >&2 echo "$@"; } # [BN]
 
 # rand: generate a sequence of random integers
-rand (){ # [BH]
+rand (){ # [BN]
 	if [[ $1 == "--help" ]]; then
 		echo "Randomly generate a sequence of integers"
 		echo "Usage: $0 <lower_bound> <upper_bound> [<iterations>]"
@@ -1921,7 +1921,7 @@ rand (){ # [BH]
 }
 
 # pts: print time stamp
-pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BH]
+pts (){ date +"%Y-%m-%d %H:%M:%S"; } # [BN]
 
 # openmr: open the most recent file in the current directory
 alias openmr='open "`lsmr | head -1`"'
@@ -1950,9 +1950,9 @@ export HISTSIZE=9999999999
 export HISTCONTROL=ignoreboth
 export HISTIGNORE_FILE="$HOME/.histignore"
 # ehignore: edit histignore file
-ehignore() { edit "$HISTIGNORE_FILE"; } # [BH]
+ehignore() { edit "$HISTIGNORE_FILE"; } # [BN]
 # shignore: source histignore file
-shignore() { # [BH]
+shignore() { # [BN]
 	export HISTIGNORE="`egrep -v '^\s*#' "$HISTIGNORE_FILE" \
 		| grep -v '^$' \
 		| tr '\n' ':' \
@@ -1967,14 +1967,14 @@ export HISTTIMEFORMAT='%F %T '
 if [[ -z "`echo "$PROMPT_COMMAND" | grep 'history -a'`" ]]; then export PROMPT_COMMAND="history -a; $PROMPT_COMMAND"; fi
 
 # colorhist: colorize the history command's output in less (i.e. history | grep function_name | colorhist)
-colorhist (){ # [BH]
+colorhist (){ # [BN]
 	sed $SED_EXT_RE -e "s/[0-9]+ /${FGREEN}&${RES}/" \
 	                -e "s/ [0-9]{4}-[0-9]{2}-[0-9]{2}/${FYELLOW}&${RES}/" \
 	                -e "s/ ([0-9]{2}:){2}[0-9]{2}/${FCYAN}&${RES}/"
 }
 
 # fhist: search history
-fhist() { # [BH]
+fhist() { # [BN]
 	history | awk -v pat="$@" -v red="$FRED" -v res="$RES" \
 		'{
 			lead_ws=$0;
@@ -1998,10 +1998,10 @@ fhist() { # [BH]
 export PATH_FILE="$HOME/.path"
 
 # inpath: check if something is currently included in the path. example usage: inpath /bin && echo in || echo not in
-inpath () { [[ "$PATH" =~ ^(.*:)?$@(:.*)?$ ]] && return 0 || return 1; } # [BH]
+inpath () { [[ "$PATH" =~ ^(.*:)?$@(:.*)?$ ]] && return 0 || return 1; } # [BN]
 
 # atp: add a directory to PATH (current directory by default)
-atp () { # [BH]
+atp () { # [BN]
 	if [[ $1 == "--help" ]]; then
 		{ echo "Add a location to PATH"
 		echo "Usage: atp [options] [<location>]"
@@ -2067,7 +2067,7 @@ nothing and has an exit status of 0. [Default: current directory]"; } | wrapinde
 }
 
 # rfp: remove a directory from PATH
-rfp () { # [BH]
+rfp () { # [BN]
 	if [[ $1 == "--help" ]]; then
 		{ echo "Usage: rfp [<location>]"
 		echo "Arguments:"
@@ -2083,9 +2083,9 @@ This is also compatible with directory history. [Default: current directory]"; }
 }
 
 # epath: open path setup file
-epath (){ edit "$PATH_FILE"; } # [BH]
+epath (){ edit "$PATH_FILE"; } # [BN]
 # spath: source path setup file
-spath (){ source "$PATH_FILE"; } # [BH]
+spath (){ source "$PATH_FILE"; } # [BN]
 
 # to get around having to type the "./" when running an executable from the current directory
 atp -p .
@@ -2158,7 +2158,7 @@ source $VARS_FILE
 shopt -q login_shell && {
 shopt -s progcomp
 
-_svn_remote_files_tab_complete() { # [BH]
+_svn_remote_files_tab_complete() { # [BN]
 	local IFS=$' \n'
 	local cws="${COMP_WORDS[@]: +1}"
 	local path="$cws"
@@ -2173,7 +2173,7 @@ _svn_remote_files_tab_complete() { # [BH]
 }
 complete -F _svn_remote_files_tab_complete -o nospace -o filenames svnl
 
-_repo_branches_tab_complete() { # [BH]
+_repo_branches_tab_complete() { # [BN]
 	COMPREPLY=()
 	local current_word=${COMP_WORDS[$COMP_CWORD]}
 	local branch_name="${COMP_WORDS[@]: +1}"
@@ -2197,7 +2197,7 @@ _repo_branches_tab_complete() { # [BH]
 }
 complete -F _repo_branches_tab_complete -o nospace -o filenames sw
 
-_sbtype_tab_completion (){ # [BH]
+_sbtype_tab_completion (){ # [BN]
 	COMPREPLY=()
 	local cur=${COMP_WORDS[$COMP_CWORD]}
 	if [[ $COMP_CWORD -eq 1 ]]; then
@@ -2206,7 +2206,7 @@ _sbtype_tab_completion (){ # [BH]
 }
 complete -F _sbtype_tab_completion sbtype
 
-func_tab_completion() { # [BH]
+func_tab_completion() { # [BN]
 	COMPREPLY=($(compgen -W "`compgen -aA function`" -- ${COMP_WORDS[$COMP_CWORD]}))
 }
 complete -F func_tab_completion func
