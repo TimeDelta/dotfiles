@@ -1,8 +1,8 @@
 [[ `hostname` =~ cluster*|mima ]] || return 1
 ################################################################################
 # Notes:
-# Aliases and functions followed by a "# [BH]" are written entirely by me
-# Aliases and functions followed by a "# {BH}" are adapted by me from somebody else's code
+# Aliases and functions followed by a "# [BN]" are written entirely by me
+# Aliases and functions followed by a "# {BN}" are adapted by me from somebody else's code
 # Aliases and functions without a comment after it are completely taken from elsewhere
 ################################################################################
 
@@ -19,7 +19,7 @@
 # File Manipulation #
 ################################################################################
 # snapdiff: compare snapshots of a file
-snapdiff (){ # [BH]
+snapdiff (){ # [BN]
 	if [[ $1 == "--help" ]]; then
 		echo "Usage: snapdiff <file_path> <date1> [<date2>]"
 		echo "       snapdiff -c <file_path> <date>"
@@ -52,7 +52,7 @@ snapdiff (){ # [BH]
 # Navigation #
 ################################################################################
 # cdsnap: switch to the snapshot for the specified directory (default is current) on the specified date (YYYY-MM-DD) [Default date: most recent]
-cdsnap (){ # [BH]
+cdsnap (){ # [BN]
 	if [[ "$1" == "--help" ]]; then
 		{ echo "Switch to the snapshot version of a directory."
 		echo "Usage: cdsnap [-p <path>] [<date>]"
@@ -81,7 +81,7 @@ cdsnap (){ # [BH]
 	else echo "No snapshot exists for \"$dir\" on \"$date\""; fi
 }
 # cdreal: switch from a snapshot folder to the non snapshot version (if it exists)
-cdreal (){ # [BH]
+cdreal (){ # [BN]
 	local cwd="`pwd`"
 	cwd="/home/${cwd#*/home/}"
 	if [[ -e "$cwd" ]]; then cd "$cwd"; fi
@@ -93,44 +93,44 @@ cdreal (){ # [BH]
 # Testing #
 ################################################################################
 # accuracy: get the accuracy of a test
-alias accuracy="/usr/bin/python $scripts/testing.py -ab" # [BH]
+alias accuracy="/usr/bin/python $scripts/testing.py -ab" # [BN]
 # buildid: get the build id associated with the most recent test matching (exact) a build name
-alias buildid="/usr/bin/python $scripts/testing.py -ib" # [BH]
+alias buildid="/usr/bin/python $scripts/testing.py -ib" # [BN]
 # bid: get the build id associated with the most recent test matching (exact) a build name
-alias bid="buildid" # [BH]
+alias bid="buildid" # [BN]
 
 # test: run a test
-alias test="$scripts/test.sh" # [BH]
+alias test="$scripts/test.sh" # [BN]
 # testrev: run a test, appending the current svn revision id to the end of the build name that is submitted to cdash
-testrev () { $scripts/test.sh "$1" "$2_rev`svn info | grep 'Revision' | awk '{print $2}'`" ${@:+3}; } # [BH]
+testrev () { $scripts/test.sh "$1" "$2_rev`svn info | grep 'Revision' | awk '{print $2}'`" ${@:+3}; } # [BN]
 
 # ldecode: run the decoder on live audio
-alias ldecode="arecord --format=S16_LE --rate=16000 --file-type=raw | $build/decoder/src/decoder" # [BH]
+alias ldecode="arecord --format=S16_LE --rate=16000 --file-type=raw | $build/decoder/src/decoder" # [BN]
 
 # sclitebn: get detailed results for a test, given a build name (uses most recent match)
-sclitebn (){ $utilities/sclite_score_buildid.sh `/usr/bin/python $scripts/testing.py -ib "$@"`; } # [BH]
+sclitebn (){ $utilities/sclite_score_buildid.sh `/usr/bin/python $scripts/testing.py -ib "$@"`; } # [BN]
 # sclitebid: get detailed results for a test, given a build id
-alias sclitebid="$utilities/sclite_score_buildid.sh" # [BH]
+alias sclitebid="$utilities/sclite_score_buildid.sh" # [BN]
 
 # fsteq: test whether two fst files are equivalent
-fsteq () { fstequivalent --random --npath=1000 $@; echo $?; } # [BH]
+fsteq () { fstequivalent --random --npath=1000 $@; echo $?; } # [BN]
 # vfst: view the graphical representation of an FST file
-vfst () { scp "$@" "$bh:~/remote_fst"; onbh "open -a Terminal /Users/bryanherman/development/work/new_decoder/decoder/scripts/view_fst.sh"; } # [BH]
+vfst () { scp "$@" "$bh:~/remote_fst"; onbh "open -a Terminal /Users/bryanherman/development/work/new_decoder/decoder/scripts/view_fst.sh"; } # [BN]
 
 # wbsmooth: create an arpa file from the specified corpus using witten-bell backoff smoothing
-alias wbsmooth="python \"$scripts/wbsmooth.py\"" # [BH]
+alias wbsmooth="python \"$scripts/wbsmooth.py\"" # [BN]
 
 # num_failed_urls: how many .url_file's in the current directory don't have a matching .download_file?
-num_failed_urls () { ls *.url_file | sed s:.url_file:.download_file: | { while read -s line; do if [[ ! -e $line ]]; then echo; fi; done; } | wc -l; } # [BH]
+num_failed_urls () { ls *.url_file | sed s:.url_file:.download_file: | { while read -s line; do if [[ ! -e $line ]]; then echo; fi; done; } | wc -l; } # [BN]
 
 # expname: get a name for an experiment (current date / time)
-alias expname="date +%Y-%m-%d_%H.%M.%S" # [BH]
+alias expname="date +%Y-%m-%d_%H.%M.%S" # [BN]
 
 # mkexp: make an experiment directory
-mkexp () { mkdir `expname`; } # [BH]
+mkexp () { mkdir `expname`; } # [BN]
 
 # buildall: run the cmake build process in all of the build folders for the current checkout
-buildall () { # [BH]
+buildall () { # [BN]
 	if [[ $1 == "--help" ]]; then
 		echo "Run the cmake build process in all of the build folders for the current checkout."
 		echo "Usage: buildall [-b <build_folder_regex>] [cmake_options ...]"
@@ -147,13 +147,13 @@ buildall () { # [BH]
 	done
 }
 
-prep_medical () { buildall $@ -DCMAKE_BUILD_TYPE=Release -DRUN_TEST_tardec=OFF -DRUN_TEST_wsj=OFF -DRUN_TEST_tardec-snc=OFF -DRUN_TEST_sierra-nevada=OFF -DRUN_TEST_snc-boom=ON; } # [BH]
+prep_medical () { buildall $@ -DCMAKE_BUILD_TYPE=Release -DRUN_TEST_tardec=OFF -DRUN_TEST_wsj=OFF -DRUN_TEST_tardec-snc=OFF -DRUN_TEST_sierra-nevada=OFF -DRUN_TEST_snc-boom=ON; } # [BN]
 
 # fs: filter sentences
-alias fs='python $scripts/filter_sentences.py' # [BH]
+alias fs='python $scripts/filter_sentences.py' # [BN]
 
 # active_tests: list all of the active tests and their corresponding FST
-active_tests (){ #[BH]
+active_tests (){ #[BN]
 	test.sh -B | {
 		while read -s line; do
 			cd $line
@@ -180,7 +180,7 @@ export GPROFILER_BIN=google-pprof
 # Misc. #
 ################################################################################
 # subl: open the specified file in sublime text on remote host machine (if no file is specified, reads from stdin)
-subl (){ # [BH]
+subl (){ # [BN]
 	# allow waiting (e.g. for git / svn commit message editing)
 	if [[ $1 == "-w" ]]; then local wait="-w"; shift; fi
 
@@ -199,16 +199,16 @@ subl (){ # [BH]
 }
 
 # rebuild: rebuild from scratch
-alias rebuild="make clean; make -j16" # [BH]
+alias rebuild="make clean; make -j16" # [BN]
 
 # csubmit: submit a job
-alias csubmit="$c1/build/utilities/c_submit.py" # [BH]
+alias csubmit="$c1/build/utilities/c_submit.py" # [BN]
 
 # onbh: run a command on personal machine
-onbh () { ssh $bh "$@"; } # [BH]
+onbh () { ssh $bh "$@"; } # [BN]
 
 # mj: run make using at most 16 jobs
-alias mj="make -j16" # [BH]
+alias mj="make -j16" # [BN]
 ################################################################################
 
 
