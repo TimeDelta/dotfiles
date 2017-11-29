@@ -24,6 +24,11 @@ subl() { # [BH]
 	fi
 }
 
+# sublmr: open the most recently touched file from the current directory in sublime text
+sublmr() { # [BH]
+	subl "`ls -1tc | head -1`"
+}
+
 # sublw: search the path for something and open it in sublime text
 sublw() { # [BH]
 	subl "`which "$@"`"
