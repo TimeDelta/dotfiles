@@ -1,8 +1,8 @@
 is_osx || return 1
 ################################################################################
 # Notes:
-# Aliases and functions followed by a "# [BH]" is written entirely by me
-# Aliases and functions followed by a "# {BH}" is adapted by me from somebody else's code
+# Aliases and functions followed by a "# [BN]" is written entirely by me
+# Aliases and functions followed by a "# {BN}" is adapted by me from somebody else's code
 # Aliases and functions without a comment after it is completely taken from elsewhere
 ################################################################################
 
@@ -26,21 +26,23 @@ atp "$DOTFILES/osx_bin" # add osx-only binaries directory to PATH
 #############
 # File Info #
 ################################################################################
-alias ls="ls -GFh" # [BH]
+alias ls="ls -GFh" # [BN]
 # lskey: display a key for information given by the ls command
-lskey () { echo -e "${FBLUE}directory${RES}/    ${FRED}executable${RES}*    ${FPURPLE}symbolic link${RES}@    ${FGREEN}socket${RES}=    whiteout%    FIFO|    ${FBLACK}${BCYAN}postdrop${RES}*"; } # [BH]
+lskey () { # [BN]
+	echo -e "${FBLUE}directory${RES}/    ${FRED}executable${RES}*    ${FPURPLE}symbolic link${RES}@    ${FGREEN}socket${RES}=    whiteout%    FIFO|    ${FBLACK}${BCYAN}postdrop${RES}*"
+}
 
 # ql: show a "Quick Look" view of files
 ql () { qlmanage -p "$@" >& /dev/null & }
 
 # bsizeof: display the size of a file in bytes
-bsizeof () { # [BH]
+bsizeof () { # [BN]
 	if [[ $# -eq 0 ]]; then while read -s file; do stat -f %z $file; done
 	else stat -f %z $@; fi
 }
 
 # fullpath: get the absolute path
-fullpath (){ realpath "$@"; } # [BH]
+fullpath (){ realpath "$@"; } # [BN]
 ################################################################################
 
 
@@ -58,7 +60,7 @@ alias hide="chflags hidden"
 ##########
 # Bazaar #
 ################################################################################
-bzrhelp () { bzr help commands | less; } # [BH]
+bzrhelp () { bzr help commands | less; } # [BN]
 ################################################################################
 
 
@@ -66,9 +68,9 @@ bzrhelp () { bzr help commands | less; } # [BH]
 # Networking #
 ################################################################################
 # rt_table: display routing table
-alias rt_table="netstat -rn" # [BH]
+alias rt_table="netstat -rn" # [BN]
 # active_con: display active connections
-alias active_con="netstat -an" # [BH]
+alias active_con="netstat -an" # [BN]
 restart_bonjour () {
 	sudo launchctl unload /System/Library/LaunchDaemons/com.apple.mDNSResponder.plist
 	sudo launchctl load /System/Library/LaunchDaemons/com.apple.mDNSResponder.plist
@@ -95,7 +97,7 @@ alias flushdns='dscacheutil -flushcache'
 alias httpdump="sudo tcpdump -i en1 -n -s 0 -w - | grep -a -o -E \"Host\: .*|GET \/.*\""
 
 # vpn: wrapper for openvpnstart (command line interface for Tunnelblick)
-vpn (){ # [BH]
+vpn (){ # [BN]
 	# requires that the PATH environment variable has a certain prefix
 	if [[ -z "`echo "$PATH" | grep "^/usr/bin:/bin:/usr/sbin:/sbin"`" ]]; then
 		local OLD_PATH="$PATH"
@@ -147,7 +149,7 @@ show_hidden () { defaults write com.apple.finder AppleShowAllFiles TRUE; }
 hide_hidden () { defaults write com.apple.finder AppleShowAllFiles FALSE; }
 
 # force_eject: force a volume to eject
-force_eject () { # {BH}
+force_eject () { # {BN}
 	diskutil unmountDisk force /Volumes/$@ 2> /dev/null
 	if [[ $? -ne 0 ]]; then hdiutil eject -force $@; fi
 }
@@ -175,7 +177,7 @@ cdf () {
 }
 
 # onall: run a command on all open terminal windows
-onall () { # [BH]
+onall () { # [BN]
 	if [[ $1 == "--help" ]]; then
 		echo "Usage: onall <command>"
 		return 0
@@ -203,15 +205,15 @@ dict () { open dict:///"$@" ; }
 # Process Management #
 ################################################################################
 alias top="top -R -F"
-memhogs () { ps wwaxm -Ao pid,stat=STATE,%mem,vsize=VSIZE,rss,time,command | head; } # {BH}
-cpuhogs () { ps wwaxr -Ao pid,stat=STATE,%cpu,time,command | head; } # {BH}
+memhogs () { ps wwaxm -Ao pid,stat=STATE,%mem,vsize=VSIZE,rss,time,command | head; } # {BN}
+cpuhogs () { ps wwaxr -Ao pid,stat=STATE,%cpu,time,command | head; } # {BN}
 ################################################################################
 
 
 ######################
 # System Information #
 ################################################################################
-total_ram () { # [BH]
+total_ram () { # [BN]
 	system_profiler SPMemoryDataType | \
 	grep -C0 "Size" | \
 	sed s/[^0-9BKkMGT]//g | \
@@ -233,7 +235,7 @@ export GPROFILER_BIN=pprof
 ###########
 # Android #
 ################################################################################
-andevref () { adb kill-server; sudo adb start-server; adb devices; } # [BH]
+andevref () { adb kill-server; sudo adb start-server; adb devices; } # [BN]
 ################################################################################
 
 
@@ -247,7 +249,7 @@ sethoverfocus (){
 }
 
 # email_file: email a file to somebody
-email_file () { # {BH}
+email_file () { # {BN}
 	if [[ $# -lt 2 || $1 == "-h" || $1 == "--help" || $1 == "-help" ]]; then
 		{ echo "Usage: email_file <file> [options] <email_address>"
 		echo "  -s subject"
@@ -263,10 +265,10 @@ be careful to quote subjects containing spaces.)"
 }
 
 # remake: rebuild from scratch
-alias remake="make clean; make -j2" # [BH]
+alias remake="make clean; make -j2" # [BN]
 
 # mj: run make using at most 2 jobs
-alias mj="make -j2" # [BH]
+alias mj="make -j2" # [BN]
 
 # fix_audio: fix locked volume issue
 alias fix_audio="sudo killall coreaudiod"
@@ -274,7 +276,7 @@ alias fix_audio="sudo killall coreaudiod"
 alias fix_icloud='rm -rf "$HOME/Library/Application Support/CloudDocs"; killall cloudd bird'
 
 # bangcp: copy a previously entered command to the clipboard
-bangcp() { # [BH]
+bangcp() { # [BN]
 	history $((${1:-1}+1)) | \
 		head -1 | \
 		awk '{$1=""; print $0}' | \
@@ -290,7 +292,7 @@ bangcp() { # [BH]
 }
 
 # quote_args: surround each argument with quotes
-quote_args() { # [BH]
+quote_args() { # [BN]
 	while [[ $# -gt 0 ]]; do
 		if [[ $1 == '&' ]]; then
 			echo -n "$1"
@@ -305,7 +307,7 @@ quote_args() { # [BH]
 }
 
 # insession: run a command in another (named) session
-insession() { # [BH]
+insession() { # [BN]
 	local session_name="$1"; shift
 	local command="$1"; shift
 	osascript -e "
@@ -335,7 +337,7 @@ insession() { # [BH]
 alias inses='insession'
 
 # alfred: install newly downloaded Alfred workflows and then move them to iCloud
-alfred() { # [BH]
+alfred() { # [BN]
 	local junk
 	local OLD_IFS="$IFS"
 	IFS=$'\n'
