@@ -1,5 +1,12 @@
+################################################################################
+# Notes:
+# Aliases and functions followed by a "# [BN]" is written entirely by me
+# Aliases and functions followed by a "# {BN}" is adapted by me from somebody else's code
+# Aliases and functions without a comment after it is completely taken from elsewhere
+################################################################################
+
 # subl: CLI for sublime text
-subl() { # [BH]
+subl() { # [BN]
 	if [[ $SESSION_TYPE == remote/ssh ]]; then
 		# rmate doesn't support opening multiple files at once, so we need to
 		# strip off options in order to figure out how many files were specified
@@ -25,26 +32,26 @@ subl() { # [BH]
 }
 
 # sublmr: open the most recently touched file from the current directory in sublime text
-sublmr() { # [BH]
+sublmr() { # [BN]
 	subl "`ls -1tc | head -1`"
 }
 
 # sublw: search the path for something and open it in sublime text
-sublw() { # [BH]
+sublw() { # [BN]
 	subl "`which "$@"`"
 }
 
 # osubl: open files passed from stdin in Sublime Text
-alias osubl="xargs -L 1 --- subl" # [BH]
+alias osubl="xargs -L 1 --- subl" # [BN]
 
 # sublcf: open all files changed in the most recent commit
-sublcf() { cf "$@" | osubl; } # [BH]
+sublcf() { cf "$@" | osubl; } # [BN]
 
 # edit: edit the specified file
-edit() { subl "$@"; } # [BH]
+edit() { subl "$@"; } # [BN]
 
 # sublwi: open the Sublime Text workspace associated with a work item for the current repository
-sublwi() { # [BH]
+sublwi() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Open the Sublime Text workspace associated with a work item for the current"
 		echo "repository. If none exists, create one."
@@ -73,12 +80,12 @@ sublwi() { # [BH]
 }
 
 # wiproj: get the path to the sublime project file for a repository work item
-wiproj() { echo "`rootdir`/.work_items/$(brwi "${1:-`br`}").sublime-project"; } # [BH]
+wiproj() { echo "`rootdir`/.work_items/$(brwi "${1:-`br`}").sublime-project"; } # [BN]
 # wiws: get the path to the sublime workspace file for a repository work item
-wiws() { echo "`rootdir`/.work_items/$(brwi "${1:-`br`}").sublime-workspace"; } # [BH]
+wiws() { echo "`rootdir`/.work_items/$(brwi "${1:-`br`}").sublime-workspace"; } # [BN]
 
 # brwi: get the work item name for a branch
-brwi() { # [BH]
+brwi() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Get the work item name for a repository branch."
 		echo "Usage: brwi [<branch_name>]"
@@ -91,7 +98,7 @@ brwi() { # [BH]
 }
 
 # swi: quickly switch to a different work item for the current repository
-swi() { # [BH]
+swi() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Quickly switch to a different work item for the current repository. If the"
 		echo "specified work item doesn't exist, create it."
@@ -146,7 +153,7 @@ swi() { # [BH]
 }
 
 # apwi: add a path to the sublime project for a work item
-apwi() { # [BH]
+apwi() { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Add a path to the sublime project and workspace for a repository work item."
 		echo "Usage: apwi <path> [<work_item>]"
@@ -204,7 +211,7 @@ apwi() { # [BH]
 is_osx || return 1
 
 # sublcp: close project in Sublime Text
-sublcp() { # [BH]
+sublcp() { # [BN]
 	subl --command close_workspace
 	subl --command close_project
 }
