@@ -1,4 +1,11 @@
 is_cygwin || return 1
+################################################################################
+# Notes:
+# Aliases and functions followed by a "# [BN]" is written entirely by me
+# Aliases and functions followed by a "# {BN}" is adapted by me from somebody else's code
+# Aliases and functions without a comment after it is completely taken from elsewhere
+################################################################################
+
 ##########################
 # This File and Sourcing #
 ################################################################################
@@ -6,9 +13,9 @@ is_cygwin || return 1
 	export PLATFORM_ALIAS_FILES="$PLATFORM_ALIAS_FILES $DOTFILES/source/aliases_cygwin.bash"
 
 # paliases: edit platform-specific aliases
-paliases () { pushd ~ > /dev/null; subl .aliases_cygwin.bash; popd > /dev/null; } # [BH]
+paliases () { pushd ~ > /dev/null; subl .aliases_cygwin.bash; popd > /dev/null; } # [BN]
 # spalias: source platform-specific aliases
-spalias () { source ~/.aliases_cygwin.bash; } # [BH]
+spalias () { source ~/.aliases_cygwin.bash; } # [BN]
 
 palias () { scp $bh:~/.aliases_universal.bash ~ ; }
 ################################################################################
@@ -23,11 +30,11 @@ palias () { scp $bh:~/.aliases_universal.bash ~ ; }
 #############
 # File Info #
 ################################################################################
-alias ls="command ls -GFh --color=always" # [BH]
-lskey () { echo -e "${BOLD}${FBLUE}directory${RES}/     ${BOLD}${FGREEN}executable${RES}*     ${BOLD}${FCYAN}symbolic link${RES}@     socket=     whiteout%     FIFO|"; } # [BH]
+alias ls="command ls -GFh --color=always" # [BN]
+lskey () { echo -e "${BOLD}${FBLUE}directory${RES}/     ${BOLD}${FGREEN}executable${RES}*     ${BOLD}${FCYAN}symbolic link${RES}@     socket=     whiteout%     FIFO|"; } # [BN]
 
 # bsizeof: display the size of a file in bytes
-bsizeof () { # [BH]
+bsizeof () { # [BN]
 	if [[ $# -eq 0 ]]; then while read -s file; do stat -c %s $file; done
 	else stat -c %s $@; fi
 }
@@ -81,11 +88,11 @@ msp () { cygpath -aw $@; }
 ######################
 # Process Management #
 ################################################################################
-mem_hogs () { ps ww -o pid,stat=STATE,%mem,vsize=VSIZE,rss,time,command | head; } # [BH]
-cpu_hogs () { ps wwr -o pid,stat=STATE,%cpu,time,command | head; } # [BH]
+mem_hogs () { ps ww -o pid,stat=STATE,%mem,vsize=VSIZE,rss,time,command | head; } # [BN]
+cpu_hogs () { ps wwr -o pid,stat=STATE,%cpu,time,command | head; } # [BN]
 
 # running?: check if a process is running
-running? () { # [BH]
+running? () { # [BN]
 	local ps_list="`ps -C "$@" | wc -l` - 1"
 	local ps_list=`echo $ps_list | bc`
 	if [[ $ps_list -gt 0 ]]; then
@@ -112,7 +119,7 @@ running? () { # [BH]
 ######################
 # System Information #
 ################################################################################
-total_ram () { grep MemTotal /proc/meminfo | sed s/[^0-9BKk]//g | human2bytes | bytes2human; } # [BH]
+total_ram () { grep MemTotal /proc/meminfo | sed s/[^0-9BKk]//g | human2bytes | bytes2human; } # [BN]
 ################################################################################
 
 ###############
@@ -142,7 +149,7 @@ subl () {
 }
 
 # nanoit: pipe the results of a command to the nano editor
-nanoit (){ local fid=`uuid`; `"$@" > "$fid"`; nano "$fid"; rm "$fid"; } # [BH]
+nanoit (){ local fid=`uuid`; `"$@" > "$fid"`; nano "$fid"; rm "$fid"; } # [BN]
 ################################################################################
 
 
