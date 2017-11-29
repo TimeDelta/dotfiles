@@ -7,8 +7,8 @@ else
 	ps1_var=PS1
 fi
 
-_prompt() { # [BH]
-	_trim_branch_name() { # [BH]
+_prompt() { # [BN]
+	_trim_branch_name() { # [BN]
 		local max_length=${MAX_BRANCH_NAME_LENGTH:-25}
 		local branch_name="$1"
 		if [[ ${#branch_name} -gt $max_length ]]; then
