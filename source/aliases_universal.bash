@@ -459,6 +459,18 @@ colify (){ # [BN]
 		xargs echo
 	fi
 }
+
+# truncate: truncate output of std in
+truncate() { # [BN]
+	if [[ $1 == "-h" || $1 == "--help" ]]; then
+		echo "Usage: <command> | truncate [<columns>]"
+		echo "Arguments:"
+		echo "  <columns>"
+		echo "    number of columns after which to truncate (default: `tput cols`)"
+		return 0
+	fi
+	cut -c 1-${1:-`tput cols`}
+}
 ################################################################################
 
 
