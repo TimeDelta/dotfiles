@@ -836,7 +836,7 @@ parentbr() {
 # pbr: show the parent branch for the current git branch
 alias pbr=parentbr
 
-# linesperperson: aggregate the lines of each file based on who touched it last
+# linesperperson: use git to aggregate the lines of each file based on who touched it last
 linesperperson() { # {BN}
 	git ls-files \
 		| {
@@ -850,6 +850,12 @@ linesperperson() { # {BN}
 		| uniq -ic \
 		| sort -nr \
 		| grep -v 'Binary file'
+}
+
+# linescommitedbetween: use git to show the number of line changes between two dates in the format "YYYY-MM-DD HH:mm:ss"
+linescommitedbetween() { # {BN}
+	git log --numstat --after="$1" --before="$2" --pretty="%H" \
+		| awk 'NF>1 {plus+=$1; minus+=$2} END {printf("+%d, -%d\n", plus, minus)}'
 }
 ################################################################################
 
@@ -2155,7 +2161,7 @@ unset old_nocasematch
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
 
-shopt -s globstar >& /dev/null # enables recursive globbing with ** (bash 4.0+ only)
+shopt -s globstar >& /dev/null || true # enables recursive globbing with ** (bash 4.0+ only)
 shopt -s extglob >& /dev/null  # enables extended, regex-style globbing
 
 # source environment variables and set up PATH
@@ -2169,6 +2175,12 @@ source $VARS_FILE
 ################################################################################
 shopt -q login_shell && {
 shopt -s progcomp
+
+which brew && {
+	if [[ -f `brew --prefix`/etc/bash_completion.d/git-completion.bash ]]; then
+		source `brew --prefix`/etc/bash_completion.d/git-completion.bash
+	fi
+} || true
 
 _svn_remote_files_tab_complete() { # [BN]
 	local IFS=$' \n'
@@ -2240,6 +2252,6 @@ fi
 
 # prevent tab completion from escaping variables that contain a path
 # (like replacing "$HOME/" w/ "\$HOME/") and instead expand the path
-shopt -s direxpand >& /dev/null # available in bash 4.0+ only, so ignore stderr too
+shopt -s direxpand >& /dev/null || true # available in bash 4.0+ only, so ignore stderr too
 }
 ################################################################################
