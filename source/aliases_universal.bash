@@ -1114,6 +1114,14 @@ sshconfig() { edit ~/.ssh/config; } # [BN]
 
 alias wanip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias whois="whois -h whois-servers.net"
+# myip: determine IP address of current machine
+myip() {
+	if [[ $1 == '--help' ]]; then
+		echo "Usage: myip [<interface>]"
+		return 0
+	fi
+	ifconfig $1 | sed $SED_EXT_RE -n 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'
+}
 ################################################################################
 
 
