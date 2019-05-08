@@ -2184,7 +2184,7 @@ source $VARS_FILE
 shopt -q login_shell && {
 shopt -s progcomp
 
-which brew && {
+which brew &> /dev/null && {
 	if [[ -f `brew --prefix`/etc/bash_completion.d/git-completion.bash ]]; then
 		source `brew --prefix`/etc/bash_completion.d/git-completion.bash
 	fi
