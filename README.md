@@ -14,8 +14,8 @@ When [dotfiles][dotfiles] is run for the first time, it does a few things:
 
 1. In Ubuntu, Git is installed if necessary via APT (it's already there in OSX).
 1. This repo is cloned into your user directory, under `~/.dotfiles`.
-1. Files in `/copy` are copied into `~/`. ([read more](#the-copy-step))
-1. Files in `/link` are symlinked into `~/`. ([read more](#the-link-step))
+1. Files in [`/copy`](copy/) are copied into `~/`. ([read more](#the-copy-step))
+1. Files in [`/link`](link/) are symlinked into `~/`. ([read more](#the-link-step))
 1. You are prompted to choose scripts in `/init` to be executed. The installer attempts to only select relevant scripts, based on the detected OS and the script filename.
 1. Your chosen init scripts are executed (according to the order specified in [init/ordered_init_files](init/ordered_init_files)). ([read more](#the-init-step))
 
@@ -24,21 +24,21 @@ On subsequent runs, step 1 is skipped, step 2 just updates the already-existing 
 ### Other subdirectories
 
 * The `/backups` directory gets created when necessary. Any files in `~/` that would have been overwritten by files `/link` get backed up there.
-* The `/bin` directory contains executable shell scripts (including the [dotfiles][dotfiles] script) and symlinks to executable shell scripts. This directory is added to the path.
+* The [`/bin`](bin/) directory contains executable shell scripts (including the [dotfiles][dotfiles] script) and symlinks to executable shell scripts. This directory is added to the path.
 * The `/caches` directory contains cached files, used by some scripts or functions.
-* The `/conf` directory just exists. If a config file doesn't **need** to go in `~/`, reference it from the `/conf` directory.
-* The `/source` directory contains files that are sourced whenever a new shell is opened (in alphanumeric order, hence the funky names).
-* The `/test` directory contains unit tests for especially complicated bash functions.
-* The `/vendor` directory contains third-party libraries.
+* The [`/conf`](conf/) directory just exists. If a config file doesn't **need** to go in `~/`, reference it from the `/conf` directory.
+* The [`/source`](source/) directory contains files that are sourced whenever a new shell is opened (in alphanumeric order, hence the funky names).
+* The [`/test`](test/) directory contains unit tests for especially complicated bash functions.
+* The [`/vendor`](vendor/) directory contains third-party libraries.
 
 ### The "copy" step
-Any file in the `/copy` subdirectory will be copied into `~/` unless a file with the same name already exists there. Any file that _needs_ to be modified with personal information (like [copy/.gitconfig](copy/.gitconfig) which contains an email address and private key) should be _copied_ into `~/`. Because the file you'll be editing is no longer in `~/.dotfiles`, it's less likely to be accidentally committed into your public dotfiles repo.
+Any file in the [`/copy`](copy/) subdirectory will be copied into `~/` unless a file with the same name already exists there. Any file that _needs_ to be modified with personal information (like [copy/.gitconfig](copy/.gitconfig) which contains an email address and private key) should be _copied_ into `~/`. Because the file you'll be editing is no longer in `~/.dotfiles`, it's less likely to be accidentally committed into your public dotfiles repo.
 
 ### The "link" step
-Any file in the `/link` subdirectory gets symlinked into `~/` with `ln -s`. Edit one or the other, and you change the file in both places. Don't link files containing sensitive data, or you might accidentally commit that data! If you're linking a directory that might contain sensitive data (like `~/.ssh`) add the sensitive files to your [.gitignore](.gitignore) file!
+Any file in the [`/link`](link/) subdirectory gets symlinked into `~/` with `ln -s`. Edit one or the other, and you change the file in both places. Don't link files containing sensitive data, or you might accidentally commit that data! If you're linking a directory that might contain sensitive data (like `~/.ssh`) add the sensitive files to your [.gitignore](.gitignore) file!
 
 ### The "init" step
-Scripts in the `/init` subdirectory will be executed. First, chosen init scripts are executed in the order defined in [source/ordered_init_files](source/ordered_init_files). Then chosen init files that are unordered (not mentioned in that file) are executed. A whole bunch of things will be installed, but _only_ if they aren't already.
+Scripts in the [`/init`](init/) subdirectory will be executed. First, chosen init scripts are executed in the order defined in [source/ordered_init_files](source/ordered_init_files). Then chosen init files that are unordered (not mentioned in that file) are executed. A whole bunch of things will be installed, but _only_ if they aren't already.
 
 #### OS X
 
