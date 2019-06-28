@@ -113,7 +113,7 @@ To keep things easy, the `~/.bashrc` and `~/.bash_profile` files are extremely s
 In addition to the aforementioned [dotfiles][dotfiles] script, there are a few other [bin scripts](bin). This includes [nave](https://github.com/isaacs/nave), which is a [git submodule](vendor).
 
 * [dotfiles][dotfiles] - (re)initialize dotfiles. It might ask for your password (for `sudo`).
-* [src](link/.bashrc#L8-18) - (re)source all files in `/source` directory
+* [src](link/.bashrc#L8-18) - (re)source all files in [`/source`](source/) directory
 * Look through the [bin](bin) subdirectory for a few more.
 
 ## Prompt
