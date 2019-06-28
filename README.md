@@ -16,17 +16,17 @@ When [dotfiles][dotfiles] is run for the first time, it does a few things:
 1. This repo is cloned into your user directory, under `~/.dotfiles`.
 1. Files in [`/copy`](copy/) are copied into `~/`. ([read more](#the-copy-step))
 1. Files in [`/link`](link/) are symlinked into `~/`. ([read more](#the-link-step))
-1. You are prompted to choose scripts in `/init` to be executed. The installer attempts to only select relevant scripts, based on the detected OS and the script filename.
+1. You are prompted to choose scripts in [`/init`](init/) to be executed. The installer attempts to only select relevant scripts, based on the detected OS and the script filename.
 1. Your chosen init scripts are executed (according to the order specified in [init/ordered_init_files](init/ordered_init_files)). ([read more](#the-init-step))
 
 On subsequent runs, step 1 is skipped, step 2 just updates the already-existing repo, and step 5 remembers what you selected the last time. The other steps are the same.
 
 ### Other subdirectories
 
-* The `/backups` directory gets created when necessary. Any files in `~/` that would have been overwritten by files `/link` get backed up there.
+* The `/backups` directory gets created when necessary. Any files in `~/` that would have been overwritten by files [`/link`](link/) get backed up there.
 * The [`/bin`](bin/) directory contains executable shell scripts (including the [dotfiles][dotfiles] script) and symlinks to executable shell scripts. This directory is added to the path.
 * The `/caches` directory contains cached files, used by some scripts or functions.
-* The [`/conf`](conf/) directory just exists. If a config file doesn't **need** to go in `~/`, reference it from the `/conf` directory.
+* The [`/conf`](conf/) directory just exists. If a config file doesn't **need** to go in `~/`, reference it from the [`/conf`](conf/) directory.
 * The [`/source`](source/) directory contains files that are sourced whenever a new shell is opened (in alphanumeric order, hence the funky names).
 * The [`/test`](test/) directory contains unit tests for especially complicated bash functions.
 * The [`/vendor`](vendor/) directory contains third-party libraries.
@@ -54,7 +54,7 @@ Scripts in the [`/init`](init/) subdirectory will be executed. First, chosen ini
 
 ## Hacking my dotfiles
 
-Because the [dotfiles][dotfiles] script is completely self-contained, you should be able to delete everything else from your dotfiles repo fork, and it will still work. The only thing it really cares about are the `/copy`, `/link` and `/init` subdirectories, which will be ignored if they are empty or don't exist.
+Because the [dotfiles][dotfiles] script is completely self-contained, you should be able to delete everything else from your dotfiles repo fork, and it will still work. The only thing it really cares about are the [`/copy`](copy/), [`/link`](link/) and [`/init`](init/) subdirectories, which will be ignored if they are empty or don't exist.
 
 If you modify things and notice a bug or an improvement, [file an issue](https://github.com/timedelta/dotfiles/issues) or [a pull request](https://github.com/timedelta/dotfiles/pulls) and let me know.
 
