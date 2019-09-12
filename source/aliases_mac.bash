@@ -76,9 +76,6 @@ restart_bonjour () {
 	sudo launchctl load /System/Library/LaunchDaemons/com.apple.mDNSResponder.plist
 }
 
-# myip: public-facing IP Address
-alias myip='curl ip.appspot.com'
-
 # tcpip: show all open TCP/IP sockets
 alias tcpip='lsof -i'
 # lsock: list all open sockets
