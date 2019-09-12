@@ -521,6 +521,11 @@ lc () { # [BN]
 # lcfe: recursively count lines of files with the specified extensions under the current directory
 lcfe () { find . \( `echo -name \"\*.$@ | sed -e s/,/\"\ -or\ -name\ \"\*./g -e s/$/\"/` \) -print0 | xargs -0 wc -l; } # {BN}
 
+# javalines: count the number of lines of Java code under the current directory (recursively)
+javalines() { # [BN]
+	find . -type f -iname \*.java -print0 | xargs -0 wc -l | tail -n1 | awk '{print $1}'
+}
+
 # rc: count the number of occurences of a regex in a string or set of files
 rc () { # [BN]
 	if [[ $# -gt 2 || $1 == "-h" || $1 == "--help" ]]; then
