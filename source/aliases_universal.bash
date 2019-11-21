@@ -546,8 +546,8 @@ rc () { # [BN]
 	else egrep -o "$1" <<< "$2" | wc -l | sed s/\ //g; fi
 }
 
-# fc: count files in a directoy that match a given regex
-fc () { # [BN]
+# fcount: count files in a directoy that match a given regex
+fcount () { # [BN]
 	if [[ $1 == '--help' ]]; then
 		echo "Usage: fc [options] [<regex>]"
 		echo "Options:"
