@@ -548,8 +548,9 @@ rc () { # [BN]
 
 # subdirfc: count the files in each sub-directory of an optionally specified directory
 subdirfc() { # [BN]
-	find "${1:-.}" -maxdepth 1 -type d \
-		| egrep -v '^\.$' \
+	local top_dir="${1:-.}"
+	find "$top_dir" -maxdepth 1 -type d \
+		| egrep -v "^(\.|$top_dir)\$" \
 		| xargs -I % find -L % -type f \
 		| sed -E 's:^[^/]*/([^/]*).*$:\1:' \
 		| sort \
