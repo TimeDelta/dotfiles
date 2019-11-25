@@ -1907,7 +1907,10 @@ readkey () { local keypress; read -sn 1 keypress; echo "$keypress"; } # [BN]
 alias rs="screen -r" # [BN]
 # screenl: start a named screen session that logs all activity to a specified file
 screenl() {
-	if [[ $1 == "--help" ]]; then echo "Usage: screenl <session_name> <output_file>"; fi
+	if [[ $1 == "--help" ]]; then
+		echo "Usage: screenl <session_name> <output_file>"
+		return 0
+	fi
 	screen -dmS "$1" && screen -S "$1" -X logfile "$2" && screen -S "$1" -X log && rs -S "$1"
 }
 
