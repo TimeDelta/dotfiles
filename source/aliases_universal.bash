@@ -546,6 +546,16 @@ rc () { # [BN]
 	else egrep -o "$1" <<< "$2" | wc -l | sed s/\ //g; fi
 }
 
+# subdirfc: count the files in each sub-directory of an optionally specified directory
+subdirfc() { # [BN]
+	find "${1:-.}" -maxdepth 1 -type d \
+		| egrep -v '^\.$' \
+		| xargs -I % find -L % -type f \
+		| sed -E 's:^[^/]*/([^/]*).*$:\1:' \
+		| sort \
+		| uniq -c
+}
+
 # fcount: count files in a directoy that match a given regex
 fcount () { # [BN]
 	if [[ $1 == '--help' ]]; then
@@ -1895,6 +1905,11 @@ readkey () { local keypress; read -sn 1 keypress; echo "$keypress"; } # [BN]
 
 # rs: resume detached screen session
 alias rs="screen -r" # [BN]
+# screenl: start a named screen session that logs all activity to a specified file
+screenl() {
+	if [[ $1 == "--help" ]]; then echo "Usage: screenl <session_name> <output_file>"; fi
+	screen -dmS "$1" && screen -S "$1" -X logfile "$2" && screen -S "$1" -X log && rs -S "$1"
+}
 
 # cur_nocasematch: get the current flag setting for the nocasematch shell option
 cur_nocasematch () { shopt nocasematch | col 2 | awk '/on/ {print "-u"} /off/ {print "-s"}'; } # [BN]
@@ -1905,7 +1920,7 @@ sms () {
 		echo "Usage: sms <phone_number> <message>"
 		return 0
 	fi
-	curl http://textbelt.com/text -d number=$1 -d "message=$2" > /dev/null
+	curl http://textbelt.com/text -d number=$1 -d "message=$2"
 }
 
 # sms_me: send myself an sms message
