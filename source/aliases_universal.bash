@@ -594,7 +594,7 @@ fcount () { # [BN]
 	if [[ -z "$non_recursive" ]]; then local regex=".*$1"
 	else local regex="${1:-.*}"; fi
 
-	find -L $FIND_DASH_E "${root_dir:-.}" $non_recursive $type $FIND_REGEXTYPE -iregex "\./$regex" | wc -l | awk '{print $1}'
+	find -L $FIND_DASH_E "${root_dir:-.}" $non_recursive $type $FIND_REGEXTYPE -iregex "$regex" | wc -l | awk '{print $1}'
 }
 # fch: number of files (including hidden) in a directory that match given regex
 fch () { ls -la $@ 2> /dev/null | wc -l | sed s/\ //g; } # [BN]
