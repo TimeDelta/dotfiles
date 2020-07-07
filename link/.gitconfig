@@ -60,6 +60,6 @@
 	process = git-lfs filter-process
 [user]
 	name = Bryan Nova
-	email = bryan.nova@mrisoftware.com
+	email = bryanherman7@gmail.com
 [credential]
 	helper = osxkeychain
