@@ -1105,8 +1105,8 @@ conflicts() { # [BN]
 
 # vcs_type: helper function for generic version control commands
 vcs_type (){ # [BN]
-	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
 	[[ -n `git log -n 1 2> /dev/null` ]] && echo git && return
+	[[ -n `svn info 2> /dev/null` ]] && echo svn && return
 	[[ -n `bzr info 2> /dev/null` ]] && echo bzr && return
 	echo "Not a version controlled repository" >&2 && return 1
 }
