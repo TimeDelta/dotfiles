@@ -1272,7 +1272,7 @@ translate_dir_hist (){ #[BN]
 	if [[ -d $1 ]]; then
 		echo "$1"
 	elif [[ ${1:0:1} == '-' ]]; then
-		local index=`echo "$1" | egrep -om 1 "^-[0-9]+" | sed 's/^-//'`
+		local index="${BASH_REMATCH[1]}"
 		echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
 	else
 		echo "$1"
