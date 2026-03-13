@@ -1246,7 +1246,7 @@ cd (){ # {BN}
 	}
 
 	# Now change to the new dir and add to the top of the stack
-	pushd "$the_new_dir" > /dev/null
+	pushd -- "$the_new_dir" > /dev/null
 	[[ $? -ne 0 ]] && return 1
 	the_new_dir="$(pwd)"
 
