@@ -1271,9 +1271,16 @@ cd (){ # {BN}
 translate_dir_hist (){ #[BN]
 	if [[ -d $1 ]]; then
 		echo "$1"
-	elif [[ ${1:0:1} == '-' ]]; then
+	elif [[ $1 =~ ^-([0-9]+)(/.*)?$ ]]; then
 		local index="${BASH_REMATCH[1]}"
-		echo "$1" | sed "s:^-$index:$(dirs +$index | sed "s:^~:$HOME:"):"
+		local suffix="${BASH_REMATCH[2]}"
+		local base_dir
+		base_dir="$(dirs +"$index" 2>/dev/null)" || {
+			echo "$1"
+			return 1
+		}
+		[[ ${base_dir:0:1} == '~' ]] && base_dir="${HOME}${base_dir:1}"
+		echo "${base_dir}${suffix}"
 	else
 		echo "$1"
 	fi
