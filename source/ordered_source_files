@@ -9,3 +9,4 @@ aliases_mac.bash
 aliases_sublime.bash
 prompt.sh
 iterm2_shell_integration.bash
+codex_completion.bash
