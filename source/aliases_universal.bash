@@ -29,6 +29,7 @@ if [[ -z $MACHINE_ALIAS_FILES ]]; then
 	export MACHINE_ALIAS_FILES="$HOME/.aliases_machine.bash"
 fi
 export SUBLIME_ALIAS_FILE="$DOTFILES/source/aliases_sublime.bash"
+export SLURM_ALIAS_FILE="$DOTFILES/source/aliases_slurm.bash"
 
 # falias: boolean alias search
 falias () { # [BN]
@@ -50,13 +51,15 @@ paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BN]
 maliases (){ edit $MACHINE_ALIAS_FILES; } # [BN]
 # saliases: edit sublime text aliases
 saliases (){ edit "$SUBLIME_ALIAS_FILE"; } # [BN]
+# slaliases: edit slurm aliases
+slaliases (){ edit "SLURM_ALIAS_FILE"; } # [BN]
 # bashp: edit ~/.bash_profile
 bashp () { edit ~/.bash_profile; } # [BN]
 # bashrc: edit .bashrc file
 bashrc (){ edit "$HOME/.bashrc"; } # [BN]
 
 # salias: source all custom function files
-salias() { sualias; spalias; ssalias; smalias; } # [BN]
+salias() { sualias; spalias; ssalias; smalias; slalias; } # [BN]
 # sualias: source this file
 sualias () { source "$UNIV_ALIAS_FILE"; } # [BN]
 # spalias: source platform-specific aliases
@@ -65,6 +68,8 @@ spalias (){ local file; for file in $PLATFORM_ALIAS_FILES; do source "$file"; do
 smalias (){ local file; for file in $MACHINE_ALIAS_FILES; do source "$file"; done; } # [BN]
 # ssalias: source sublime text aliases
 ssalias() { source "$SUBLIME_ALIAS_FILE"; } # [BN]
+# slalias: source slurm aliases
+slalias () { source "$SLURM_ALIAS_FILE"; } # [BN]
 # sbashp: source .bash_profile
 sbashp () { source ~/.bash_profile; } # [BN]
 # sbashrc: source .bashrc
