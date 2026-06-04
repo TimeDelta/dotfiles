@@ -7,6 +7,7 @@ aliases_linux.bash
 aliases_cluster.bash
 aliases_mac.bash
 aliases_sublime.bash
+aliases_slurm.bash
 prompt.sh
 iterm2_shell_integration.bash
 codex_completion.bash
