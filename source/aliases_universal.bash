@@ -1928,6 +1928,7 @@ screenl() {
 	fi
 	screen -dmS "$1" && screen -S "$1" -X logfile "$2" && screen -S "$1" -X log && rs -S "$1"
 }
+alias sls='screen -ls'
 
 # cur_nocasematch: get the current flag setting for the nocasematch shell option
 cur_nocasematch () { shopt nocasematch | col 2 | awk '/on/ {print "-u"} /off/ {print "-s"}'; } # [BN]
