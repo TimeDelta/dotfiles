@@ -526,6 +526,11 @@ javalines() { # [BN]
 	find . -type f -iname \*.java -print0 | xargs -0 wc -l | tail -n1 | awk '{print $1}'
 }
 
+# pylines: count the number of lines of Python code under the current directory (recursively), excluding .venv directory
+pylines() { # [BN]
+	find . -iname \*.py -print | grep -v .venv | xargs cat | wc -l
+}
+
 # rc: count the number of occurences of a regex in a string or set of files
 rc () { # [BN]
 	if [[ $# -gt 2 || $1 == "-h" || $1 == "--help" ]]; then
