@@ -46,13 +46,13 @@ halias (){ # [BN]
 # aliases: edit universal aliases
 ualiases () { edit "$UNIV_ALIAS_FILE"; } # [BN]
 # paliases: edit platform-specific aliases
-paliases (){ edit $PLATFORM_ALIAS_FILES; } # [BN]
+paliases (){ edit "$PLATFORM_ALIAS_FILES"; } # [BN]
 # maliases: edit machine-specific aliases
-maliases (){ edit $MACHINE_ALIAS_FILES; } # [BN]
+maliases (){ edit "$MACHINE_ALIAS_FILES"; } # [BN]
 # saliases: edit sublime text aliases
 saliases (){ edit "$SUBLIME_ALIAS_FILE"; } # [BN]
 # slaliases: edit slurm aliases
-slaliases (){ edit "SLURM_ALIAS_FILE"; } # [BN]
+slaliases (){ edit "$SLURM_ALIAS_FILE"; } # [BN]
 # bashp: edit ~/.bash_profile
 bashp () { edit ~/.bash_profile; } # [BN]
 # bashrc: edit .bashrc file
