@@ -32,8 +32,8 @@ br
 dif
 
 # file sourcing
-@(p|m|s|u)aliases
-s?(p|m|s|u)alias
+@(p|m|s|u|sl)aliases
+s?(p|m|s|u|sl)alias
 src
 sdirs
 spath
@@ -42,3 +42,5 @@ shignore
 
 @(cd|..|?(h)top|history?(|*))?( *)
 pa_@(cluster|mac)
+
+sls
