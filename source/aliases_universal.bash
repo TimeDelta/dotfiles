@@ -1934,6 +1934,64 @@ screenl() {
 	screen -dmS "$1" && screen -S "$1" -X logfile "$2" && screen -S "$1" -X log && rs -S "$1"
 }
 alias sls='screen -ls'
+tailscreen() { # [BH]
+	if [[ $# -eq 0 || $1 == "--help" ]]; then
+		echo "Usage: tailscreen [-n <num_lines>] [-p <window>] <session_name>"
+		return 0
+	fi
+
+	local dash_n=()
+	local snapshot="${TMPDIR:-/tmp}/screen_snapshot.${USER:-user}.$$"
+	local window=0
+	while [[ $# -gt 0 ]]; do
+		case "$1" in
+			-n)
+				if [[ -z $2 ]]; then
+					echo "Usage: tailscreen [-n <num_lines>] [-p <window>] <session_name>" >&2
+					return 1
+				fi
+				dash_n=(-n "$2")
+				shift 2
+				;;
+			-p)
+				if [[ -z $2 ]]; then
+					echo "Usage: tailscreen [-n <num_lines>] [-p <window>] <session_name>" >&2
+					return 1
+				fi
+				window="$2"
+				shift 2
+				;;
+			*)
+				break
+				;;
+		esac
+	done
+	if [[ -z $1 ]]; then
+		echo "Usage: tailscreen [-n <num_lines>] [-p <window>] <session_name>" >&2
+		return 1
+	fi
+
+	local session="$1"
+	screen -S "$session" -p "$window" -X eval "hardcopy -h $snapshot" || return 1
+	local i
+	for i in {1..20}; do
+		[[ -e $snapshot ]] && break
+		sleep 0.05
+	done
+	if [[ ! -e $snapshot ]]; then
+		echo "tailscreen: screen did not create snapshot: $snapshot" >&2
+		echo "tailscreen: tried session '$session', window '$window'" >&2
+		echo "tailscreen: available screen sessions:" >&2
+		screen -ls >&2
+		return 1
+	fi
+
+	tail "${dash_n[@]}" "$snapshot"
+	local status=$?
+	rm -f "$snapshot"
+	return $status
+}
+
 
 # cur_nocasematch: get the current flag setting for the nocasematch shell option
 cur_nocasematch () { shopt nocasematch | col 2 | awk '/on/ {print "-u"} /off/ {print "-s"}'; } # [BN]
