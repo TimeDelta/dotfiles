@@ -7,3 +7,6 @@ trackGPUmem() {
     sleep 5
   done
 }
+alias slurmjobs="squeue --format='%5i   %50j   %10u   %10T   %9M   %R'"
+alias myslurmjobs='slurmjobs -u "`whoami`"'
+
