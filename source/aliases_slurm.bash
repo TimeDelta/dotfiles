@@ -3,7 +3,7 @@ trackGPUmem() {
     :> gpu_output
   fi
   while true; do
-    $DOTFILES/bin/check_slurm_memory.sh | tee -a gpu_output;
+    $DOTFILES/bin/check_slurm_gpu_stats.sh | tee -a gpu_output;
     sleep 5
   done
 }
