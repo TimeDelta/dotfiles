@@ -81,17 +81,40 @@ __python_module_complete_modules() {
   local current_word="$2"
 
   "$python_executable" - <<'PY' "$current_word" 2>/dev/null
+import importlib
 import pkgutil
 import sys
 
-prefix = sys.argv[1]
+current_word = sys.argv[1]
 seen_module_names = set()
 
-for module_info in pkgutil.iter_modules():
+if "." in current_word:
+    parent_module_name, child_prefix = current_word.rsplit(".", 1)
+    completion_prefix = parent_module_name + "."
+
+    try:
+        parent_module = importlib.import_module(parent_module_name)
+    except Exception:
+        sys.exit(0)
+
+    package_paths = getattr(parent_module, "__path__", None)
+    if package_paths is None:
+        sys.exit(0)
+
+    module_iterator = pkgutil.iter_modules(package_paths, completion_prefix)
+else:
+    child_prefix = current_word
+    module_iterator = pkgutil.iter_modules()
+
+for module_info in module_iterator:
     module_name = module_info.name
-    if module_name.startswith(prefix) and module_name not in seen_module_names:
-        seen_module_names.add(module_name)
-        print(module_name)
+    if not module_name.startswith(current_word):
+        continue
+    if module_name in seen_module_names:
+        continue
+
+    seen_module_names.add(module_name)
+    print(module_name)
 PY
 }
 
@@ -116,7 +139,7 @@ __python_m_completion() {
     return 0
   fi
 
-  if [[ "$COMP_CWORD" -eq "$module_index" ]]; then
+  if [[ "$previous_word" == "-m" || "$COMP_CWORD" -eq "$module_index" ]]; then
     __python_module_completion_read_compreply < <(
       compgen -W "$(__python_module_complete_modules "$python_executable" "$current_word")" -- "$current_word"
     )
