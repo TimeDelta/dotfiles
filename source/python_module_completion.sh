@@ -8,6 +8,24 @@
 #
 # The cache keeps completion responsive for CLIs with slower help output.
 
+__python_module_completion_hash() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum | awk '{print $1}'
+  elif command -v shasum >/dev/null 2>&1; then
+    shasum -a 256 | awk '{print $1}'
+  else
+    cksum | awk '{print $1}'
+  fi
+}
+
+__python_module_completion_read_compreply() {
+  local completion_candidate
+  COMPREPLY=()
+  while IFS= read -r completion_candidate; do
+    COMPREPLY+=("$completion_candidate")
+  done
+}
+
 __python_module_cli_flags_from_help() {
   local python_executable="$1"
   local module_name="$2"
@@ -27,8 +45,7 @@ __python_module_cli_flags_from_help() {
       "$module_name" \
       "${command_words[*]}" \
       "${VIRTUAL_ENV:-}" \
-      | sha256sum \
-      | awk '{print $1}'
+      | __python_module_completion_hash
   )"
 
   local cache_file="$cache_base/$cache_key"
@@ -100,7 +117,7 @@ __python_m_completion() {
   fi
 
   if [[ "$COMP_CWORD" -eq "$module_index" ]]; then
-    mapfile -t COMPREPLY < <(
+    __python_module_completion_read_compreply < <(
       compgen -W "$(__python_module_complete_modules "$python_executable" "$current_word")" -- "$current_word"
     )
     return 0
@@ -119,18 +136,18 @@ __python_m_completion() {
     local flags
     flags="$(__python_module_cli_flags_from_help "$python_executable" "$module_name" "${command_words[@]}")"
 
-    mapfile -t COMPREPLY < <(compgen -W "$flags" -- "$current_word")
+    __python_module_completion_read_compreply < <(compgen -W "$flags" -- "$current_word")
     return 0
   fi
 
   case "$previous_word" in
     --input|--input-file|--file|--path|--data|--dataset|--config|--output|--output-file|-i|-o|-c)
-      mapfile -t COMPREPLY < <(compgen -f -- "$current_word")
+      __python_module_completion_read_compreply < <(compgen -f -- "$current_word")
       return 0
       ;;
   esac
 
-  mapfile -t COMPREPLY < <(compgen -f -- "$current_word")
+  __python_module_completion_read_compreply < <(compgen -f -- "$current_word")
   return 0
 }
 
