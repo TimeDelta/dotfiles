@@ -1,10 +1,12 @@
-# Bash completion for Python modules run with `python -m`.
+# Bash completion for Python modules run with `python -m` and Python scripts.
 #
-# This dynamically runs `python -m <module> --help`, extracts option-looking
-# flags, and offers them when completing commands like:
+# This dynamically runs `python -m <module> --help` or
+# `python path/to/script.py --help`, extracts option-looking flags, and offers
+# them when completing commands like:
 #
 #   python -m some.module --<TAB>
 #   python3 -m some.module subcommand --<TAB>
+#   python3 tools/plot_gpu_process_history.py --<TAB>
 #
 # The cache keeps completion responsive for CLIs with slower help output.
 
@@ -26,6 +28,12 @@ __python_module_completion_read_compreply() {
   done
 }
 
+__python_module_completion_extract_flags() {
+  grep -Eo '(^|[[:space:],\[])-{1,2}[A-Za-z0-9][A-Za-z0-9_-]*([= ][A-Z_a-z0-9][A-Z_a-z0-9_-]*)?' \
+    | sed -E 's/^[[:space:],\[]*//; s/[= ].*$//' \
+    | sort -u
+}
+
 __python_module_cli_flags_from_help() {
   local python_executable="$1"
   local module_name="$2"
@@ -40,7 +48,8 @@ __python_module_cli_flags_from_help() {
 
   local cache_key
   cache_key="$(
-    printf '%s\n%s\n%s\n%s\n' \
+    printf '%s\n%s\n%s\n%s\n%s\n' \
+      "module" \
       "$python_executable" \
       "$module_name" \
       "${command_words[*]}" \
@@ -70,9 +79,60 @@ __python_module_cli_flags_from_help() {
   fi
 
   printf '%s\n' "$help_text" \
-    | grep -Eo '(^|[[:space:],\[])-{1,2}[A-Za-z0-9][A-Za-z0-9_-]*([= ][A-Z_a-z0-9][A-Z_a-z0-9_-]*)?' \
-    | sed -E 's/^[[:space:],\[]*//; s/[= ].*$//' \
-    | sort -u \
+    | __python_module_completion_extract_flags \
+    | tee "$cache_file" 2>/dev/null
+}
+
+__python_script_cli_flags_from_help() {
+  local python_executable="$1"
+  local script_path="$2"
+  shift 2
+
+  local command_words=("$@")
+
+  [[ -z "$python_executable" || -z "$script_path" || ! -f "$script_path" ]] && return 0
+
+  local cache_base="${XDG_CACHE_HOME:-$HOME/.cache}/python-module-completion"
+  mkdir -p "$cache_base" 2>/dev/null
+
+  local script_modified
+  script_modified="$(stat -c %Y "$script_path" 2>/dev/null || stat -f %m "$script_path" 2>/dev/null)"
+
+  local cache_key
+  cache_key="$(
+    printf '%s\n%s\n%s\n%s\n%s\n%s\n' \
+      "script" \
+      "$python_executable" \
+      "$script_path" \
+      "${script_modified:-unknown}" \
+      "${command_words[*]}" \
+      "${VIRTUAL_ENV:-}" \
+      | __python_module_completion_hash
+  )"
+
+  local cache_file="$cache_base/$cache_key"
+  local cache_ttl_seconds=300
+  local now modified
+
+  now="$(date +%s)"
+
+  if [[ -f "$cache_file" ]]; then
+    modified="$(stat -c %Y "$cache_file" 2>/dev/null || stat -f %m "$cache_file" 2>/dev/null)"
+    if [[ -n "$modified" && $((now - modified)) -lt "$cache_ttl_seconds" ]]; then
+      cat "$cache_file"
+      return 0
+    fi
+  fi
+
+  local help_text
+  if command -v timeout >/dev/null 2>&1; then
+    help_text="$(timeout 2 "$python_executable" "$script_path" "${command_words[@]}" --help 2>/dev/null)"
+  else
+    help_text="$("$python_executable" "$script_path" "${command_words[@]}" --help 2>/dev/null)"
+  fi
+
+  printf '%s\n' "$help_text" \
+    | __python_module_completion_extract_flags \
     | tee "$cache_file" 2>/dev/null
 }
 
@@ -125,6 +185,7 @@ __python_m_completion() {
   python_executable="${COMP_WORDS[0]}"
 
   local module_index=-1
+  local script_index=-1
   local word_index
 
   for ((word_index = 1; word_index < COMP_CWORD; word_index++)); do
@@ -134,33 +195,52 @@ __python_m_completion() {
     fi
   done
 
-  if [[ "$module_index" -eq -1 ]]; then
-    COMPREPLY=()
-    return 0
-  fi
+  if [[ "$module_index" -ne -1 ]]; then
+    if [[ "$previous_word" == "-m" || "$COMP_CWORD" -eq "$module_index" ]]; then
+      __python_module_completion_read_compreply < <(
+        compgen -W "$(__python_module_complete_modules "$python_executable" "$current_word")" -- "$current_word"
+      )
+      return 0
+    fi
 
-  if [[ "$previous_word" == "-m" || "$COMP_CWORD" -eq "$module_index" ]]; then
-    __python_module_completion_read_compreply < <(
-      compgen -W "$(__python_module_complete_modules "$python_executable" "$current_word")" -- "$current_word"
-    )
-    return 0
-  fi
+    local module_name="${COMP_WORDS[$module_index]}"
 
-  local module_name="${COMP_WORDS[$module_index]}"
+    if [[ "$current_word" == -* ]]; then
+      local module_command_words=()
 
-  if [[ "$current_word" == -* ]]; then
-    local command_words=()
+      for ((word_index = module_index + 1; word_index < COMP_CWORD; word_index++)); do
+        [[ "${COMP_WORDS[$word_index]}" == -* ]] && break
+        module_command_words+=("${COMP_WORDS[$word_index]}")
+      done
 
-    for ((word_index = module_index + 1; word_index < COMP_CWORD; word_index++)); do
-      [[ "${COMP_WORDS[$word_index]}" == -* ]] && break
-      command_words+=("${COMP_WORDS[$word_index]}")
+      local module_flags
+      module_flags="$(__python_module_cli_flags_from_help "$python_executable" "$module_name" "${module_command_words[@]}")"
+
+      __python_module_completion_read_compreply < <(compgen -W "$module_flags" -- "$current_word")
+      return 0
+    fi
+  else
+    for ((word_index = 1; word_index < COMP_CWORD; word_index++)); do
+      [[ "${COMP_WORDS[$word_index]}" == -* ]] && continue
+      script_index="$word_index"
+      break
     done
 
-    local flags
-    flags="$(__python_module_cli_flags_from_help "$python_executable" "$module_name" "${command_words[@]}")"
+    if [[ "$script_index" -ne -1 && "$current_word" == -* ]]; then
+      local script_path="${COMP_WORDS[$script_index]}"
+      local script_command_words=()
 
-    __python_module_completion_read_compreply < <(compgen -W "$flags" -- "$current_word")
-    return 0
+      for ((word_index = script_index + 1; word_index < COMP_CWORD; word_index++)); do
+        [[ "${COMP_WORDS[$word_index]}" == -* ]] && break
+        script_command_words+=("${COMP_WORDS[$word_index]}")
+      done
+
+      local script_flags
+      script_flags="$(__python_script_cli_flags_from_help "$python_executable" "$script_path" "${script_command_words[@]}")"
+
+      __python_module_completion_read_compreply < <(compgen -W "$script_flags" -- "$current_word")
+      return 0
+    fi
   fi
 
   case "$previous_word" in
