@@ -1,0 +1,239 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ACCOUNT_USER="$USER"
+START_TIME="2000-01-01"
+END_TIME=""
+NUM_JOBS=""
+STATE_FILTER=""
+ONLY_FAILED=false
+ONLY_OOM=false
+JOB_ID=""
+SHOW_DETAILS=false
+PARSABLE=false
+INCLUDE_STEPS=false
+
+DEFAULT_FORMAT="JobIDRaw,JobName%40,Partition,State,ExitCode,Elapsed,AllocCPUS,ReqMem,MaxRSS,NNodes,NodeList,Submit,Start,End"
+SHORT_FORMAT="JobIDRaw,JobName%40,State,ExitCode,Elapsed,MaxRSS,ReqMem,AllocCPUS,End"
+FORMAT="$DEFAULT_FORMAT"
+
+usage() {
+    cat <<EOF
+Usage:
+  $0 [filters]
+
+Common filters:
+  -n, --num N                 Show previous N jobs after applying filters
+  -s, --since YYYY-MM-DD      Start date, default: 2000-01-01
+  -u, --until YYYY-MM-DD      End date
+  -S, --state STATES          Slurm states, comma-separated
+                              Example: FAILED,TIMEOUT,OUT_OF_MEMORY
+  --failed                    Shortcut for FAILED,CANCELLED,TIMEOUT,OUT_OF_MEMORY,NODE_FAIL
+  --oom                       Show likely OOM jobs: OUT_OF_MEMORY or exit code 137
+  -j, --job JOBID             Show one job
+  -d, --details               Also show scontrol details for --job
+  --user USER                 Query a specific user, default: current user
+  --steps                     Include job steps such as .batch and .extern
+  -P, --parsable              Print pipe-delimited output
+  -f, --format FORMAT         Custom sacct format
+
+Examples:
+  $0 -n 20
+  $0 -n 20 --failed
+  $0 -n 20 --oom
+  $0 --since 2026-01-01 --state FAILED,TIMEOUT
+  $0 --job 38013 --details
+  $0 --since 2026-01-01 --oom --parsable
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -n|--num)
+            NUM_JOBS="$2"
+            shift 2
+            ;;
+
+        -s|--since|--start)
+            START_TIME="$2"
+            shift 2
+            ;;
+
+        -u|--until|--end)
+            END_TIME="$2"
+            shift 2
+            ;;
+
+        -S|--state|--states)
+            STATE_FILTER="$2"
+            shift 2
+            ;;
+
+        --failed)
+            ONLY_FAILED=true
+            shift
+            ;;
+
+        --oom)
+            ONLY_OOM=true
+            shift
+            ;;
+
+        -j|--job)
+            JOB_ID="$2"
+            shift 2
+            ;;
+
+        -d|--details)
+            SHOW_DETAILS=true
+            shift
+            ;;
+
+        --user)
+            ACCOUNT_USER="$2"
+            shift 2
+            ;;
+
+        --steps)
+            INCLUDE_STEPS=true
+            shift
+            ;;
+
+        -P|--parsable)
+            PARSABLE=true
+            shift
+            ;;
+
+        -f|--format)
+            FORMAT="$2"
+            shift 2
+            ;;
+
+        -h|--help)
+            usage
+            exit 0
+            ;;
+
+        *)
+            echo "Unknown argument: $1" >&2
+            echo >&2
+            usage >&2
+            exit 1
+            ;;
+    esac
+done
+
+if [[ "$ONLY_FAILED" == true ]]; then
+    if [[ -n "$STATE_FILTER" ]]; then
+        STATE_FILTER="${STATE_FILTER},FAILED,CANCELLED,TIMEOUT,OUT_OF_MEMORY,NODE_FAIL"
+    else
+        STATE_FILTER="FAILED,CANCELLED,TIMEOUT,OUT_OF_MEMORY,NODE_FAIL"
+    fi
+fi
+
+if [[ "$ONLY_OOM" == true ]]; then
+    FORMAT="$SHORT_FORMAT"
+fi
+
+sacct_args=(
+    --user "$ACCOUNT_USER"
+    --starttime "$START_TIME"
+    --format "$FORMAT"
+    --units=G
+    --parsable2
+    --noheader
+)
+
+if [[ -n "$END_TIME" ]]; then
+    sacct_args+=(--endtime "$END_TIME")
+fi
+
+if [[ -n "$STATE_FILTER" ]]; then
+    sacct_args+=(--state "$STATE_FILTER")
+fi
+
+if [[ -n "$JOB_ID" ]]; then
+    sacct_args+=(-j "$JOB_ID")
+fi
+
+# Slurm 21.08 supports --allocations / -X on most installs.
+# This hides .batch, .extern, and other step records.
+if [[ "$INCLUDE_STEPS" == false ]]; then
+    sacct_args+=(--allocations)
+fi
+
+run_sacct() {
+    sacct "${sacct_args[@]}"
+}
+
+filter_oom_like_jobs() {
+    awk -F'|' '
+        $4 ~ /^137:/ || $3 ~ /OUT_OF_MEMORY/ {
+            print
+        }
+    '
+}
+
+sort_by_end_descending() {
+    local end_column_index
+    end_column_index="$(awk -v format="$FORMAT" 'BEGIN {
+        n = split(format, fields, ",")
+        for (i = 1; i <= n; i++) {
+            gsub(/%.*/, "", fields[i])
+            if (fields[i] == "End") {
+                print i
+                exit
+            }
+        }
+    }')"
+
+    if [[ -z "$end_column_index" ]]; then
+        cat
+    else
+        sort -t'|' -k"${end_column_index},${end_column_index}"r
+    fi
+}
+
+limit_num_jobs() {
+    if [[ -n "$NUM_JOBS" ]]; then
+        head -n "$NUM_JOBS"
+    else
+        cat
+    fi
+}
+
+format_to_header() {
+    echo "$FORMAT" \
+        | sed 's/%[0-9]*//g' \
+        | tr ',' '|'
+}
+
+pretty_print_with_optional_header() {
+    if [[ "$PARSABLE" == true ]]; then
+        cat
+    else
+        {
+            format_to_header
+            cat
+        } | column -t -s '|'
+    fi
+}
+
+if [[ "$ONLY_OOM" == true ]]; then
+    run_sacct \
+        | filter_oom_like_jobs \
+        | sort_by_end_descending \
+        | limit_num_jobs \
+        | pretty_print_with_optional_header
+else
+    run_sacct \
+        | sort_by_end_descending \
+        | limit_num_jobs \
+        | pretty_print_with_optional_header
+fi
+
+if [[ -n "$JOB_ID" && "$SHOW_DETAILS" == true ]]; then
+    echo
+    echo "===== scontrol show job $JOB_ID ====="
+    scontrol show job "$JOB_ID" || true
+fi
