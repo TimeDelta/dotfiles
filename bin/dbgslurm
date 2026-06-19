@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ACCOUNT_USER="$USER"
-START_TIME="2000-01-01"
+START_TIME="2026-01-01"
 END_TIME=""
 NUM_JOBS=""
 STATE_FILTER=""
@@ -24,7 +24,7 @@ Usage:
 
 Common filters:
   -n, --num N                 Show previous N jobs after applying filters
-  -s, --since YYYY-MM-DD      Start date, default: 2000-01-01
+  -s, --since YYYY-MM-DD      Start date, default: 2026-01-01
   -u, --until YYYY-MM-DD      End date
   -S, --state STATES          Slurm states, comma-separated
                               Example: FAILED,TIMEOUT,OUT_OF_MEMORY
