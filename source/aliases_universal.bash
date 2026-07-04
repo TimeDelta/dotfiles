@@ -1925,6 +1925,27 @@ readkey () { local keypress; read -sn 1 keypress; echo "$keypress"; } # [BN]
 
 # rs: resume detached screen session
 alias rs="screen -r" # [BN]
+# Complete `rs` with screen session names, excluding the PID prefix.
+_rs_screen_sessions() {
+    local current_word session_names
+
+    current_word="${COMP_WORDS[COMP_CWORD]}"
+
+    session_names="$(
+        screen -ls 2>/dev/null |
+        awk '
+            /^[[:space:]]*[0-9]+\./ {
+                session_id = $1
+                sub(/^[0-9]+\./, "", session_id)
+                print session_id
+            }
+        ' |
+        sort -u
+    )"
+
+    COMPREPLY=($(compgen -W "$session_names" -- "$current_word"))
+}
+complete -F _rs_screen_sessions rs
 # screenl: start a named screen session that logs all activity to a specified file
 screenl() {
 	if [[ $1 == "--help" ]]; then
