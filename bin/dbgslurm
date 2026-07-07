@@ -9,6 +9,7 @@ STATE_FILTER=""
 ONLY_FAILED=false
 ONLY_OOM=false
 JOB_ID=""
+JOB_NAME_FILTER=""
 SHOW_DETAILS=false
 PARSABLE=false
 INCLUDE_STEPS=false
@@ -31,6 +32,7 @@ Common filters:
   --failed                    Shortcut for FAILED,CANCELLED,TIMEOUT,OUT_OF_MEMORY,NODE_FAIL
   --oom                       Show likely OOM jobs: OUT_OF_MEMORY or exit code 137
   -j, --job JOBID             Show one job
+  --name, --job-name NAMES     Job name filter, comma-separated
   -d, --details               Also show scontrol details for --job
   --user USER                 Query a specific user, default: current user
   --steps                     Include job steps such as .batch and .extern
@@ -41,30 +43,46 @@ Examples:
   $0 -n 20
   $0 -n 20 --failed
   $0 -n 20 --oom
+  $0 -n 20 --name my_train_job
   $0 --since 2026-01-01 --state FAILED,TIMEOUT
   $0 --job 38013 --details
   $0 --since 2026-01-01 --oom --parsable
 EOF
 }
 
+require_value() {
+    local option="$1"
+
+    if [[ $# -lt 2 || -z "${2:-}" ]]; then
+        echo "Missing value for $option." >&2
+        echo >&2
+        usage >&2
+        exit 1
+    fi
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         -n|--num)
+            require_value "$@"
             NUM_JOBS="$2"
             shift 2
             ;;
 
         -s|--since|--start)
+            require_value "$@"
             START_TIME="$2"
             shift 2
             ;;
 
         -u|--until|--end)
+            require_value "$@"
             END_TIME="$2"
             shift 2
             ;;
 
         -S|--state|--states)
+            require_value "$@"
             STATE_FILTER="$2"
             shift 2
             ;;
@@ -80,7 +98,14 @@ while [[ $# -gt 0 ]]; do
             ;;
 
         -j|--job)
+            require_value "$@"
             JOB_ID="$2"
+            shift 2
+            ;;
+
+        --name|--job-name)
+            require_value "$@"
+            JOB_NAME_FILTER="$2"
             shift 2
             ;;
 
@@ -90,6 +115,7 @@ while [[ $# -gt 0 ]]; do
             ;;
 
         --user)
+            require_value "$@"
             ACCOUNT_USER="$2"
             shift 2
             ;;
@@ -105,6 +131,7 @@ while [[ $# -gt 0 ]]; do
             ;;
 
         -f|--format)
+            require_value "$@"
             FORMAT="$2"
             shift 2
             ;;
@@ -154,6 +181,10 @@ fi
 
 if [[ -n "$JOB_ID" ]]; then
     sacct_args+=(-j "$JOB_ID")
+fi
+
+if [[ -n "$JOB_NAME_FILTER" ]]; then
+    sacct_args+=(--name "$JOB_NAME_FILTER")
 fi
 
 # Slurm 21.08 supports --allocations / -X on most installs.
