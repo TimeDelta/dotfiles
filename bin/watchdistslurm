@@ -4,6 +4,57 @@ set -o pipefail
 
 DEFAULT_SLURM_RESULTS_DIR="${SLURM_RESULTS_DIR:-/data/aiiih/projects/temporal-process-learning/slurm_results}"
 
+collapse_terminal_rewrites() {
+    # Interpret carriage-return progress updates as line replacement,
+    # not as appended log text.
+    #
+    # Also strips common ANSI escape sequences and simple backspace rewrites.
+    perl -0pe '
+        s/[^\n\r]*\r//g;
+        1 while s/[^\n]\x08//g;
+        s/\x1b\[[0-?]*[ -\/]*[@-~]//g;
+    '
+}
+
+enter_screen() {
+    # Use alternate screen when possible so refreshes do not pollute scrollback.
+    printf '\033[?1049h'
+    printf '\033[?25l'
+}
+
+leave_screen() {
+    printf '\033[?25h'
+    printf '\033[?1049l'
+}
+
+clear_screen() {
+    # Home cursor, clear screen, clear scrollback where supported.
+    printf '\033[H\033[2J\033[3J'
+}
+
+render_log_tail() {
+    local file_path="$1"
+    local lines_per_file="$2"
+    local exclude_pattern="${3:-}"
+    local is_err_file="${4:-0}"
+    local max_tail_bytes="${5:-262144}"
+
+    if [[ ! -f $file_path ]]; then
+        return 0
+    fi
+
+    if [[ $is_err_file -eq 1 && -n $exclude_pattern ]]; then
+        tail -c "$max_tail_bytes" -- "$file_path" |
+            collapse_terminal_rewrites |
+            grep -a -h -v -e "$exclude_pattern" |
+            tail -n "$lines_per_file"
+    else
+        tail -c "$max_tail_bytes" -- "$file_path" |
+            collapse_terminal_rewrites |
+            tail -n "$lines_per_file"
+    fi
+}
+
 get_contiguous_run_for_prefix() {
     local file_prefix="$1"
     local log_dir="$2"
@@ -172,9 +223,9 @@ main() {
     local run_start="${run_ids[0]}"
     local run_end="${run_ids[-1]}"
 
-    tput civis 2>/dev/null || true
-    trap 'tput cnorm 2>/dev/null || true; printf "\n"; exit 130' INT
-    trap 'tput cnorm 2>/dev/null || true' EXIT
+    enter_screen
+    trap 'leave_screen; printf "\n"; exit 130' INT
+    trap 'leave_screen' EXIT
 
     while true; do
         local active_job_ids=()
@@ -189,7 +240,7 @@ main() {
             done
         fi
 
-        tput clear
+        clear_screen
 
         printf 'Following contiguous run: %s..%s | refresh=%ss | lines=%s' \
             "$run_start" "$run_end" "$refresh_seconds" "$lines_per_file"
@@ -230,18 +281,15 @@ main() {
             if [[ $include_out -eq 1 ]]; then
                 for file_path in "${out_files[@]}"; do
                     printf '\n----- %s -----\n' "$(basename "$file_path")"
-                    tail -n "$lines_per_file" -- "$file_path"
+                    render_log_tail "$file_path" "$lines_per_file" "" 0
                 done
             fi
 
-            for file_path in "${err_files[@]}"; do
-                printf '\n----- %s -----\n' "$(basename "$file_path")"
-
-                if [[ -n $exclude_pattern ]]; then
-                    grep -v -- "$exclude_pattern" -- "$file_path" | tail -n "$lines_per_file"
-                else
-                    tail -n "$lines_per_file" -- "$file_path"
+            for file_path in "${err_files[@]}";	do
+                if [[ $include_out -eq 1 ]]; then
+                    printf '\n----- %s -----\n' "$(basename "$file_path")"
                 fi
+                render_log_tail "$file_path" "$lines_per_file" "$exclude_pattern" 1
             done
         done
 
