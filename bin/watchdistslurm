@@ -1,0 +1,262 @@
+#!/usr/bin/env bash
+
+set -o pipefail
+
+DEFAULT_SLURM_RESULTS_DIR="${SLURM_RESULTS_DIR:-/data/aiiih/projects/temporal-process-learning/slurm_results}"
+
+get_contiguous_run_for_prefix() {
+    local file_prefix="$1"
+    local log_dir="$2"
+
+    local all_ids
+    mapfile -t all_ids < <(
+        compgen -G "$log_dir/${file_prefix}"'*' |
+        sed -n "s|.*/${file_prefix}\([0-9]\+\).*|\1|p" |
+        sort -n -u
+    )
+
+    [[ ${#all_ids[@]} -gt 0 ]] || return 1
+
+    local max_id="${all_ids[-1]}"
+    local current_id="$max_id"
+    local start_id="$max_id"
+
+    local -A id_exists=()
+    local one_id
+    for one_id in "${all_ids[@]}"; do
+        id_exists["$one_id"]=1
+    done
+
+    while [[ -n ${id_exists[$((current_id - 1))]} ]]; do
+        current_id=$((current_id - 1))
+        start_id="$current_id"
+    done
+
+    local id_value
+    for (( id_value=start_id; id_value<=max_id; id_value++ )); do
+        printf '%s\n' "$id_value"
+    done
+}
+
+get_active_slurm_job_ids() {
+    local -a job_ids=( "$@" )
+
+    (( ${#job_ids[@]} > 0 )) || return 0
+
+    local joined_job_ids
+    joined_job_ids="$(IFS=,; printf '%s' "${job_ids[*]}")"
+
+    # squeue only returns jobs that are still active/queued/running/etc.
+    # For array jobs, strip suffixes like 123_4 back to 123.
+    squeue -h -j "$joined_job_ids" -o '%i' 2>/dev/null |
+        sed 's/[^0-9].*$//' |
+        sort -n -u
+}
+
+print_usage() {
+    cat <<'EOF'
+Usage:
+  watchdistslurm [OPTIONS] <file-prefix>
+
+Options:
+  -v, --exclude PATTERN
+      Exclude lines matching PATTERN from .err files.
+
+  -o, --out, --include-out
+      Include each partial job's associated .out file.
+
+  -a, --active-only, --exclude-finished
+      Show only Slurm jobs that still appear in squeue.
+      Completed, failed, cancelled, or otherwise finished jobs are hidden.
+
+  -l, --log-dir DIR
+      Specify the Slurm results log directory.
+      Default: $SLURM_RESULTS_DIR if set, otherwise the script default.
+
+  -n, --lines N
+      Show last N lines per file.
+      Default: 8.
+
+  -r, --refresh SECONDS
+      Refresh interval.
+      Default: 1.
+
+  -h, --help
+      Show this help.
+EOF
+}
+
+main() {
+    local include_out=0
+    local exclude_pattern=""
+    local active_only=0
+    local log_dir="$DEFAULT_SLURM_RESULTS_DIR"
+    local lines_per_file=8
+    local refresh_seconds=1
+
+    local option
+    while [[ $# -gt 0 ]]; do
+        option="$1"
+        case "$option" in
+            -v|--exclude)
+                if [[ -z ${2-} ]]; then
+                    echo "Missing value for $1" >&2
+                    return 1
+                fi
+                exclude_pattern="$2"
+                shift 2
+                ;;
+            -o|--include-out|--out)
+                include_out=1
+                shift
+                ;;
+            -a|--active-only|--exclude-finished)
+                active_only=1
+                shift
+                ;;
+            -l|--log|--log-dir|--log-file)
+                if [[ -z ${2-} ]]; then
+                    echo "Missing value for $1" >&2
+                    return 1
+                fi
+                log_dir="$2"
+                shift 2
+                ;;
+            -n|--lines)
+                if [[ -z ${2-} ]]; then
+                    echo "Missing value for $1" >&2
+                    return 1
+                fi
+                lines_per_file="$2"
+                shift 2
+                ;;
+            -r|--refresh)
+                if [[ -z ${2-} ]]; then
+                    echo "Missing value for $1" >&2
+                    return 1
+                fi
+                refresh_seconds="$2"
+                shift 2
+                ;;
+            -h|--help)
+                print_usage
+                return 0
+                ;;
+            --)
+                shift
+                break
+                ;;
+            -*)
+                echo "Unknown option: $1" >&2
+                print_usage >&2
+                return 1
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+
+    local file_prefix="${1-}"
+    if [[ -z $file_prefix ]]; then
+        print_usage >&2
+        return 1
+    fi
+
+    local run_ids
+    mapfile -t run_ids < <(get_contiguous_run_for_prefix "$file_prefix" "$log_dir") || {
+        echo "No matching files found for prefix '$file_prefix' in $log_dir" >&2
+        return 1
+    }
+
+    local run_start="${run_ids[0]}"
+    local run_end="${run_ids[-1]}"
+
+    tput civis 2>/dev/null || true
+    trap 'tput cnorm 2>/dev/null || true; printf "\n"; exit 130' INT
+    trap 'tput cnorm 2>/dev/null || true' EXIT
+
+    while true; do
+        local active_job_ids=()
+        local -A active_job_id_exists=()
+
+        if [[ $active_only -eq 1 ]]; then
+            mapfile -t active_job_ids < <(get_active_slurm_job_ids "${run_ids[@]}")
+
+            local active_job_id
+            for active_job_id in "${active_job_ids[@]}"; do
+                active_job_id_exists["$active_job_id"]=1
+            done
+        fi
+
+        tput clear
+
+        printf 'Following contiguous run: %s..%s | refresh=%ss | lines=%s' \
+            "$run_start" "$run_end" "$refresh_seconds" "$lines_per_file"
+
+        if [[ $active_only -eq 1 ]]; then
+            printf ' | active-only'
+        fi
+
+        printf ' | Ctrl-C to stop\n'
+
+        if [[ -n $exclude_pattern ]]; then
+            printf 'Excluding from .err: %s\n' "$exclude_pattern"
+        fi
+
+        local shown_any=0
+        local run_id
+
+        shopt -s nullglob
+
+        for run_id in "${run_ids[@]}"; do
+            if [[ $active_only -eq 1 && -z ${active_job_id_exists[$run_id]+x} ]]; then
+                continue
+            fi
+
+            local out_files=( "$log_dir/${file_prefix}${run_id}"*.out )
+            local err_files=( "$log_dir/${file_prefix}${run_id}"*.err )
+
+            if (( ${#out_files[@]} == 0 && ${#err_files[@]} == 0 )); then
+                continue
+            fi
+
+            shown_any=1
+
+            printf '\n========== %s%s ==========\n' "$file_prefix" "$run_id"
+
+            local file_path
+
+            if [[ $include_out -eq 1 ]]; then
+                for file_path in "${out_files[@]}"; do
+                    printf '\n----- %s -----\n' "$(basename "$file_path")"
+                    tail -n "$lines_per_file" -- "$file_path"
+                done
+            fi
+
+            for file_path in "${err_files[@]}"; do
+                printf '\n----- %s -----\n' "$(basename "$file_path")"
+
+                if [[ -n $exclude_pattern ]]; then
+                    grep -v -- "$exclude_pattern" -- "$file_path" | tail -n "$lines_per_file"
+                else
+                    tail -n "$lines_per_file" -- "$file_path"
+                fi
+            done
+        done
+
+        shopt -u nullglob
+
+        if [[ $shown_any -eq 0 ]]; then
+            if [[ $active_only -eq 1 ]]; then
+                printf '\nNo active jobs from this contiguous run are currently visible in squeue.\n'
+            else
+                printf '\nNo matching .out/.err files found for this contiguous run.\n'
+            fi
+        fi
+
+        sleep "$refresh_seconds"
+    done
+}
+
+main "$@"
