@@ -175,10 +175,6 @@ if [[ -n "$END_TIME" ]]; then
     sacct_args+=(--endtime "$END_TIME")
 fi
 
-if [[ -n "$STATE_FILTER" ]]; then
-    sacct_args+=(--state="$STATE_FILTER")
-fi
-
 if [[ -n "$JOB_ID" ]]; then
     sacct_args+=(-j "$JOB_ID")
 fi
@@ -201,6 +197,74 @@ filter_oom_like_jobs() {
     awk -F'|' '
         $4 ~ /^137:/ || $3 ~ /OUT_OF_MEMORY/ {
             print
+        }
+    '
+}
+
+filter_by_requested_states() {
+    local state_column_index
+
+    if [[ -z "$STATE_FILTER" ]]; then
+        cat
+        return
+    fi
+
+    state_column_index="$(awk -v format="$FORMAT" 'BEGIN {
+        n = split(format, fields, ",")
+        for (i = 1; i <= n; i++) {
+            gsub(/%.*/, "", fields[i])
+            if (fields[i] == "State") {
+                print i
+                exit
+            }
+        }
+    }')"
+
+    if [[ -z "$state_column_index" ]]; then
+        echo "State filtering requires State in --format." >&2
+        return 1
+    fi
+
+    awk -F'|' \
+        -v state_column_index="$state_column_index" \
+        -v requested_states="$STATE_FILTER" '
+        BEGIN {
+            aliases["BF"] = "BOOT_FAIL"
+            aliases["CA"] = "CANCELLED"
+            aliases["CD"] = "COMPLETED"
+            aliases["CF"] = "CONFIGURING"
+            aliases["CG"] = "COMPLETING"
+            aliases["DL"] = "DEADLINE"
+            aliases["F"] = "FAILED"
+            aliases["NF"] = "NODE_FAIL"
+            aliases["OOM"] = "OUT_OF_MEMORY"
+            aliases["PD"] = "PENDING"
+            aliases["PR"] = "PREEMPTED"
+            aliases["R"] = "RUNNING"
+            aliases["RQ"] = "REQUEUED"
+            aliases["RS"] = "RESIZING"
+            aliases["RV"] = "REVOKED"
+            aliases["S"] = "SUSPENDED"
+            aliases["TO"] = "TIMEOUT"
+
+            state_count = split(requested_states, states, ",")
+            for (i = 1; i <= state_count; i++) {
+                state = toupper(states[i])
+                gsub(/^[[:space:]]+|[[:space:]]+$/, "", state)
+                if (state in aliases) {
+                    state = aliases[state]
+                }
+                selected_states[state] = 1
+            }
+        }
+
+        {
+            state = toupper($state_column_index)
+            sub(/[[:space:]].*$/, "", state)
+            sub(/\+$/, "", state)
+            if (state in selected_states) {
+                print
+            }
         }
     '
 }
@@ -252,12 +316,14 @@ pretty_print_with_optional_header() {
 
 if [[ "$ONLY_OOM" == true ]]; then
     run_sacct \
+        | filter_by_requested_states \
         | filter_oom_like_jobs \
         | sort_by_end_descending \
         | limit_num_jobs \
         | pretty_print_with_optional_header
 else
     run_sacct \
+        | filter_by_requested_states \
         | sort_by_end_descending \
         | limit_num_jobs \
         | pretty_print_with_optional_header
