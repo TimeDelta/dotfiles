@@ -176,7 +176,7 @@ if [[ -n "$END_TIME" ]]; then
 fi
 
 if [[ -n "$STATE_FILTER" ]]; then
-    sacct_args+=(--state "$STATE_FILTER")
+    sacct_args+=(--state="$STATE_FILTER")
 fi
 
 if [[ -n "$JOB_ID" ]]; then
@@ -268,3 +268,4 @@ if [[ -n "$JOB_ID" && "$SHOW_DETAILS" == true ]]; then
     echo "===== scontrol show job $JOB_ID ====="
     scontrol show job "$JOB_ID" || true
 fi
+
