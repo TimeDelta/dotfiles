@@ -268,4 +268,3 @@ if [[ -n "$JOB_ID" && "$SHOW_DETAILS" == true ]]; then
     echo "===== scontrol show job $JOB_ID ====="
     scontrol show job "$JOB_ID" || true
 fi
-
