@@ -176,7 +176,7 @@ if [[ -n "$END_TIME" ]]; then
 fi
 
 if [[ -n "$STATE_FILTER" ]]; then
-    sacct_args+=(--state "$STATE_FILTER")
+    sacct_args+=(--state="$STATE_FILTER")
 fi
 
 if [[ -n "$JOB_ID" ]]; then
