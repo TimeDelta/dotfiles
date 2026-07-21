@@ -201,6 +201,21 @@ filter_oom_like_jobs() {
     '
 }
 
+format_column_index() {
+    local requested_column="$1"
+
+    awk -v format="$FORMAT" -v requested_column="$requested_column" 'BEGIN {
+        n = split(format, fields, ",")
+        for (i = 1; i <= n; i++) {
+            gsub(/%.*/, "", fields[i])
+            if (fields[i] == requested_column) {
+                print i
+                exit
+            }
+        }
+    }'
+}
+
 filter_by_requested_states() {
     local state_column_index
 
@@ -209,16 +224,7 @@ filter_by_requested_states() {
         return
     fi
 
-    state_column_index="$(awk -v format="$FORMAT" 'BEGIN {
-        n = split(format, fields, ",")
-        for (i = 1; i <= n; i++) {
-            gsub(/%.*/, "", fields[i])
-            if (fields[i] == "State") {
-                print i
-                exit
-            }
-        }
-    }')"
+    state_column_index="$(format_column_index State)"
 
     if [[ -z "$state_column_index" ]]; then
         echo "State filtering requires State in --format." >&2
@@ -229,31 +235,10 @@ filter_by_requested_states() {
         -v state_column_index="$state_column_index" \
         -v requested_states="$STATE_FILTER" '
         BEGIN {
-            aliases["BF"] = "BOOT_FAIL"
-            aliases["CA"] = "CANCELLED"
-            aliases["CD"] = "COMPLETED"
-            aliases["CF"] = "CONFIGURING"
-            aliases["CG"] = "COMPLETING"
-            aliases["DL"] = "DEADLINE"
-            aliases["F"] = "FAILED"
-            aliases["NF"] = "NODE_FAIL"
-            aliases["OOM"] = "OUT_OF_MEMORY"
-            aliases["PD"] = "PENDING"
-            aliases["PR"] = "PREEMPTED"
-            aliases["R"] = "RUNNING"
-            aliases["RQ"] = "REQUEUED"
-            aliases["RS"] = "RESIZING"
-            aliases["RV"] = "REVOKED"
-            aliases["S"] = "SUSPENDED"
-            aliases["TO"] = "TIMEOUT"
-
             state_count = split(requested_states, states, ",")
             for (i = 1; i <= state_count; i++) {
                 state = toupper(states[i])
                 gsub(/^[[:space:]]+|[[:space:]]+$/, "", state)
-                if (state in aliases) {
-                    state = aliases[state]
-                }
                 selected_states[state] = 1
             }
         }
@@ -271,16 +256,7 @@ filter_by_requested_states() {
 
 sort_by_end_descending() {
     local end_column_index
-    end_column_index="$(awk -v format="$FORMAT" 'BEGIN {
-        n = split(format, fields, ",")
-        for (i = 1; i <= n; i++) {
-            gsub(/%.*/, "", fields[i])
-            if (fields[i] == "End") {
-                print i
-                exit
-            }
-        }
-    }')"
+    end_column_index="$(format_column_index End)"
 
     if [[ -z "$end_column_index" ]]; then
         cat
